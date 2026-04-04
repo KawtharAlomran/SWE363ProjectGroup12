@@ -5,7 +5,14 @@ import Load from './Pages/teachingLoad';
 import IcsFaculty from './Pages/icsFaculty';
 import SchedulingCommittee from './Pages/schedulingCommittee';
 import './App.css';
+/* To run the proggram
+1- cd my-react-app
+2- npm install
+3- npm i react-router-dom 
+4- npm run dev
 
+
+*/
 function App() {
   return (
     
