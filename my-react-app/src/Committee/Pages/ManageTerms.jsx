@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import '../../styles/ManageTerms.css';
 import AddNewTerm from './AddNewTerm';
+import TermDetails from './TermDetails';
 
 export default function ManageTerms() {
   const TERMS_PER_PAGE = 5;
@@ -32,7 +33,7 @@ export default function ManageTerms() {
   }
 
   if (selectedTerm) {
-    return <div>Term Details - {selectedTerm.name}</div>;
+   return <TermDetails term={selectedTerm} onBack={() => setSelectedTerm(null)} />;
   }
 
   return (
