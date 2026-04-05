@@ -7,6 +7,10 @@ const TERMS = [
   { id: 3, name: 'Academic Terms 252', year: 2024 },
   { id: 4, name: 'Academic Terms 251', year: 2023 },
   { id: 5, name: 'Academic Terms 242', year: 2022 },
+    { id: 6, name: 'Academic Terms 242', year: 2022 },
+      { id: 7, name: 'Academic Terms 242', year: 2022 },
+
+
 ];
 
 export default function ManageTerms() {
@@ -16,10 +20,10 @@ export default function ManageTerms() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTerm, setSelectedTerm] = useState(null);
   const currentYear = new Date().getFullYear();
-
+const start = (currentPage - 1) * TERMS_PER_PAGE;
+const visibleTerms = TERMS.slice(start, start + TERMS_PER_PAGE);
   if (showAddNew) {
-    return <div>Add New Term - coming soon</div>;
-  }
+    return <AddNewTerm onBack={() => setShowAddNew(false)} />;  }
 
   if (selectedTerm) {
     return <div>Term Details - {selectedTerm.name}</div>;
@@ -27,28 +31,71 @@ export default function ManageTerms() {
 
   return (
     <>
-      <h3>All Terms</h3>
-      <button onClick={() => setShowAddNew(true)}>Add new Term</button>
+      <div className="mt-card">
 
-      {TERMS.map((term) => (
-        <div key={term.id}>
-          <span>{term.name}</span>
-          {currentYear === term.year
-            ? <button onClick={() => setSelectedTerm(term)}>Modify</button>
-            : <div onClick={() => setSelectedTerm(term)}>›</div>
-          }
+        <div className="mt-header">
+          <h3 className="mt-title">All Terms</h3>
+          <button
+            className="mt-btn-add"
+            onClick={() => setShowAddNew(true)}
+          >
+            Add new Term
+          </button>
         </div>
-      ))}
 
-      {totalPages > 1 && (
-        <div>
-          <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))}>‹</button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-            <button key={n} onClick={() => setCurrentPage(n)}>{n}</button>
+        <div className="mt-list">
+          {visibleTerms.map((term) => (
+            <div
+              key={term.id}
+              className="mt-row"
+              onClick={() => setSelectedTerm(term)}
+            >
+              <span className="mt-name">{term.name}</span>
+              {currentYear === term.year
+                ? (
+                  <button
+                    className="mt-modify"
+                    onClick={e => {
+                      e.stopPropagation();
+                      setSelectedTerm(term);
+                    }}
+                  >
+                    Modify
+                  </button>
+                )
+                : <span className="mt-arrow">›</span>
+              }
+            </div>
           ))}
-          <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}>›</button>
         </div>
-      )}
+
+        {totalPages > 1 && (
+          <div className="mt-pagination">
+            <button
+              className="mt-page"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            >
+              ‹
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+              <button
+                key={n}
+                className={`mt-page${currentPage === n ? ' mt-page-active' : ''}`}
+                onClick={() => setCurrentPage(n)}
+              >
+                {n}
+              </button>
+            ))}
+
+            <button
+              className="mt-page"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            > ›</button>
+          </div>
+        )}
+
+      </div>
     </>
   );
 }

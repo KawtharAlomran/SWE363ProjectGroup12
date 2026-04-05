@@ -1,0 +1,126 @@
+/* 
+   MANAGE TERMS PAGE
+ */
+
+.mt-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 28px 32px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.mt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.mt-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.mt-btn-add {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #00b894, #2d3a8c);
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.mt-btn-add:hover {
+  opacity: 0.9;
+}
+
+.mt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mt-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.mt-row:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.mt-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.mt-modify {
+  padding: 8px 20px;
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.mt-modify:hover {
+  background: var(--primary-hover);
+}
+
+.mt-arrow {
+  color: var(--text-light);
+  font-size: 18px;
+}
+
+.mt-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 24px;
+}
+
+.mt-page {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.mt-page:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.mt-page-active {
+  background: var(--primary);
+  color: var(--white);
+  border-color: var(--primary);
+  font-weight: 600;
+}
