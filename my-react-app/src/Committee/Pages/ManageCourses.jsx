@@ -26,6 +26,13 @@ function renderCourses(courses, handleDelete) {
 
 export default function ManageCourses() {
   const [courses, setCourses] = useState(coursesList);
+  const [currentPage, setCurrentPage] = useState(1);
+  const coursesPerPage = 8;
+  const startIndex = (currentPage - 1) * coursesPerPage;
+  const endIndex = startIndex + coursesPerPage;
+  const currentCourses = courses.slice(startIndex, endIndex); // to display the courses in the specified page 
+  const totalPages = Math.ceil(courses.length / coursesPerPage); // to find the total pages 
+
   const handleDelete = (code) => {
       setCourses((prevCourses) => prevCourses.filter((course) => course.code !== code));
   };
@@ -39,7 +46,17 @@ return (
         <div>Course number</div>
         <div className="text-center">Course Name</div>
       </div>
-      {renderCourses(courses, handleDelete)}
+      {renderCourses(currentCourses, handleDelete)}
+      <div>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => setCurrentPage(index + 1)}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
