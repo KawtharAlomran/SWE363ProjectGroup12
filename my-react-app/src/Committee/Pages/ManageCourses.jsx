@@ -1,4 +1,5 @@
 import { useState } from "react";
+import '../../styles/ManageCourses.css';
 
 const coursesList = [
     { code: "ICS 104", name: "Intro. to Prog. in Python & C" },
@@ -49,10 +50,8 @@ return (
       {renderCourses(currentCourses, handleDelete)}
       <div className="pageNumbers">
         {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index + 1}
-            onClick={() => setCurrentPage(index + 1)}
-          >
+          <button className={currentPage === index + 1 ? "active" : ""} key={index + 1}
+            onClick={() => setCurrentPage(index + 1)}>
             {index + 1}
           </button>
         ))}
