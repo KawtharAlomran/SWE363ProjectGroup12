@@ -4,6 +4,7 @@
 
 .mt-card {
   background: var(--white);
+  width: 100%;
   border-radius: 16px;
   padding: 28px 32px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
@@ -123,4 +124,172 @@
   color: var(--white);
   border-color: var(--primary);
   font-weight: 600;
+}
+/* ADD NEW TERM PAGE */
+
+.an-term-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.an-term-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.an-term-input {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  width: 140px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.an-term-input:focus {
+  border-color: var(--primary);
+}
+
+.an-section-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.an-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.an-table th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.an-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+}
+
+.an-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.an-checkbox-checked {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--white);
+  font-size: 12px;
+}
+
+.an-course-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.an-demand {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+
+.an-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.an-section-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.an-select {
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+}
+
+.an-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.an-btn-save {
+  padding: 10px 24px;
+  background: #4a5568;
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.an-btn-save:hover { background: #2d3748; }
+
+.an-btn-submit {
+  padding: 10px 24px;
+  background: var(--accent);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.an-btn-submit:hover { background: #00a381; }
+
+.an-note {
+  font-size: 12px;
+  color: var(--danger);
+  font-style: italic;
+}
+
+.an-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.td-term-badge {
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
 }

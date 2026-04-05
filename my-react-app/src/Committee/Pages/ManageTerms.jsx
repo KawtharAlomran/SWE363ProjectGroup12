@@ -1,29 +1,35 @@
 import { useState } from 'react';
 import '../../styles/ManageTerms.css';
-
-const TERMS = [
-  { id: 1, name: 'Academic Terms 261', year: 2026 },
-  { id: 2, name: 'Academic Terms 253', year: 2025 },
-  { id: 3, name: 'Academic Terms 252', year: 2024 },
-  { id: 4, name: 'Academic Terms 251', year: 2023 },
-  { id: 5, name: 'Academic Terms 242', year: 2022 },
-    { id: 6, name: 'Academic Terms 242', year: 2022 },
-      { id: 7, name: 'Academic Terms 242', year: 2022 },
-
-
-];
+import AddNewTerm from './AddNewTerm';
 
 export default function ManageTerms() {
   const TERMS_PER_PAGE = 5;
-  const totalPages = Math.ceil(TERMS.length / TERMS_PER_PAGE);
+  const [terms, setTerms] = useState([
+    { id: 1, name: 'Academic Terms 261', year: 2026 },
+    { id: 2, name: 'Academic Terms 253', year: 2025 },
+    { id: 3, name: 'Academic Terms 252', year: 2024 },
+    { id: 4, name: 'Academic Terms 251', year: 2023 },
+    { id: 5, name: 'Academic Terms 242', year: 2022 },
+  ]);
   const [showAddNew, setShowAddNew] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTerm, setSelectedTerm] = useState(null);
   const currentYear = new Date().getFullYear();
-const start = (currentPage - 1) * TERMS_PER_PAGE;
-const visibleTerms = TERMS.slice(start, start + TERMS_PER_PAGE);
+  const totalPages = Math.ceil(terms.length / TERMS_PER_PAGE);
+  const start = (currentPage - 1) * TERMS_PER_PAGE;
+  const visibleTerms = terms.slice(start, start + TERMS_PER_PAGE);
+
   if (showAddNew) {
-    return <AddNewTerm onBack={() => setShowAddNew(false)} />;  }
+    return (
+      <AddNewTerm
+        onBack={() => setShowAddNew(false)}
+        onSubmit={(newTerm) => {
+          setTerms(prev => [newTerm, ...prev]);
+          setShowAddNew(false);
+        }}
+      />
+    );
+  }
 
   if (selectedTerm) {
     return <div>Term Details - {selectedTerm.name}</div>;
@@ -91,7 +97,9 @@ const visibleTerms = TERMS.slice(start, start + TERMS_PER_PAGE);
             <button
               className="mt-page"
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-            > ›</button>
+            >
+              ›
+            </button>
           </div>
         )}
 
