@@ -1,4 +1,4 @@
-/* ─── Sidebar ────────────────────────────────────────────────────────────────── */
+/* ─── Sidebar (Chairman) ─────────────────────────────────────────────────────── */
 .sidebar {
   width: 168px;
   background: var(--white);
@@ -67,14 +67,14 @@
   border-top: 1px solid var(--border);
 }
 
-.user-info {
+.sidebar__user-info {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
 }
 
-.user-avatar {
+.sidebar__user-avatar {
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -85,18 +85,18 @@
   flex-shrink: 0;
 }
 
-.user-name {
+.sidebar__user-name {
   font-size: 12.5px;
   font-weight: 600;
   color: var(--text);
 }
 
-.user-role {
+.sidebar__user-role {
   font-size: 11px;
   color: var(--text-muted);
 }
 
-.btn-logout {
+.sidebar__btn-logout {
   width: 100%;
   padding: 8px 0;
   background: var(--danger);
@@ -110,6 +110,6 @@
   transition: background 0.2s;
 }
 
-.btn-logout:hover {
+.sidebar__btn-logout:hover {
   background: #c53030;
 }

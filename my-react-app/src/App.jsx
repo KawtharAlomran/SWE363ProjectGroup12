@@ -4,7 +4,7 @@ import ChairmanHomePage from './Pages/ChairmanHomePage';
 import Load from './Pages/teachingLoad';
 import IcsFaculty from './Pages/icsFaculty';
 import SchedulingCommittee from './Pages/schedulingCommittee';
-import Layout from './layout/layout';
+//import Layout from './layout/layout';
 import './App.css';
 
 // Committee pages
@@ -19,12 +19,12 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         
-        <Route element={<Layout />}>
+       {/* <Route element={<Layout />}>
           <Route path="/ics-committee" element={<SchedulingCommittee />} />
           <Route path="/ics-faculty"   element={<IcsFaculty />} />
           <Route path="/chairman-home" element={<ChairmanHomePage />} />
           <Route path="/teaching-load" element={<Load />} />
-        </Route>
+        </Route> */}
 
         {/* Committee pages */}
         <Route path="/committee" element={<CommitteeLayout />}>
@@ -32,7 +32,7 @@ function App() {
           <Route path="manage-terms"   element={<ManageTerms />} />
           <Route path="manage-courses" element={<ManageCourses />} />
         </Route>
-        
+
       </Routes>
     </Router>
   );
