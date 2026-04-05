@@ -16,10 +16,10 @@ const coursesList = [
 
 function renderCourses(courses, handleDelete) {
   return courses.map((course) => (
-    <div key={course.code}>
-      <span>{course.code}</span>
-      <span>{course.name}</span>
-      <button onClick={() => handleDelete(course.code)}>Delete</button>
+    <div key={course.code} className="courseRow">
+      <span className="courseCode">{course.code}</span>
+      <span className="courseName">{course.name}</span>
+      <button className="deleteBtn" onClick={() => handleDelete(course.code)}>Delete</button>
     </div>
   ));
 }
@@ -28,7 +28,7 @@ export default function ManageCourses() {
   const [courses, setCourses] = useState(coursesList);
   const [currentPage, setCurrentPage] = useState(1);
   const coursesPerPage = 8;
-  const startIndex = (currentPage - 1) * coursesPerPage;
+  const startIndex = (currentPage - 1) * coursesPerPage; // to find the start index 
   const endIndex = startIndex + coursesPerPage;
   const currentCourses = courses.slice(startIndex, endIndex); // to display the courses in the specified page 
   const totalPages = Math.ceil(courses.length / coursesPerPage); // to find the total pages 
@@ -37,17 +37,17 @@ export default function ManageCourses() {
       setCourses((prevCourses) => prevCourses.filter((course) => course.code !== code));
   };
 return (
-    <div>
-      <div>
+    <div className="container">
+      <div className="header">
         <h2>Manage Courses</h2>
-        <button>Add new Course</button>
+        <button className="addBtn">Add new Course</button>
       </div>
-      <div>
+      <div className="tableHeader">
         <div>Course number</div>
-        <div className="text-center">Course Name</div>
+        <div className="textCenter">Course Name</div>
       </div>
       {renderCourses(currentCourses, handleDelete)}
-      <div>
+      <div className="pageNumbers">
         {Array.from({ length: totalPages }, (_, index) => (
           <button
             key={index + 1}
