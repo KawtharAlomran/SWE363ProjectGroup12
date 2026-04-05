@@ -1,12 +1,12 @@
-/* ══════════════════════════════════════
+/* 
    global.css
    Shared stylesheet for the entire project.
    Import this file only in main.jsx
-══════════════════════════════════════ */
+ */
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-/* ── Design Tokens ── */
+/*  Design Tokens  */
 :root {
   --primary:        #2d3a8c;
   --primary-hover:  #1e2d7a;
