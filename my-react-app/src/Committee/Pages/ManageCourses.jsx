@@ -1,3 +1,3 @@
-export default function ManageTerms() {
-  return <h2>Manage Terms</h2>;
+export default function ManageCourses() {
+  return <h2>Manage Courses</h2>;
 }
