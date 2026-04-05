@@ -127,8 +127,7 @@
 }
 
 .pageNumbers button.active {
-  background: var(--primary);
+  background:linear-gradient(135deg, #00b894, #2d3a8c);
   color: var(--white);
-  border-color: var(--primary);
   font-weight: 600;
 }
