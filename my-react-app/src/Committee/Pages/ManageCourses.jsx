@@ -26,18 +26,20 @@ function showConfirmModal(){
           />);
 }
 
-function handleDelete(code) {
-    setCourses((prevCourses) => prevCourses.filter((course) => course.code !== code));
-};
+  
 export default function ManageCourses() {
   const [courses, setCourses] = useState(coursesList);
+  const [isDelete, setIsDelete] = useState(false);
+  const [selectedCourseCode, setSelectedCourseCode] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const coursesPerPage = 8;
   const startIndex = (currentPage - 1) * coursesPerPage; // to find the start index 
   const endIndex = startIndex + coursesPerPage;
   const currentCourses = courses.slice(startIndex, endIndex); // to display the courses in the specified page 
   const totalPages = Math.ceil(courses.length / coursesPerPage); // to find the total pages 
-
+  const handleDelete = (code) => {
+        setCourses((prevCourses) => prevCourses.filter((course) => course.code !== code));
+    };
 
 return (
     <div className="container">
@@ -62,7 +64,10 @@ return (
               <td>
                 <button
                   className="deleteBtn"
-                  onClick={showConfirmModal}>
+                  onClick={() => {
+                  setSelectedCourseCode(course.code);
+                  setIsDelete(true);
+                  }}>
                   Delete
                 </button>
               </td>
@@ -70,7 +75,25 @@ return (
           ))}
         </tbody>
       </table>
-      
+
+      {isDelete && (
+  <ConfirmModal
+    message="Are you sure you want to delete this course?"
+    fileds={[
+      { key: "dummy", label: "", onChange: () => {} }
+    ]}
+    onConfirm={() => {
+      handleDelete(selectedCourseCode);
+      setIsDelete(false);
+      setSelectedCourseCode(null);
+    }}
+    onCancel={() => {
+      setIsDelete(false);
+      setSelectedCourseCode(null);
+    }}
+  />
+)}
+
       <div className="pageNumbers">
         {Array.from({ length: totalPages }, (_, index) => (
           <button className={currentPage === index + 1 ? "active" : ""} key={index + 1}
