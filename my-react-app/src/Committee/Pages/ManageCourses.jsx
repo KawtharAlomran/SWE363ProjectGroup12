@@ -1,5 +1,6 @@
 import { useState } from "react";
 import '../../styles/ManageCourses.css';
+import {ConfirmModal} from '../../shared/ConfirmModal'
 
 const coursesList = [
     { code: "ICS 104", name: "Intro. to Prog. in Python & C" },
@@ -14,19 +15,21 @@ const coursesList = [
     { code: "ICS 410", name: "Programming Languages"}
   ];
 
-
-function renderCourses(courses, handleDelete) {
-  return courses.map((course) => (
-    <div key={course.code} className="courseRow">
-      <span className="courseCode">{course.code}</span>
-      <span className="courseName">{course.name}</span>
-      <button className="deleteBtn" onClick={() => handleDelete(course.code)}>Delete</button>
-    </div>
-  ));
+function showConfirmModal(){
+  return(<ConfirmModal
+            message="Are you sure you want to delete this course?"
+            fileds={[
+              { key: "dummy", label: "", onChange: () => {} }
+            ]}
+            onConfirm={() => handleDelete(selectedCourseCode)}
+            onCancel={() => setIsDelete(false)}
+          />);
 }
+
 
 export default function ManageCourses() {
   const [courses, setCourses] = useState(coursesList);
+  const [isDelete, setIsDelete] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const coursesPerPage = 8;
   const startIndex = (currentPage - 1) * coursesPerPage; // to find the start index 
@@ -43,11 +46,33 @@ return (
         <h2>Manage Courses</h2>
         <button className="addBtn">Add new Course</button>
       </div>
-      <div className="tableHeader">
-        <div>Course number</div>
-        <div className="textCenter">Course Name</div>
-      </div>
-      {renderCourses(currentCourses, handleDelete)}
+
+      <table className="coursesTable">
+        <thead>
+          <tr>
+            <th>Course number</th>
+            <th>Course Name</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {currentCourses.map((course) => (
+            <tr key={course.code}>
+              <td>{course.code}</td>
+              <td>{course.name}</td>
+              <td>
+                <button
+                  className="deleteBtn"
+                  onClick={showConfirmModal}>
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      
+
       <div className="pageNumbers">
         {Array.from({ length: totalPages }, (_, index) => (
           <button className={currentPage === index + 1 ? "active" : ""} key={index + 1}

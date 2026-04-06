@@ -1,6 +1,6 @@
 export default function ConfirmModal({message,fileds,onConfirm,onCancel,  confirmText = 'Yes', 
   cancelText = 'No'} ){
-
+    
     return(
         <div>
             <div>

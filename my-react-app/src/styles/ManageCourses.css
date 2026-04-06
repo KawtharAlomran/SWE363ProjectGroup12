@@ -1,14 +1,20 @@
-/* ManageCourses page */
+/* =========================================================
+   ManageCourses page
+   ========================================================= */
 
+/* Main card container */
 .container {
-  background: var(--white);
   width: 100%;
+  background: var(--white);
   border-radius: 16px;
   padding: 28px 32px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
-/* header */
+
+/* =========================================================
+   Header
+   ========================================================= */
 .header {
   display: flex;
   align-items: center;
@@ -22,6 +28,7 @@
   color: var(--text);
 }
 
+/* Add course button */
 .addBtn {
   padding: 10px 20px;
   background: linear-gradient(135deg, #00b894, #2d3a8c);
@@ -29,8 +36,8 @@
   border: none;
   border-radius: 10px;
   font-family: inherit;
-  font-weight: 600;
   font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s;
 }
@@ -38,59 +45,73 @@
 .addBtn:hover {
   opacity: 0.9;
 }
-/* table header????????????????????1111111111111111 */
 
-/* table header */
-.tableHeader {
-  display: grid;
-  grid-template-columns: 160px 1fr 120px;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 6px;
+
+/* =========================================================
+   Courses Table
+   ========================================================= */
+.coursesTable {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.tableHeader div {
+/* Table header */
+.coursesTable thead th {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
   font-size: 12px;
   font-weight: 600;
   color: var(--text-muted);
+  text-align: left;
 }
 
-.textCenter {
+/* Center the course name column header */
+.coursesTable thead th:nth-child(2) {
   text-align: center;
 }
-/* rows ??????????????????????????????????22222222222222*/
 
-/* rows */
-.courseRow {
-  display: grid;
-  grid-template-columns: 160px 1fr 120px;
-  align-items: center;
-  padding: 14px 12px;
+/* Center the action column header */
+.coursesTable thead th:nth-child(3) {
+  text-align: center;
+}
+
+/* Table body rows */
+.coursesTable tbody tr, 
+.coursesTable thead tr {
   border-bottom: 1px solid #f3f4f6;
 }
 
-.courseCode {
+/* Table cells */
+.coursesTable tbody td {
+  padding: 14px 0px;
   font-size: 14px;
   font-weight: 500;
   color: var(--text);
+  vertical-align: middle;
 }
 
-.courseName {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text);
+/* Center the course name column */
+.coursesTable tbody td:nth-child(2) {
   text-align: center;
 }
 
+/* Center the action column */
+.coursesTable tbody td:nth-child(3) {
+  text-align: center;
+}
+
+/* =========================================================
+   Delete Button
+   ========================================================= */
 .deleteBtn {
-  padding: 8px 18px;
+  padding: 6px 20px;
   background: var(--danger);
   color: var(--white);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-family: inherit;
-  font-weight: 600;
   font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s;
 }
@@ -99,7 +120,9 @@
   opacity: 0.9;
 }
 
-/* pagination */
+/* =========================================================
+   Pagination
+   ========================================================= */
 .pageNumbers {
   display: flex;
   align-items: center;
@@ -127,7 +150,8 @@
 }
 
 .pageNumbers button.active {
-  background:linear-gradient(135deg, #00b894, #2d3a8c);
+  background: linear-gradient(135deg, #00b894, #2d3a8c);
   color: var(--white);
   font-weight: 600;
+  border-color: transparent;
 }
