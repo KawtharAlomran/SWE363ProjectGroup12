@@ -1,16 +1,32 @@
 
 import { useNavigate,NavLink} from 'react-router-dom';
+import { useState } from 'react';
 
 // sample courses
-const courses = [
+let courses = [
   { id: 'ICS 104', name: 'Intro. to Prog. in Python & C' },
   { id: 'ICS 108', name: 'Object-Oriented Programming' },
   { id: 'ICS 202', name: 'Data Structures and Algorithms' },
+  { id: 'ICS 253', name: 'Discrete Structures' },
+  { id: 'ICS 321', name: 'Database Systems' },
+  { id: 'ICS 343', name: 'Fund. of Computer Networks' }
 ];
+
+let terms=[
+  {termNum:"261", courses:['ICS 104','ICS 202','ICS 253','ICS 343']},
+  {termNum:"252", courses:['ICS 104',"ICS 108",'ICS 202','ICS 253','ICS 321','ICS 343']}
+]
 
 
 export default function ChairmanHomePage() {
   const navigate = useNavigate();
+
+  const [selectedTerm, setSelectedTerm] = useState(terms[0].termNum);
+  const currentTermData = terms.find(t => t.termNum === selectedTerm);
+  const filteredCourses = courses.filter(course => 
+    currentTermData?.courses.includes(course.id)
+  );
+
 
   return (
     <div className="dashboard-container">
@@ -43,8 +59,21 @@ export default function ChairmanHomePage() {
         <h2>Hello Dr. Malak 👋,</h2>
 
         <div className="course-card">
-          <h3 style={{ margin: 0 ,}}>All Offered Courses</h3>
-          <p style={{ color: '#0d9488', fontWeight: 'bold', fontSize: '14px',textAlign:'left' }}>Current Term 261 ▾</p>
+          <h3 style={{ margin: 0 }}>All Offered Courses</h3>
+          <div className="term-selection">
+            <p style={{ color: '#0d9488', fontWeight: 'bold', fontSize: '14px',textAlign:'left' }}>Select Term </p>
+
+            <select value={selectedTerm} 
+              onChange={(e) => setSelectedTerm(e.target.value)}
+            >
+              {terms.map((term) => (
+                <option key={term.termNum} value={term.termNum}>
+                  {term.termNum}
+                </option>
+              ))}
+            </select>
+          </div>
+          
 
           <table>
             <thead>
@@ -54,7 +83,7 @@ export default function ChairmanHomePage() {
               </tr>
             </thead>
             <tbody>
-              {courses.map((course) => (
+              {filteredCourses.map((course) => (
                 <tr key={course.id}>
                   <td style={{ fontWeight: '500' }}>{course.id}</td>
                   <td>{course.name}</td>
