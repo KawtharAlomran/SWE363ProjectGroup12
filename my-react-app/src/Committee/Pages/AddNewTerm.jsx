@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import '../../styles/ManageTerms.css';
+import ConfirmModal from '../../shared/ConfirmModal';
 
 const COURSES = [
   { id: 1, code: 'ICS 104', maleDemand: 120, femaleDemand: 105, hasLab: true  },
@@ -13,6 +14,7 @@ const COURSES = [
 ];
 
 export default function AddNewTerm({ onBack, onSubmit }) {
+  const [showConfirm, setShowConfirm] = useState(false);
   const [termNumber, setTermNumber] = useState('');
   const [courses, setCourses] = useState(
     COURSES.map(c => ({ ...c, checked: false, maleLec: 1, maleLab: 1, femaleLec: 1, femaleLab: 1 }))
@@ -43,7 +45,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
   return (
     <>
       <div className="mt-card">
-
+         <button className="td-back-btn" onClick={onBack}> › </button>
         <div className="an-term-row">
           <label className="an-term-label">Enter Term number:</label>
           <input className="an-term-input" type="text" placeholder="251"
@@ -101,11 +103,18 @@ export default function AddNewTerm({ onBack, onSubmit }) {
 
         <div className="an-actions">
           <button className="an-btn-save">Save</button>
-          <button className="an-btn-submit" onClick={handleSubmit}>Submit</button>
+          <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
           <span className="an-note">*Note: by submitting the form, a notification will be send to faculty to set their preferences</span>
         </div>
 
       </div>
+      {showConfirm && (
+      <ConfirmModal
+        message="Are you sure you want to submit the term courses?"
+        onConfirm={() => { handleSubmit(); setShowConfirm(false); }}
+        onCancel={() => setShowConfirm(false)}
+      />
+    )}
     </>
   );
 }

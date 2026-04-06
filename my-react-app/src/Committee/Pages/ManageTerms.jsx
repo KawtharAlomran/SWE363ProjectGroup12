@@ -64,9 +64,7 @@ export default function ManageTerms() {
                     className="mt-modify"
                     onClick={e => {
                       e.stopPropagation();
-                      setSelectedTerm(term);
-                    }}
-                  >
+                      setSelectedTerm(term); }}>
                     Modify
                   </button>
                 )
