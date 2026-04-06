@@ -37,7 +37,7 @@ export default function Login() {
       // navigate('/faclty-home');
     }
     else if (isCommittee){
-      // navigate('/comittee-home');
+      navigate('/committee/manage-terms');
     }
       
 
