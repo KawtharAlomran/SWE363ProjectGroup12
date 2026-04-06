@@ -87,11 +87,12 @@ export default function TermDetails({ term, onBack }) {
         {canEdit && (
           <div className="an-actions">
             <button className="an-btn-save">Save</button>
-            <button className="an-btn-submit">Submit</button>
-          </div>
+            <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>          </div>
+
         )}
 
       </div>
+      
     </>
   );
 }
