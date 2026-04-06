@@ -16,11 +16,14 @@ export default function ConfirmModal({message,fileds,onConfirm,onCancel,  confir
                                 <button className="modal-no" onClick={onCancel}>{cancelText}</button>
                             </div>
 
-                        </div>))}
-                    </div>
-                )}
-            </div>
+        <div className="modal-actions">
+          <button className="modal-yes" onClick={onConfirm}>{confirmText}</button>
+          <button className="modal-no" onClick={onCancel}>{cancelText}</button>
         </div>
-    )
 
+      </div>
+    </div>
+    </div>
+    </div>
+  );
 }
