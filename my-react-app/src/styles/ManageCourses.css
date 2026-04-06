@@ -1,0 +1,133 @@
+/* ManageCourses page */
+
+.container {
+  background: var(--white);
+  width: 100%;
+  border-radius: 16px;
+  padding: 28px 32px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.addBtn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #00b894, #2d3a8c);
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.addBtn:hover {
+  opacity: 0.9;
+}
+/* table header????????????????????1111111111111111 */
+
+/* table header */
+.tableHeader {
+  display: grid;
+  grid-template-columns: 160px 1fr 120px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+
+.tableHeader div {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.textCenter {
+  text-align: center;
+}
+/* rows ??????????????????????????????????22222222222222*/
+
+/* rows */
+.courseRow {
+  display: grid;
+  grid-template-columns: 160px 1fr 120px;
+  align-items: center;
+  padding: 14px 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.courseCode {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.courseName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  text-align: center;
+}
+
+.deleteBtn {
+  padding: 8px 18px;
+  background: var(--danger);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.deleteBtn:hover {
+  opacity: 0.9;
+}
+
+/* pagination */
+.pageNumbers {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 24px;
+}
+
+.pageNumbers button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pageNumbers button:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.pageNumbers button.active {
+  background:linear-gradient(135deg, #00b894, #2d3a8c);
+  color: var(--white);
+  font-weight: 600;
+}
