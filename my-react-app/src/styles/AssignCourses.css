@@ -1,0 +1,68 @@
+/* ══════════════════════════════════════
+   ASSIGN COURSES PAGE
+══════════════════════════════════════ */
+
+.ac-view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.ac-view-label {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.ac-toggle-btn {
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ac-toggle-btn--active {
+  background: var(--gradient);
+  color: var(--white);
+  border-color: var(--gradient);
+}
+
+.ac-courses-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.ac-course-tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--white);
+  min-width: 160px;
+}
+
+.ac-course-rank {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #2d6a6a;
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}

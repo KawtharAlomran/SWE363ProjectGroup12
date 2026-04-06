@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import '../../styles/ManageTerms.css';
+import ConfirmModal from '../../shared/ConfirmModal';
 
 // Temporary data — will be replaced by API call later
 const COURSES = [
@@ -10,11 +12,12 @@ const COURSES = [
 
 export default function TermDetails({ term, onBack }) {
   const canEdit = term.year === new Date().getFullYear();
+  const [showConfirm, setShowConfirm] = useState(false);
 
   return (
     <>
       <div className="mt-card">
-          <button className="td-back-btn" onClick={onBack}> › </button>
+        <button className="td-back-btn" onClick={onBack}>← Back</button>
         <h3 className="mt-title" style={{ marginBottom: 4 }}>All Offered Courses</h3>
         <div className="td-term-badge">
           Term {term?.name?.replace('Academic Terms ', '') ?? ''}
@@ -84,15 +87,23 @@ export default function TermDetails({ term, onBack }) {
             </tbody>
           </table>
         </div>
+
         {canEdit && (
           <div className="an-actions">
             <button className="an-btn-save">Save</button>
-            <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>          </div>
-
+            <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
+          </div>
         )}
 
       </div>
-      
+
+      {showConfirm && (
+        <ConfirmModal
+          message="Are you sure you want to submit the changes?"
+          onConfirm={() => setShowConfirm(false)}
+          onCancel={() => setShowConfirm(false)}
+        />
+      )}
     </>
   );
 }
