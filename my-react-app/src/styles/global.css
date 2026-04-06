@@ -306,3 +306,7 @@ body {
 .login-btn:hover {
   background: var(--primary-hover);
 }
+.an-table-wrap {
+  max-height: calc(100vh - 350px);
+  overflow-y: auto;
+}

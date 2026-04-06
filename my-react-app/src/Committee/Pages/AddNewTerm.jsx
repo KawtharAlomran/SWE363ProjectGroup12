@@ -51,7 +51,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
         </div>
 
         <div className="an-section-label">Select courses to offer in the term:</div>
-
+        <div className="an-table-wrap">
         <table className="an-table">
           <thead>
             <tr>
@@ -96,6 +96,8 @@ export default function AddNewTerm({ onBack, onSubmit }) {
             ))}
           </tbody>
         </table>
+        </div>
+
 
         <div className="an-actions">
           <button className="an-btn-save">Save</button>

@@ -15,8 +15,8 @@ export default function TermDetails({ term, onBack }) {
 
         <h3 className="mt-title" style={{ marginBottom: 4 }}>All Offered Courses</h3>
         <div className="td-term-badge">Term {term?.name?.replace('Academic Terms ', '') ?? ''}</div>
-
-        <table className="an-table" style={{ marginTop: 24 }}>
+      <div className='an-table-wrap'>
+        <table className="an-table textCenter " style={{ marginTop: 24 }}>
           <thead>
             <tr>
               <th>Course number</th>
@@ -70,6 +70,7 @@ export default function TermDetails({ term, onBack }) {
             ))}
           </tbody>
         </table>
+        </div>
 
       </div>
     </>
