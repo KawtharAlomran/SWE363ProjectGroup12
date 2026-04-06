@@ -26,10 +26,11 @@ function showConfirmModal(){
           />);
 }
 
-
+function handleDelete(code) {
+    setCourses((prevCourses) => prevCourses.filter((course) => course.code !== code));
+};
 export default function ManageCourses() {
   const [courses, setCourses] = useState(coursesList);
-  const [isDelete, setIsDelete] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const coursesPerPage = 8;
   const startIndex = (currentPage - 1) * coursesPerPage; // to find the start index 
@@ -37,9 +38,7 @@ export default function ManageCourses() {
   const currentCourses = courses.slice(startIndex, endIndex); // to display the courses in the specified page 
   const totalPages = Math.ceil(courses.length / coursesPerPage); // to find the total pages 
 
-  const handleDelete = (code) => {
-      setCourses((prevCourses) => prevCourses.filter((course) => course.code !== code));
-  };
+
 return (
     <div className="container">
       <div className="header">
@@ -72,7 +71,6 @@ return (
         </tbody>
       </table>
       
-
       <div className="pageNumbers">
         {Array.from({ length: totalPages }, (_, index) => (
           <button className={currentPage === index + 1 ? "active" : ""} key={index + 1}
