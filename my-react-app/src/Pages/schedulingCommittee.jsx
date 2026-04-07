@@ -1,43 +1,66 @@
-let committee = [
-  { name: "Hamdi Aljamimi",    email: "aljamimi@kfupm.edu.sa"  },
-  { name: "Fatimah Al Tawfiq", email: "Tawfiq.f@kfupm.edu.sa"  },
-  { name: "KAWTHAR ALOMRAN",   email: "Kalomran@kfupm.edu.sa"  },
-  { name: "NOUR AL SULAIS",    email: "nours@kfupm.edu.sa"      },
-  { name: "LAMA AL THUNAYYAN", email: "lama@kfupm.edu.sa"       },
-];
 
-export default function SchedulingCommittee() {
-  return (
-    <>
-      <h2>Hello Dr. Malak 👋,</h2>
-      <div className="course-card">
-        <h3 style={{ margin: 0, display: 'inline' }}>Scheduling Committee members</h3>
-        <button style={{ background: '#008767', color: 'white', margin: 10, borderRadius: 10 }}>
-          Add new committee
-        </button>
-        <table>
-          <thead>
-            <tr>
-              <th>Committee Name</th>
-              <th>Committee Email</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {committee.map((member) => (
-              <tr key={member.email}>
-                <td style={{ fontWeight: '500' }}>{member.name}</td>
-                <td>{member.email}</td>
-                <td>
-                  <button style={{ background: '#e11d48', color: 'white', borderRadius: 10 }}>
-                    Remove
+import { useNavigate,NavLink } from 'react-router-dom';
+import {getCommittee} from "../data";
+
+
+
+export default function SchedulingCommittee(){
+  let committee=getCommittee();
+
+    const navigate = useNavigate();
+    return(
+        <>
+        <div className="dashboard-container">
+              <aside className="sidebar">
+                <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '40px' }}>Khuta</h1>
+                
+                <nav style={{ flex: 1 }}>
+                  <ul style={{ listStyle: 'none', padding: 0 }}>
+                    <li><NavLink to="/ics-committee">🗓 Scheduling Committee</NavLink></li>
+                    <li><NavLink to="/ics-faculty">👥 ICS Faculty</NavLink></li>
+                    <li><NavLink to="/chairman-home">📋 ICS Courses</NavLink></li>
+                    <li><NavLink to="/teaching-load">⏳ Teaching Load</NavLink></li>
+                  </ul>
+                </nav>
+        
+                <div className="user-profile">
+                  <p style={{textAlign:'left'}}><strong>Malak</strong></p>
+                  <p style={{textAlign:'left', fontSize: '12px', color: 'gray' }}>ICS Chairman</p>
+                  <button 
+                    onClick={() => navigate('/')} 
+                    style={{ width: '100%', background: '#e11d48', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+                  >
+                    Log Out
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </>
-  );
+                </div>
+              </aside>
+
+              <main className="main-content">
+                <h2 >Hello Dr. Malak 👋,</h2>
+                <div className="course-card">
+                    <h3 style={{ margin: 0, display: 'inline'}}>Scheduling Committee members</h3>
+                    <button style={{background: '#008767', color: 'white', margin: 10, borderRadius:10}}>Add new committee</button>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Committee Name</th>
+                                <th>Committee Email</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {committee.map((member) => (
+                                <tr key={member.email}>
+                                <td style={{ fontWeight: '500' }}>{member.name}</td>
+                                <td>{member.email}</td>
+                                <td><button style={{background: '#e11d48', color: 'white', borderRadius:10}}>Remove</button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+              </main>
+            </div>
+        </>
+    )
 }

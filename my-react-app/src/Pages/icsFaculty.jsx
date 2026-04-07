@@ -1,8 +1,12 @@
 
 import { useNavigate,NavLink } from 'react-router-dom';
+import {getFaculty} from "../data";
+
+
 
 export default function IcsFaculty(){
     const navigate = useNavigate();
+    let faculty=getFaculty();
     return(
         <>
         <div className="dashboard-container">
@@ -30,6 +34,35 @@ export default function IcsFaculty(){
                   </button>
                 </div>
               </aside>
+
+              <main className="main-content">
+                <h2 >Hello Dr. Malak 👋,</h2>
+                <div className="course-card">
+                    <h3 style={{ margin: 0, display: 'inline'}}>All ICS Faculty</h3>
+                    <button style={{background: '#008767', color: 'white', margin: 10, borderRadius:10}}>Add new faclty</button>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Faculty Name</th>
+                                <th>Faculty Email</th>
+                                <th>Faculty Level</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {faculty.map((member) => (
+                                <tr key={member.email}>
+                                  <td style={{ fontWeight: '500' }}>{member.name}</td>
+                                  <td>{member.email}</td>
+                                  <td>{member.level}</td>
+                                  <td><button style={{background: '#e11d48', color: 'white', borderRadius:10}}>Remove</button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+              </main>
+
             </div>
         </>
     )

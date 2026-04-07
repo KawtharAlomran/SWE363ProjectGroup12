@@ -1,35 +1,32 @@
 
 import { useNavigate,NavLink} from 'react-router-dom';
 import { useState } from 'react';
-//import getAllOfferedCourses from "../data"
-//import getAllIcsCourses from "../data"
-// sample courses
+//import {getAllOfferedCourses, getAllIcsCourses} from "../data";
+import { getAllOfferedCourses, getAllIcsCourses } from "../data";
 
-let courses = [
-  { id: 'ICS 104', name: 'Intro. to Prog. in Python & C' },
-  { id: 'ICS 108', name: 'Object-Oriented Programming' },
-  { id: 'ICS 202', name: 'Data Structures and Algorithms' },
-  { id: 'ICS 253', name: 'Discrete Structures' },
-  { id: 'ICS 321', name: 'Database Systems' },
-  { id: 'ICS 343', name: 'Fund. of Computer Networks' }
-];
-
-let terms=[
-  {termNum:"261", courses:['ICS 104','ICS 202','ICS 253','ICS 343']},
-  {termNum:"252", courses:['ICS 104',"ICS 108",'ICS 202','ICS 253','ICS 321','ICS 343']}
-]
-
-//let courses=getAllIcsCourses();
-//let terms=getAllOfferedCourses();
 
 export default function ChairmanHomePage() {
+
   const navigate = useNavigate();
 
+  const courses = getAllIcsCourses();
+  const terms = getAllOfferedCourses();
+
+  // 2. Safety check: If data hasn't loaded or is empty, show a loading message
+  // This prevents "Cannot read property 'termNum' of undefined"
+  if (!terms || terms.length === 0) {
+    return <div>Loading terms...</div>;
+  }
+
+  // 3. Now that we know terms exists, we can use terms[0]
   const [selectedTerm, setSelectedTerm] = useState(terms[0].termNum);
+  
   const currentTermData = terms.find(t => t.termNum === selectedTerm);
+  
   const filteredCourses = courses.filter(course => 
-    currentTermData?.courses.includes(course.id)
+    currentTermData?.courses.includes(course.code)
   );
+
 
 
   return (
@@ -88,8 +85,8 @@ export default function ChairmanHomePage() {
             </thead>
             <tbody>
               {filteredCourses.map((course) => (
-                <tr key={course.id}>
-                  <td style={{ fontWeight: '500' }}>{course.id}</td>
+                <tr key={course.code}>
+                  <td style={{ fontWeight: '500' }}>{course.code}</td>
                   <td>{course.name}</td>
                 </tr>
               ))}
@@ -98,6 +95,7 @@ export default function ChairmanHomePage() {
           
         </div>
       </main>
+      
     </div>
   );
 }

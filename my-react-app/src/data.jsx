@@ -1,4 +1,3 @@
-import { useState } from 'react';
 
 
 const coursesList= [
@@ -14,19 +13,46 @@ const coursesList= [
     { code: "ICS 410", name: "Programming Languages"}
   ];
 
-const [terms, setTerms] = useState([
+const terms=[
     { id: 1, name: 'Academic Terms 261', year: 2026 },
     { id: 2, name: 'Academic Terms 253', year: 2025 },
     { id: 3, name: 'Academic Terms 252', year: 2024 },
     { id: 4, name: 'Academic Terms 251', year: 2023 },
     { id: 5, name: 'Academic Terms 242', year: 2022 },
-  ]);
+  ];
 
 const offeredCourses=[
     {termNum:"261", courses:['ICS 104','ICS 202','ICS 253','ICS 343']},
     {termNum:"252", courses:['ICS 104',"ICS 108",'ICS 202','ICS 253','ICS 321','ICS 343']}
 ];
 
+const committee=[
+    {name: "Hamdi Aljamimi",email:"aljamimi@kfupm.edu.sa"},
+    {name: "Fatimah Al Tawfiq",email:"Tawfiq.f@kfupm.edu.sa"},
+    {name: "KAWTHAR ALOMRAN",email:"Kalomran@kfupm.edu.sa"},
+    {name: "NOUR AL SULAIS",email:"nours@kfupm.edu.sa"},
+    {name: "LAMA AL THUNAYYAN",email:"lama@kfupm.edu.sa"}
+];
+
+const faculty=[
+    {name: "Hamdi Aljamimi",email:"aljamimi@kfupm.edu.sa", level:"Associate Professor"},
+    {name: "Mufti Mahmud",email:"mufti.mahmud@kfupm.edu.sa", level:"Professor"},
+    {name: "Tarek Helmy El-Bassuny",email:"helmy@kfupm.edu.sa", level:"Professor"},
+    {name: "Mohammad Rabah Alshayeb",email:"alshayeb@kfupm.edu.sa", level:"Professor"},
+    {name: "Mahmood Khan Niazi",email:"mkniazi@kfupm.edu.sa", level:"Professor"},
+    {name: "Mohammed Balah",email:" mbalah@kfupm.edu.sa", level:"Instructor"},
+    {name: "Alawi Alsaggaf",email:"alawi@kfupm.edu.sa", level:"Senior Lecturer"},
+    {name: "Mohammed Aslam",email:"mwaslam@kfupm.edu.sa", level:"Lecturer"},
+    {name: "Rashad Othman",email:"rashad.othman@kfupm.edu.sa", level:"Senior Lecturer"},
+    {name: "Yahya Garout",email:"garout@kfupm.edu.sa", level:"Lecturer"},
+    {name: "Nuha Albadi",email:"nuha.badi@kfupm.edu.sa", level:"Assistant Professor"},
+    {name: "Putu Raharja",email:"raharja@kfupm.edu.sa", level:"Lecturer"},
+    {name: "Hani Almohair",email:"hanik@kfupm.edu.sa", level:"Senior Lecturer"},
+    {name: "Fakhri Khan",email:"fakhri.khan@kfupm.edu.sa", level:"Associate Professor"},
+    {name: "Waleed Al Gobi",email:"waleed.gobi@kfupm.edu.sa", level:"Assistant Professor"}
+
+
+]
 export function getAllIcsCourses(){
     return coursesList;
 }
@@ -37,4 +63,12 @@ export function getAllOfferedCourses(){
 
 export function getAllTerms(){
     return terms;
+}
+
+export function getCommittee(){
+    return committee;
+}
+
+export function getFaculty(){
+    return faculty;
 }
