@@ -1,10 +1,10 @@
 
 import { useNavigate,NavLink} from 'react-router-dom';
 import { useState } from 'react';
-import getAllOfferedCourses from "../data"
-import getAllIcsCourses from "../data"
+//import getAllOfferedCourses from "../data"
+//import getAllIcsCourses from "../data"
 // sample courses
-/*
+
 let courses = [
   { id: 'ICS 104', name: 'Intro. to Prog. in Python & C' },
   { id: 'ICS 108', name: 'Object-Oriented Programming' },
@@ -18,9 +18,9 @@ let terms=[
   {termNum:"261", courses:['ICS 104','ICS 202','ICS 253','ICS 343']},
   {termNum:"252", courses:['ICS 104',"ICS 108",'ICS 202','ICS 253','ICS 321','ICS 343']}
 ]
-  */
-let courses=getAllIcsCourses;
-let terms=getAllOfferedCourses;
+
+//let courses=getAllIcsCourses();
+//let terms=getAllOfferedCourses();
 
 export default function ChairmanHomePage() {
   const navigate = useNavigate();
