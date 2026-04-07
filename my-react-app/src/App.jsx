@@ -15,31 +15,36 @@ import AssignCourses from './Committee/Pages/AssignCourses';
 import ManageTerms from './Committee/Pages/ManageTerms';
 import ManageCourses from './Committee/Pages/ManageCourses';
 
+// Faculty
+import FacultyLayout from './Faculty/layout/FacultyLayout';
+import OfferedCourses from './Faculty/Pages/OfferedCourses';
+
 import './App.css';
 
 function App() {
   return (
     <Router>
       <Routes>
-
         {/* Login */}
         <Route path="/" element={<Login />} />
 
         {/* Chairman */}
-        {/*<Route element={<ChairmanLayout />}> */}
-          <Route path="/ics-committee" element={<SchedulingCommittee />} />
-          <Route path="/ics-faculty"   element={<IcsFaculty />} />
-          <Route path="/chairman-home" element={<ChairmanHomePage />} />
-          <Route path="/teaching-load" element={<Load />} />
-        {/*</Route> */}
+        <Route path="/ics-committee" element={<SchedulingCommittee />} />
+        <Route path="/ics-faculty" element={<IcsFaculty />} />
+        <Route path="/chairman-home" element={<ChairmanHomePage />} />
+        <Route path="/teaching-load" element={<Load />} />
 
         {/* Committee */}
         <Route path="/committee" element={<CommitteeLayout />}>
           <Route path="assign-courses" element={<AssignCourses />} />
-          <Route path="manage-terms"   element={<ManageTerms />} />
+          <Route path="manage-terms" element={<ManageTerms />} />
           <Route path="manage-courses" element={<ManageCourses />} />
         </Route>
 
+        {/* Faculty */}
+        <Route path="/faculty" element={<FacultyLayout />}>
+          <Route path="offered-courses" element={<OfferedCourses />} />
+        </Route>
       </Routes>
     </Router>
   );

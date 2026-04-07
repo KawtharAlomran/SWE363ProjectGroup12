@@ -33,12 +33,13 @@ export default function Login() {
     if(isChairman){
       navigate('/chairman-home');
     }
-    else if (isFaculty){
-      // navigate('/faclty-home');
-    }
     else if (isCommittee){
       navigate('/committee/manage-terms');
     }
+    else if (isFaculty){
+      navigate('/faculty/offered-courses');
+    }
+    
       
 
   };
