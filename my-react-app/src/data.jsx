@@ -50,9 +50,32 @@ const faculty=[
     {name: "Hani Almohair",email:"hanik@kfupm.edu.sa", level:"Senior Lecturer"},
     {name: "Fakhri Khan",email:"fakhri.khan@kfupm.edu.sa", level:"Associate Professor"},
     {name: "Waleed Al Gobi",email:"waleed.gobi@kfupm.edu.sa", level:"Assistant Professor"}
-
-
 ]
+/*
+const teachingHours=[
+    {nemail:"aljamimi@kfupm.edu.sa", hours:},
+    {email:"mufti.mahmud@kfupm.edu.sa", hours:},
+    {email:"helmy@kfupm.edu.sa", hours:},
+    {email:"alshayeb@kfupm.edu.sa", hours:},
+    {email:"mkniazi@kfupm.edu.sa", hours:},
+    {email:" mbalah@kfupm.edu.sa", hours:},
+    {email:"alawi@kfupm.edu.sa", hours:},
+    {email:"mwaslam@kfupm.edu.sa",hours:},
+    {email:"rashad.othman@kfupm.edu.sa", hours:},
+    {email:"garout@kfupm.edu.sa", hours:},
+    {email:"nuha.badi@kfupm.edu.sa", hours:},
+    {nemail:"raharja@kfupm.edu.sa", hours:},
+    {email:"hanik@kfupm.edu.sa", hours:},
+    {email:"fakhri.khan@kfupm.edu.sa", hours:},
+    {email:"waleed.gobi@kfupm.edu.sa", hours:}
+]
+*/
+/*
+const assignedCourses=[
+    {termNum:"261", courses:['ICS 104','ICS 202','ICS 253','ICS 343']},
+    {termNum:"252", courses:['ICS 104',"ICS 108",'ICS 202','ICS 253','ICS 321','ICS 343']}
+];
+*/
 export function getAllIcsCourses(){
     return coursesList;
 }

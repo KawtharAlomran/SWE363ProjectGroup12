@@ -1,13 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Login
-import Login from './Pages/login';
+import Login from './login';
 
 // Chairman
-import ChairmanHomePage from './Pages/ChairmanHomePage';
-import Load from './Pages/teachingLoad';
-import IcsFaculty from './Pages/icsFaculty';
-import SchedulingCommittee from './Pages/schedulingCommittee';
+import ChairmanLayout from './Chairman/layout/ChairmanLayout';
+import ChairmanHomePage from './Chairman/Pages/ChairmanHomePage';
+import Load from './Chairman/Pages/teachingLoad';
+import IcsFaculty from './Chairman/Pages/icsFaculty';
+import SchedulingCommittee from './Chairman/Pages/schedulingCommittee';
 
 // Committee
 import CommitteeLayout from './Committee/layout/CommitteeLayout';
@@ -21,7 +22,7 @@ import OfferedCourses from './Faculty/Pages/OfferedCourses';
 import SetPreferences from './Faculty/Pages/SetPreferences';
 import AssignedCourses from './Faculty/Pages/AssignedCourses';
 
-import './App.css';
+//import './App.css';
 
 function App() {
   return (
@@ -31,10 +32,12 @@ function App() {
         <Route path="/" element={<Login />} />
 
         {/* Chairman */}
-        <Route path="/ics-committee" element={<SchedulingCommittee />} />
-        <Route path="/ics-faculty" element={<IcsFaculty />} />
-        <Route path="/chairman-home" element={<ChairmanHomePage />} />
-        <Route path="/teaching-load" element={<Load />} />
+        <Route path="/chairman" element={<ChairmanLayout />}>
+          <Route path="ics-committee" element={<SchedulingCommittee />} />
+          <Route path="ics-faculty" element={<IcsFaculty />} />
+          <Route path="ics-courses" element={<ChairmanHomePage />} />
+          <Route path="teaching-load" element={<Load />} />
+        </Route>
 
         {/* Committee */}
         <Route path="/committee" element={<CommitteeLayout />}>

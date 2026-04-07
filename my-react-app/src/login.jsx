@@ -31,7 +31,7 @@ export default function Login() {
     const isCommittee = committee.find(u => u.username === user && u.pass === password);
 
     if(isChairman){
-      navigate('/chairman-home');
+      navigate('/chairman/ics-courses');
     }
     else if (isCommittee){
       navigate('/committee/manage-terms');
