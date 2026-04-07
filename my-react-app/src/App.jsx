@@ -18,6 +18,7 @@ import ManageCourses from './Committee/Pages/ManageCourses';
 // Faculty
 import FacultyLayout from './Faculty/layout/FacultyLayout';
 import OfferedCourses from './Faculty/Pages/OfferedCourses';
+import SetPreferences from './Faculty/Pages/SetPreferences';
 
 import './App.css';
 
@@ -44,6 +45,7 @@ function App() {
         {/* Faculty */}
         <Route path="/faculty" element={<FacultyLayout />}>
           <Route path="offered-courses" element={<OfferedCourses />} />
+          <Route path="set-preferences" element={<SetPreferences />} />
         </Route>
       </Routes>
     </Router>
