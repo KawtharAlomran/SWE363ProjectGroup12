@@ -2,6 +2,7 @@
 import { useState } from "react";
 import {getFaculty, deleteFaculty, addFaculty} from "../../data";
 import '../../styles/ManageCourses.css';
+import ConfirmModal from '../../shared/ConfirmModal';
 import AddModal from "./MemberAddition";
 
 //---Only button handeling is remaining---//
@@ -23,11 +24,13 @@ export default function IcsFaculty(){
   const [addError, setAddError] = useState("")
 
   const handleAdd = () => {
-    if (!faculty.find(f => f.email === newEmail)){
+    if (!newEmail || !newName || !newLevel){
       setAddError("All fields must be filled");
-    } 
-    const updatedData = addFaculty(newName,newEmail,newLevel); 
-    setfaculty(updatedData); 
+      return;
+    }
+    const updatedData = addFaculty(newName, newEmail, newLevel); 
+    setfaculty(updatedData);
+
     setNewEmail("");
     setNewName("");
     setNewLevel("");

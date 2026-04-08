@@ -25,6 +25,7 @@ export default function SchedulingCommittee(){
     const handleAdd = () => {
         if (!faculty.find(f => f.email === newEmail)){
           setAddError("Faculty member not found with that email.");
+          return;
         } 
         const updatedData = addCommittee(newEmail); 
         setcommittee(updatedData); 
