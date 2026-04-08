@@ -1,7 +1,7 @@
 import { useState } from "react";
 import '../../styles/ManageCourses.css';
 import ConfirmModal from '../../shared/ConfirmModal';
-import {getAllIcsCourses, deleteCourse} from "../../data";
+import {getAllIcsCourses, deleteCourse, addCourse} from "../../data";
 /*
 const coursesList = [
     { code: "ICS 104", name: "Intro. to Prog. in Python & C" },
@@ -21,6 +21,12 @@ export default function ManageCourses() {
   const [isDelete, setIsDelete] = useState(false);
   const [selectedCourseCode, setSelectedCourseCode] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isAdd, setIsAdd] = useState(false);
+  const [code, setCode] = useState("");
+  const [name, setName] = useState("");
+  const [hours, setHours] = useState("");
+  const [description, setDescription] = useState("");
+
   const coursesPerPage = 8;
   const startIndex = (currentPage - 1) * coursesPerPage; // to find the start index 
   const endIndex = startIndex + coursesPerPage;
@@ -30,12 +36,16 @@ export default function ManageCourses() {
         const updatedData = deleteCourse(code);
         setCourses(updatedData);
     };
+  const handleAdd = (code, name, hours, description ) => {
+        addCourse(code, name, hours, description);
+        setCourses(getAllIcsCourses());
+    };
 
 return (
     <div className="container">
       <div className="header">
         <h2>Manage Courses</h2>
-        <button className="addBtn">Add new Course</button>
+        <button className="addBtn" onClick={() => setIsAdd(true)} >Add new Course</button>
       </div>
 
       <table className="coursesTable">
@@ -80,6 +90,63 @@ return (
     }}
   />
 )}
+
+    {isAdd && (
+      <ConfirmModal
+        message="Add course"
+        fileds={[
+          {
+            name: "code",
+            label: "Course code",
+            type: "text",
+            placeholder: "Enter course code",
+            onChange: setCode,
+          },
+          {
+            name: "name",
+            label: "Course Name",
+            type: "text",
+            placeholder: "Enter course name",
+            onChange: setName,
+          },
+          {
+            name: "hours",
+            label: "Course hours",
+            type: "text",
+            placeholder: "Enter course credits",
+            onChange: setHours,
+          },
+          {
+            name: "description",
+            label: "Course description",
+            type: "textarea",
+            placeholder: "Enter course description",
+            onChange: setDescription,
+          },
+        ]}
+        onConfirm={() => {
+          if (!code || !name || !hours || !description) {
+            alert("All fields are required");
+            return;
+          }
+          handleAdd(code, name, hours, description);
+          setIsAdd(false);
+          setCode("");
+          setName("");
+          setHours("");
+          setDescription("");
+        }}
+        onCancel={() => {
+          setIsAdd(false);
+          setCode("");
+          setName("");
+          setHours("");
+          setDescription("");
+        }}
+        confirmText="Add"
+        cancelText="Cancel"
+      />
+    )}
 
       <div className="pageNumbers">
         {Array.from({ length: totalPages }, (_, index) => (

@@ -13,16 +13,16 @@ let committeeUsers=[
 
 
 let coursesList= [
-    { code: "ICS 104", name: "Intro. to Prog. in Python & C", credit:3 },
-    { code: "ICS 108", name: "Object-Oriented Programming", credit:4 },
-    { code: "ICS 202", name: "Data Structures and Algorithms", credit:4 },
-    { code: "ICS 253", name: "Discrete Structures", credit:3 },
-    { code: "ICS 321", name: "Database Systems", credit:3 },
-    { code: "ICS 343", name: "Fund. of Computer Networks", credit:4 },
-    { code: "ICS 344", name: "Information Security", credit:3 },
-    { code: "ICS 353", name: "Design/Analysis of Algorithms", credit:3 },
-    { code: "ICS 381", name: "Principles of Artificial Intelligence", credit:3},
-    { code: "ICS 410", name: "Programming Languages", credit:3}
+    { code: "ICS 104", name: "Intro. to Prog. in Python & C", credit:3, description: "Overview of computer hardware and software. Programming in Python with emphasis on basic program constructs: variables, assignments, expressions, decision structures, looping, functions, lists, files and exceptions; Introduction to objects and classes. Programming in C with emphasis on pointers and functions with output parameters. Simple multidisciplinary problem solving in science, engineering and business." },
+    { code: "ICS 108", name: "Object-Oriented Programming", credit:4, description: "Advanced object-oriented programming; Inheritance; Polymorphism; Abstract classes and interfaces; Generic and collection classes; File input and output; Exception handling; GUI and event-driven programming; Recursion; Searching and sorting."},
+    { code: "ICS 202", name: "Data Structures and Algorithms", credit:4, description: "Review of object-oriented concepts; Basic algorithms analysis; Fundamental data structures - implementation strategies for stacks, queues and linked lists; Recursion; Implementation strategies for tree and graph algorithms; Greedy Algorithms; Hash tables; Applications of data structures (e.g. data compression and string matching)." },
+    { code: "ICS 253", name: "Discrete Structures", credit:3, description: "Propositional Logic, Propositional Equivalence, Predicates and Quantifiers, Nested Quantifiers, Rules of Inference, Introduction to Proofs; Sets, Set Operations, Functions, Sequences and Summations; Mathematical Induction, Strong Induction, Recursive Definitions and Structural Induction; Basics of Counting, Pigeonhole Principle, Permutations and Combinations, Binomial Coefficients, Discrete Probability, Probability Theory; Recurrence Relations, Solving Linear Recurrence Relations, Generating Functions, Inclusion-Exclusion." },
+    { code: "ICS 321", name: "Database Systems", credit:3, description: "Basic database concepts; Conceptual data modeling; Relational data model; Relational theory and languages; Database design; SQL; Introduction to query processing and optimization; Introduction to concurrency and recovery." },
+    { code: "ICS 343", name: "Fund. of Computer Networks", credit:4, description: "Introduction to computer networks and layered architectures: Connectivity, topology, circuit and packet switching, TCP/IP and ISO models; Application layer: model, DNS, SMTP, FTP, mm; Transport layer: TCP and UDP, ARQ, congestion and flow control; Network layer: Internetworking, addressing and routing algorithms and protocols; Data link layer: Framing, error detection and correction, medium access control and LANs; Physical layer: Principles of data communications, circuit switching, encoding, multiplexing and transmission media; Principles of network security: Cryptography, message security, user authentication, security protocols, firewalls and VPNs" },
+    { code: "ICS 344", name: "Information Security", credit:3, description: "Security properties; Confidentiality, integrity, authentication, non-repudiation; Attack vectors, malicious software and countermeasures; Risk management and analysis; Security mechanisms; Secure software development; Defensive programming; Input sanitization; Symmetric and public-key cryptography; User authentication and access control; Internet security: Email and web security, network security protocols and standards such as IPSec and SSL/TLS; Security technologies and systems: Firewalls, VPNs and IDSs/IPSs; Information security process, ethical and legal issues." },
+    { code: "ICS 353", name: "Design/Analysis of Algorithms", credit:3, description: "Basic algorithmic analysis; Analysis of iterative and recursive algorithms; Advanced algorithmic design techniques (induction, divide and conquer, dynamic programming, backtracking); The complexity classes P and NP; Basic computability; Parallel algorithms." },
+    { code: "ICS 381", name: "Principles of Artificial Intelligence", credit:3, description: "AI history and applications; Intelligent agents and expert systems; Introduction to AI programming; Problem solving agents by uninformed, heuristic and local search; Constraint satisfaction and programming, games and adversarial search; Knowledge-based agents: Propositional and first-order logic, Forward and backward chaining and inference; Planning and reasoning in uncertain situations; Basics of machine learning; Natural language processing; Exposure to other applications of AI (e.g. Vision and Robotics)"},
+    { code: "ICS 410", name: "Programming Languages", credit:3, description: "Programming paradigms: Object-oriented, imperative, functional, and logic; Application development in these paradigms; Fundamentals of Language Design: Syntax and semantics; Language implementation: virtual machines; Compilation, interpretation, and hybrid."}
   ];
 
 let terms=[
@@ -133,8 +133,8 @@ export function addFaculty(newNAme, newEmail, newLevel){
 }
 
 
-export function addCourse(code, name, hours){
-    coursesList.push({code:code,name:name, credit:hours})
+export function addCourse(code, name, hours, description){
+    coursesList.push({code:code,name:name, credit:hours, description:description})
 }
 /*
 export function addTerm(code, name, hours){

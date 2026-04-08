@@ -10,7 +10,9 @@ export default function ConfirmModal({ message, fileds, onConfirm, onCancel, con
             {fileds.map(filed => (
               <div key={filed.name} className="modal-field">
                 <label className="modal-label">{filed.label}</label>
-                <input className="modal-input" type={filed.type || 'text'} placeholder={filed.placeholder} onChange={e => filed.onChange(e.target.value)} />
+                {filed.type === "textarea" ? (<textarea className="modal-input" placeholder={filed.placeholder} onChange={e => filed.onChange(e.target.value)}/>)
+                :(<input className="modal-input" type={filed.type || 'text'} placeholder={filed.placeholder} onChange={e => filed.onChange(e.target.value)} />)
+                }
               </div>
             ))}
           </div>
