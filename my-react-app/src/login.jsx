@@ -1,30 +1,27 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import {getchairmanUsers,getFacltyUsers,getCommitteeUsers} from './data';
+import './App.css';
+import'./styles/ManageCourses.css';
 
 
 
-let chairman=[
-  {username: "fatimah", pass: "11", name: "Fatimah Al Tawfiq"}
-]
-
-let faclty=[
-  {username: "lama", pass: "22", name: "LAMA AL THUNAYYAN"}
-]
-
-let committee=[
-  {username: "nour", pass: "12", name: "NOUR AL SULAIS"},
-  {username: "kawthar", pass: "12", name: "KAWTHAR ALOMRAN"}
-]
 
 export default function Login() {
+  let chairman=getchairmanUsers();
+
+  let faclty=getFacltyUsers();
+
+  let committee=getCommitteeUsers();
 
   const [user, setUsername]=useState ("");
   const [password, setPassword]=useState ("");
-  
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
+    setError("");
 
     const isChairman = chairman.find(u => u.username === user && u.pass === password);
     const isFaculty = faclty.find(u => u.username === user && u.pass === password);
@@ -39,6 +36,9 @@ export default function Login() {
     else if (isFaculty){
       navigate('/faculty/offered-courses');
     }
+    else {
+      setError("Invalid username or password. Please try again.")
+    }
     
       
 
@@ -47,18 +47,25 @@ export default function Login() {
 
 
   return (
-    <>
+    <div className='box'>
       <h1>Welcome to Khuta System</h1>
       <h2>Please Sign In with your KFUPM Account</h2>
-      <form onSubmit={handleLogin}>
+      <form className='login' onSubmit={handleLogin}>
         <label htmlFor="username">Username</label>
-        <input type="text" name="username" placeholder="Enter your kfupm username" onChange={(e) => setUsername(e.target.value)}/>
+        <input type="text" name="username" placeholder="Enter your kfupm username" onChange={(e) => {
+            setUsername(e.target.value);
+            if(error) setError("");
+          }}/>
 
         <label htmlFor="pass">Password</label>
-        <input type="password" name="pass" placeholder="Enter your password" onChange={(e) => setPassword(e.target.value)}/>
+        <input type="password" name="pass" placeholder="Enter your password" onChange={(e) => {
+            setPassword(e.target.value);
+            if(error) setError("");
+          }}/>
 
-        <input type="submit" value="Sign In" />
+        <input className='addBtn' type="submit" value="Sign In" />
+        {error && <p className='error'>{error}</p>}
       </form>
-    </>
+    </div>
   );
 }

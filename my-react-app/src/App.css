@@ -1,79 +1,36 @@
-.dashboard-container {
-  display: flex;
-  height: 100vh;
-  background-color: #f8fafc;
-  font-family: sans-serif;
-}
 
-
-.sidebar {
-  width: 280px;
-  background: white;
-  border-right: 1px solid #e2e8f0;
+.login{
+  text-align: center; 
   display: flex;
   flex-direction: column;
-  padding: 40px 20px;
+  text-align: center;
+  justify-content: center;
+  font-size: large;
+  width: 713px;
+  height: 336px;
+  min-width: auto;
+  min-height: auto;
+
+  margin: auto;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  border-color: #e5e7eb;
 }
 
-
-.main-content {
-  flex: 1;
-  padding: 60px;
-  overflow-y: auto;
-}
-
-.course-card {
-  background: white;
-  border-radius: 24px;
-  padding: 40px;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-}
-
-
-table {
+.login input{
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+  max-width: 400px;
+  margin: 10px auto;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
-th {
-  text-align: left;
-  color: #94a3b8;
-  font-size: 12px;
-  text-transform: uppercase;
-  padding-bottom: 20px;
+h1,h2 {
+  text-align: center; 
+  margin-top: 30px;
+  margin-bottom: 20px;
 }
 
-td {
-  padding: 15px 0;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.sidebar ul{
-  list-style-type: none;
-  text-decoration: none;
-}
-
-.sidebar a{
-  margin-bottom: 30px;
-  gap: 12px;
-  border: 20px;
-  padding: 5px;
-  border-radius: 5px;
-  text-align: left;
-  text-decoration: none;
-  color: black;
-}
-
-.sidebar a.active{
-  background: #008767;
-  color: white;
-}
-
-.main-content h2,.main-content h3, .main-content p {
-  text-align: left;
-}
-
-.main-content h2{
-  margin-bottom: 30px;
+.error {
+  color: red;
 }
