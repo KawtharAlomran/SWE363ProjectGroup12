@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import {getCommittee} from "../../data";
+import {getCommittee, deleteCommittee} from "../../data";
 import '../../styles/ManageCourses.css';
 import ConfirmModal from '../../shared/ConfirmModal';
 
@@ -18,7 +18,8 @@ export default function SchedulingCommittee(){
     const currentcommittee = committee.slice(startIndex, endIndex); // to display the committee in the specified page 
     const totalPages = Math.ceil(committee.length / committeePerPage); // to find the total pages 
     const handleDelete = (email) => {
-          setcommittee((prevCourses) => prevCourses.filter((committee) => committee.email !== email));
+      const updatedData = deleteCommittee(email);
+      setcommittee(updatedData);
       };
     return(
         <>

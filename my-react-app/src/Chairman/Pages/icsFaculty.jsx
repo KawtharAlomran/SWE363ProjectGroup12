@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import {getFaculty} from "../../data";
+import {getFaculty, deleteFaculty} from "../../data";
 import '../../styles/ManageCourses.css';
 import ConfirmModal from '../../shared/ConfirmModal';
 
@@ -17,7 +17,8 @@ export default function IcsFaculty(){
   const currentfaculty = faculty.slice(startIndex, endIndex); // to display the faculty in the specified page 
   const totalPages = Math.ceil(faculty.length / facultyPerPage); // to find the total pages 
   const handleDelete = (email) => {
-        setfaculty((prevCourses) => prevCourses.filter((faculty) => faculty.email !== email));
+        const updatedData = deleteFaculty(email);
+        setfaculty(updatedData);
     };
     return(
         <>

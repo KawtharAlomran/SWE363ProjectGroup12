@@ -1,7 +1,8 @@
 import { useState } from "react";
 import '../../styles/ManageCourses.css';
 import ConfirmModal from '../../shared/ConfirmModal';
-
+import {getAllIcsCourses, deleteCourse} from "../../data";
+/*
 const coursesList = [
     { code: "ICS 104", name: "Intro. to Prog. in Python & C" },
     { code: "ICS 108", name: "Object-Oriented Programming" },
@@ -14,9 +15,9 @@ const coursesList = [
     { code: "ICS 381", name: "Principles of Artificial Intelligence"},
     { code: "ICS 410", name: "Programming Languages"}
   ];
-
+*/
 export default function ManageCourses() {
-  const [courses, setCourses] = useState(coursesList);
+  const [courses, setCourses] = useState(getAllIcsCourses());
   const [isDelete, setIsDelete] = useState(false);
   const [selectedCourseCode, setSelectedCourseCode] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,7 +27,8 @@ export default function ManageCourses() {
   const currentCourses = courses.slice(startIndex, endIndex); // to display the courses in the specified page 
   const totalPages = Math.ceil(courses.length / coursesPerPage); // to find the total pages 
   const handleDelete = (code) => {
-        setCourses((prevCourses) => prevCourses.filter((course) => course.code !== code));
+        const updatedData = deleteCourse(code);
+        setCourses(updatedData);
     };
 
 return (
