@@ -1,15 +1,17 @@
 
 import { useState } from "react";
-import {getCommittee, deleteCommittee} from "../../data";
+import {getCommittee, deleteCommittee, addCommittee, getFaculty} from "../../data";
 import '../../styles/ManageCourses.css';
 import ConfirmModal from '../../shared/ConfirmModal';
+import AddModal from './MemberAddition';
 
 //---Only button handeling is remaining---//
 
 export default function SchedulingCommittee(){
-  //let committee=getCommittee();
+    let faculty=getFaculty();
     const [committee, setcommittee] = useState(getCommittee());
     const [isDelete, setIsDelete] = useState(false);
+    const [isAdd, setIsAdd] = useState(false);
     const [selectedcommittee, setSelectedcommittee] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const committeePerPage = 8;
@@ -17,6 +19,20 @@ export default function SchedulingCommittee(){
     const endIndex = startIndex + committeePerPage;
     const currentcommittee = committee.slice(startIndex, endIndex); // to display the committee in the specified page 
     const totalPages = Math.ceil(committee.length / committeePerPage); // to find the total pages 
+    const [newEmail, setNewEmail] = useState(""); 
+    const [addError, setAddError] = useState("")
+
+    const handleAdd = () => {
+        if (!faculty.find(f => f.email === newEmail)){
+          setAddError("Faculty member not found with that email.");
+        } 
+        const updatedData = addCommittee(newEmail); 
+        setcommittee(updatedData); 
+        setNewEmail("");
+        setAddError("");
+        setIsAdd(false);
+    };
+    
     const handleDelete = (email) => {
       const updatedData = deleteCommittee(email);
       setcommittee(updatedData);
@@ -26,7 +42,7 @@ export default function SchedulingCommittee(){
         <div className="container">
             <div className="header">
               <h2>Scheduling Committee members</h2>
-              <button className="addBtn">Add new committee</button>
+              <button className="addBtn" onClick={() => setIsAdd(true)}>Add new committee</button>
               </div>
               <table className="coursesTable">
                 <thead>
@@ -61,6 +77,23 @@ export default function SchedulingCommittee(){
                     setIsDelete(false);
                     setSelectedcommittee(null);
                   }}
+                />
+              )}
+              {isAdd && (
+                <AddModal
+                  onConfirm={() => {handleAdd()}}
+                  onCancel={() => {
+                    setIsAdd(false);
+                    setAddError("");}}
+                  errorMessage={addError}
+                  fileds={[
+                    {
+                      label: "KFUPM Email",
+                      name: "email",
+                      placeholder: "Enter Committee Email",
+                      onChange: (val) => setNewEmail(val)
+                    }
+                  ]}
                 />
               )}
               <div className="pageNumbers">
