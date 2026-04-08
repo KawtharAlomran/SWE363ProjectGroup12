@@ -2,6 +2,7 @@
 import {getFaculty} from "../../data";
 import { useState } from "react";
 import '../../styles/ManageCourses.css';
+import '../../styles/AssignCourses.css';
 
 export default function Load(){
   //let faculty=getFaculty();
@@ -15,9 +16,11 @@ export default function Load(){
 return(
   <div className="container">
     <div className="header">
-      <h3>All ICS Faculty</h3>
-      <button className="addBtn">Add new faclty</button>
+    <h2>Faculty Teaching Load</h2>
     </div>
+    <div className="td-term-badge">Current Term</div>
+
+    
 
     <table className="coursesTable">
       <thead>

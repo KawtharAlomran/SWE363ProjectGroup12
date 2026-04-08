@@ -36,10 +36,11 @@ const [currentPage, setCurrentPage] = useState(1);
 
         <div className="header">
           <h2>All Offered Courses</h2>
-          <div className="term-selection">
+          </div>
+          <div className="td-term-badge">
             <p>Select Term </p>
 
-            <select value={selectedTerm} 
+            <select className="selection" value={selectedTerm} 
               onChange={(e) => setSelectedTerm(e.target.value)}
             >
               {terms.map((term) => (
@@ -49,7 +50,7 @@ const [currentPage, setCurrentPage] = useState(1);
               ))}
             </select>
           </div>
-        </div>
+        
           
 
           <table className="coursesTable">

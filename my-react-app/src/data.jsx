@@ -1,3 +1,15 @@
+let chairmanUsers=[
+  {username: "fatimah", pass: "11", name: "Fatimah Al Tawfiq"}
+]
+
+let facltyUsers=[
+  {username: "lama", pass: "22", name: "LAMA AL THUNAYYAN"}
+]
+
+let committeeUsers=[
+  {username: "nour", pass: "12", name: "NOUR AL SULAIS"},
+  {username: "kawthar", pass: "12", name: "KAWTHAR ALOMRAN"}
+]
 
 
 const coursesList= [
@@ -76,6 +88,18 @@ const assignedCourses=[
     {termNum:"252", courses:['ICS 104',"ICS 108",'ICS 202','ICS 253','ICS 321','ICS 343']}
 ];
 */
+//      For Login      //
+export function getchairmanUsers(){
+    return chairmanUsers;
+}
+export function getFacltyUsers(){
+    return facltyUsers;
+}
+export function getCommitteeUsers(){
+    return committeeUsers;
+}
+// -------------------------------------//
+
 export function getAllIcsCourses(){
     return coursesList;
 }

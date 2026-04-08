@@ -288,11 +288,15 @@
   border-collapse: collapse;
 }
 .td-term-badge {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
   color: var(--accent);
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 8px;
 }
+
 .textCenter {
   text-align: center;
 }
