@@ -14,7 +14,7 @@ export default function ManageCourses() {
   const [hours, setHours] = useState("");
   const [description, setDescription] = useState("");
 
-  const coursesPerPage = 8;
+  const coursesPerPage = 6;
   const startIndex = (currentPage - 1) * coursesPerPage; // to find the start index 
   const endIndex = startIndex + coursesPerPage;
   const currentCourses = courses.slice(startIndex, endIndex); // to display the courses in the specified page 
