@@ -125,11 +125,15 @@ export function getFaculty(){
 
 // ----------- Add functions -------------//
 export function addCommittee(newEmail){
-    committee.push({email:newEmail})
+    let info = faculty.find(f => f.email === newEmail);
+    committee.push({ name: info.name, email: info.email });
+    return [...committee];
+
 }
 
 export function addFaculty(newNAme, newEmail, newLevel){
     faculty.push({name:newNAme, email:newEmail, level:newLevel})
+    return [...faculty];
 }
 
 

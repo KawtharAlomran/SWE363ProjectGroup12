@@ -28,8 +28,8 @@ const [currentPage, setCurrentPage] = useState(1);
   const coursesPerPage = 8;
   const startIndex = (currentPage - 1) * coursesPerPage; // to find the start index 
   const endIndex = startIndex + coursesPerPage;
-  const currentCourses = courses.slice(startIndex, endIndex); // to display the courses in the specified page 
-  const totalPages = Math.ceil(courses.length / coursesPerPage); // to find the total pages 
+  const currentCourses = filteredCourses.slice(startIndex, endIndex); // to display the courses in the specified page 
+  const totalPages = Math.ceil(filteredCourses.length / coursesPerPage); // to find the total pages 
 
   return (
     <div className="container">
@@ -62,7 +62,7 @@ const [currentPage, setCurrentPage] = useState(1);
             </thead>
 
             <tbody>
-              {filteredCourses.map((course) => (
+              {currentCourses.map((course) => (
                 <tr key={course.code}>
                   <td>{course.code}</td>
                   <td>{course.name}</td>
