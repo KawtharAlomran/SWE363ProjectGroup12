@@ -4,7 +4,7 @@ import ByInstructor from './ByInstructor';
 import ByCourse from './ByCourse';
 import '../../styles/AssignCourses.css';
 import ConfirmModal from '../../shared/ConfirmModal';
-import {getInstructorsPrefrences, getCoursePrefrences} from "../../data";
+import {getInstructorsPrefrences, getCoursePrefrences, setInstructorsPrefrences, setCoursePrefrences} from "../../data";
 
 
 export default function AssignCourses() {
@@ -13,22 +13,19 @@ export default function AssignCourses() {
   const [coursesList, setCoursesList] = useState(getCoursePrefrences());
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const toggle = (instructorId, courseId) => {
+    const updatedInstructorsList = instructors.map((inst) =>
+      inst.id === instructorId ? {...inst, courses: inst.courses.map((c) => c.id === courseId ? { ...c, assigned: !c.assigned }: c),}: inst);
 
-  const toggleByInstructor = (instructorId, courseId) => {
-    setInstructors(prev => prev.map(inst =>
-      inst.id === instructorId
-        ? { ...inst, courses: inst.courses.map(c => c.id === courseId ? { ...c, assigned: !c.assigned } : c) }
-        : inst
-    ));
-  };
+    const updatedCourseList = coursesList.map((course) =>
+    course.id === courseId ? {...course, instructors: course.instructors.map((i) => i.id === instructorId ? { ...i, assigned: !i.assigned } : i ), }: course);
 
-  const toggleByCourse = (courseId, instructorId) => {
-    setCoursesList(prev => prev.map(course =>
-      course.id === courseId
-        ? { ...course, instructors: course.instructors.map(i => i.id === instructorId ? { ...i, assigned: !i.assigned } : i) }
-        : course
-    ));
-  };
+    setInstructorsPrefrences(updatedInstructorsList);
+    setCoursePrefrences(updatedCourseList);
+
+    setInstructors(updatedInstructorsList);
+    setCoursesList(updatedCourseList);
+};
 
   return (
     <>
@@ -54,11 +51,11 @@ export default function AssignCourses() {
         </div>
 
         {viewType === 'instructor' && (
-          <ByInstructor instructors={instructors} onToggle={toggleByInstructor} />
+          <ByInstructor instructors={instructors} onToggle={toggle} />
         )}
 
         {viewType === 'course' && (
-          <ByCourse courses={coursesList} onToggle={toggleByCourse} />
+          <ByCourse courses={coursesList} onToggle={toggle} />
         )}
 
         <div className="an-actions" style={{ marginTop: 24 }}>

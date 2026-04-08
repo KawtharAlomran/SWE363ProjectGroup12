@@ -19,7 +19,7 @@ export default function ByCourse({ courses, onToggle }) {
                     <span>{inst.name}</span>
                     <div
                       className={`an-checkbox${inst.assigned ? ' an-checkbox-checked' : ''}`}
-                      onClick={() => onToggle(course.id, inst.id)}
+                      onClick={() => onToggle(inst.id, course.id)}
                     >
                       {inst.assigned && '✓'}
                     </div>
