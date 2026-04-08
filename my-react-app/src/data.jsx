@@ -63,6 +63,86 @@ let faculty=[
     {name: "Fakhri Khan",email:"fakhri.khan@kfupm.edu.sa", level:"Associate Professor"},
     {name: "Waleed Al Gobi",email:"waleed.gobi@kfupm.edu.sa", level:"Assistant Professor"}
 ]
+
+let instructorsPrefrences = [
+  {
+    id: 1, name: 'Mufti Mahmud',
+    courses: [
+      { id: 1, code: 'ICS 202', rank: 1, assigned: false },
+      { id: 2, code: 'ICS 343', rank: 2, assigned: false  },
+      { id: 3, code: 'ICS 344', rank: 3, assigned: false },
+      { id: 4, code: 'ICS 353', rank: 4, assigned: false },
+      { id: 5, code: 'ICS 108', rank: 5, assigned: false },
+      { id: 6, code: 'ICS 104', rank: 6, assigned: false },
+    ]
+  },
+  {
+    id: 2, name: 'Tarek El-Bassuny',
+    courses: [
+      { id: 1, code: 'ICS 474', rank: 1, assigned: false  },
+      { id: 2, code: 'ICS 343', rank: 2, assigned: false },
+      { id: 3, code: 'ICS 344', rank: 3, assigned: false },
+    ]
+  },
+  {
+    id: 3, name: 'Mohammad Alshayeb',
+    courses: [
+      { id: 1, code: 'SWE 439', rank: 1, assigned: false },
+      { id: 2, code: 'SWE 422', rank: 2, assigned: false },
+    ]
+  },
+  {
+    id: 4, name: 'Mahmood Niazi',
+    courses: [
+      { id: 1, code: 'SWE 455', rank: 1, assigned: false },
+      { id: 2, code: 'SWE 439', rank: 2, assigned: false },
+      { id: 3, code: 'SWE 463', rank: 3, assigned: false  },
+      { id: 4, code: 'ICS 353', rank: 4, assigned: false },
+    ]
+  },
+];
+
+let coursePrefrences = [
+  {
+    id: 1, code: 'ICS 104',
+    instructors: [
+      { id: 1, name: 'Mohammed Balah',  rank: 1, assigned: false  },
+      { id: 2, name: 'Mohammed Aslam',  rank: 1, assigned: false },
+      { id: 3, name: 'Alawi Alsaggaf',  rank: 3, assigned: false  },
+      { id: 4, name: 'Rashad Othman',   rank: 4, assigned: false },
+      { id: 5, name: 'Mufti Mahmud',   rank: 6, assigned: false }
+    ]
+  },
+  {
+    id: 2, code: 'ICS 108',
+    instructors: [
+      { id: 1, name: 'Yahya Garout',  rank: 1, assigned: false  },
+      { id: 2, name: 'Nuha Albadi',   rank: 3, assigned: false },
+      { id: 3, name: 'Putu Raharja',  rank: 5, assigned: false },
+      { id: 4, name: 'Rashad Othman', rank: 1, assigned: false  },
+      { id: 5, name: 'Mufti Mahmud',  rank: 5, assigned: false }
+
+    ]
+  },
+  {
+    id: 3, code: 'ICS 343',
+    instructors: [
+      { id: 1, name: 'Hani Almohair', rank: 1, assigned: false },
+      { id: 2, name: 'Mufti Mahmud',  rank: 2, assigned: false },
+      { id: 3, name: 'Tarek El-Bassuny',  rank: 2, assigned: false }
+    ]
+  },
+  {
+    id: 4, code: 'ICS 344',
+    instructors: [
+      { id: 1, name: 'Fakhri Khan',    rank: 2, assigned: false  },
+      { id: 2, name: 'Waleed Al Gobi', rank: 4, assigned: false },
+      { id: 3, name: 'Mufti Mahmud',  rank: 3, assigned: false },
+      { id: 4, name: 'Tarek El-Bassuny',  rank: 3, assigned: false }
+
+    ]
+  },
+];
 /*
 let teachingHours=[
     {nemail:"aljamimi@kfupm.edu.sa", hours:},
@@ -121,6 +201,22 @@ export function getCommittee(){
 
 export function getFaculty(){
     return faculty;
+}
+
+export function getInstructorsPrefrences(){
+    return instructorsPrefrences;
+}
+export function getCoursePrefrences(){
+    return coursePrefrences;
+}
+
+// ----------- Setesrs functions -------------//
+export function setInstructorsPrefrences(updatedList) {
+  instructorsPrefrences = updatedList;
+}
+
+export function setCoursePrefrences(updatedList) {
+  coursePrefrences = updatedList;
 }
 
 // ----------- Add functions -------------//
