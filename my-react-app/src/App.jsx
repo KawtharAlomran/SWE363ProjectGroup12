@@ -21,6 +21,7 @@ import FacultyLayout from './Faculty/layout/FacultyLayout';
 import OfferedCourses from './Faculty/Pages/OfferedCourses';
 import SetPreferences from './Faculty/Pages/SetPreferences';
 import AssignedCourses from './Faculty/Pages/AssignedCourses';
+import PreviousPreferences from './Faculty/Pages/PreviousPreferences';
 
 //import './App.css';
 
@@ -51,6 +52,7 @@ function App() {
           <Route path="offered-courses" element={<OfferedCourses />} />
           <Route path="set-preferences" element={<SetPreferences />} />
           <Route path="assigned-courses" element={<AssignedCourses />} />
+          <Route path="previous-preferences" element={<PreviousPreferences />} />
         </Route>
       </Routes>
     </Router>
