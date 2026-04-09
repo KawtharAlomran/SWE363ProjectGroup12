@@ -143,31 +143,26 @@ let coursePrefrences = [
     ]
   },
 ];
-/*
-let teachingHours=[
-    {nemail:"aljamimi@kfupm.edu.sa", hours:},
-    {email:"mufti.mahmud@kfupm.edu.sa", hours:},
-    {email:"helmy@kfupm.edu.sa", hours:},
-    {email:"alshayeb@kfupm.edu.sa", hours:},
-    {email:"mkniazi@kfupm.edu.sa", hours:},
-    {email:" mbalah@kfupm.edu.sa", hours:},
-    {email:"alawi@kfupm.edu.sa", hours:},
-    {email:"mwaslam@kfupm.edu.sa",hours:},
-    {email:"rashad.othman@kfupm.edu.sa", hours:},
-    {email:"garout@kfupm.edu.sa", hours:},
-    {email:"nuha.badi@kfupm.edu.sa", hours:},
-    {nemail:"raharja@kfupm.edu.sa", hours:},
-    {email:"hanik@kfupm.edu.sa", hours:},
-    {email:"fakhri.khan@kfupm.edu.sa", hours:},
-    {email:"waleed.gobi@kfupm.edu.sa", hours:}
-]
-*/
-/*
+
+
 let assignedCourses=[
-    {termNum:"261", courses:['ICS 104','ICS 202','ICS 253','ICS 343']},
-    {termNum:"252", courses:['ICS 104',"ICS 108",'ICS 202','ICS 253','ICS 321','ICS 343']}
+    {faculty:"Hamdi Aljamimi", courses:['ICS 343']},
+    {tfaculty:"Mufti Mahmud", courses:['ICS 104','ICS 202']},
+    {faculty:"Tarek Helmy El-Bassuny", courses:['ICS 202','ICS 253']},
+    {faculty:"Mohammad Rabah Alshayeb", courses:['ICS 104','ICS 253']},
+    {faculty:"Mahmood Khan Niazi", courses:['ICS 104','ICS 202']},
+    {faculty:"Mohammed Balah", courses:['ICS 104','ICS 202','ICS 253','ICS 343']},
+    {faculty:"Alawi Alsaggaf", courses:['ICS 104','ICS 202']},
+    {faculty:"Mohammed Aslam", courses:['ICS 104','ICS 202']},
+    {faculty:"Rashad Othman", courses:['ICS 104','ICS 253']},
+    {faculty:"Yahya Garout", courses:['ICS 104','ICS 202']},
+    {faculty:"Nuha Albadi", courses:['ICS 104','ICS 202']},
+    {faculty:"Putu Raharja", courses:['ICS 104','ICS 253']},
+    {faculty:"Hani Almohair", courses:['ICS 104','ICS 202','ICS 253']},
+    {faculty:"Fakhri Khan", courses:['ICS 202','ICS 253']},
+    {faculty:"Waleed Al Gobi", courses:['ICS 104','ICS 202','ICS 253']}
+
 ];
-*/
 
 // ----------- Getter functions -------------//
 
@@ -208,6 +203,10 @@ export function getInstructorsPrefrences(){
 }
 export function getCoursePrefrences(){
     return coursePrefrences;
+}
+
+export function getAssignedCourses(){
+    return assignedCourses;
 }
 
 // ----------- Seters functions -------------//

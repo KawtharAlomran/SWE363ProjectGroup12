@@ -25,16 +25,16 @@ export default function AddModal({ message, fileds, onConfirm, onCancel, confirm
           )}
 
           <div className="modal-actions">
-            <button className="modal-confirm" onClick={onConfirm}>
+            <button className="modal-yes" onClick={onConfirm}>
               {confirmText}
             </button>
-
+            </div>
             {errorMessage && (
                 <p style={{color: 'red', marginTop: '10px', fontSize: '14px' }}>
                     {errorMessage}
                 </p>
             )}
-          </div>
+          
         </div>
       </div>
     </div>
