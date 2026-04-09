@@ -11,7 +11,7 @@ function FacultyLayout() {
   return (
     <Layout
       navItems={NAV_ITEMS}
-      userName="Lama"
+      userName="Khadija"
       userRole="Faculty member"
       rootLabel="Faculty"
     />
