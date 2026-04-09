@@ -408,3 +408,17 @@ body {
     justify-content: center;
   }
 }
+
+/* Style the radio buttons */
+.modal-radio-group {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.modal-radio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}

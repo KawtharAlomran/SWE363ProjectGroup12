@@ -11,6 +11,7 @@ export default function ConfirmModal({ message, fileds, onConfirm, onCancel, con
               <div key={filed.name} className="modal-field">
                 <label className="modal-label">{filed.label}</label>
                 {filed.type === "textarea" ? (<textarea className="modal-input" placeholder={filed.placeholder} onChange={e => filed.onChange(e.target.value)}/>)
+                : filed.type === "radio" ? (<div className="modal-radio-group"> {filed.options.map(option => (<label key={option.value} className="modal-radio"> <input type="radio" name={filed.name} value={option.value} onChange={() => filed.onChange(option.value)}/>{option.label}</label>))}</div>) 
                 :(<input className="modal-input" type={filed.type || 'text'} placeholder={filed.placeholder} onChange={e => filed.onChange(e.target.value)} />)
                 }
               </div>

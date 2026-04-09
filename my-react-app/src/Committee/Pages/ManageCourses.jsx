@@ -13,6 +13,7 @@ export default function ManageCourses() {
   const [name, setName] = useState("");
   const [hours, setHours] = useState("");
   const [description, setDescription] = useState("");
+  const [hasLab, setHasLab] = useState(false);
 
   const coursesPerPage = 6;
   const startIndex = (currentPage - 1) * coursesPerPage; // to find the start index 
@@ -108,6 +109,16 @@ return (
             onChange: setHours,
           },
           {
+          name: "hasLab",
+          label: "Has Lab?",
+          type: "radio",
+          options: [
+            { label: "Yes", value: true },
+            { label: "No", value: false }
+          ],
+          onChange: setHasLab,
+          },
+          {
             name: "description",
             label: "Course description",
             type: "textarea",
@@ -120,7 +131,7 @@ return (
             alert("All fields are required");
             return;
           }
-          handleAdd(code, name, hours, description);
+          handleAdd(code, name, hours,hasLab, description);
           setIsAdd(false);
           setCode("");
           setName("");
