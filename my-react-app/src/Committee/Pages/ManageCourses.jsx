@@ -1,3 +1,4 @@
+// import statments 
 import { useState } from "react";
 import '../../styles/ManageCourses.css';
 import ConfirmModal from '../../shared/ConfirmModal';
@@ -16,6 +17,7 @@ export default function ManageCourses() {
   const [description, setDescription] = useState("");
   const [hasLab, setHasLab] = useState(null);
 
+  // to handle pages 
   const coursesPerPage = 6;
   const startIndex = (currentPage - 1) * coursesPerPage; // to find the start index 
   const endIndex = startIndex + coursesPerPage;
@@ -48,7 +50,7 @@ return (
             <th>Course Name</th>
           </tr>
         </thead>
-
+        {/* display courses */}
         <tbody>
           {currentCourses.map((course) => (
             <tr key={course.code}>
@@ -68,22 +70,24 @@ return (
           ))}
         </tbody>
       </table>
-
+      
+      {/* display confirmation message when delete button is clicked  */}
       {isDelete && (
-  <ConfirmModal
-    message="Are you sure you want to delete this course?"
-    onConfirm={() => {
-      handleDelete(selectedCourseCode);
-      setIsDelete(false);
-      setSelectedCourseCode(null);
-    }}
-    onCancel={() => {
-      setIsDelete(false);
-      setSelectedCourseCode(null);
-    }}
-  />
-)}
+      <ConfirmModal
+        message="Are you sure you want to delete this course?"
+        onConfirm={() => {
+          handleDelete(selectedCourseCode);
+          setIsDelete(false);
+          setSelectedCourseCode(null);
+        }}
+        onCancel={() => {
+          setIsDelete(false);
+          setSelectedCourseCode(null);
+        }}
+        />
+      )}
 
+      {/* display confirmation message when add button is clicked  */}
     {isAdd && (
       <ConfirmModal
         message="Add course"
@@ -142,7 +146,7 @@ return (
             // validate code (SWE206 or ICS455)
           const codeRegex = /^(SWE|ICS)\d{3}$/;
           if (!codeRegex.test(code)) {
-            alert("Course code must be like SWE206 or ICS455");
+            alert("Course code must start with SWE or ICS followed by 3 digits");
             return;
           }
             // validate hours (must be 1–4)
