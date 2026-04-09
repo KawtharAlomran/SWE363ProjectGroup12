@@ -12,6 +12,7 @@ export default function AssignCourses() {
   const [coursesList, setCoursesList] = useState(getCoursePrefrences());
   const [showConfirm, setShowConfirm] = useState(false);
 
+
   // Only show terms that have Modify button 
   const currentTerms = getCurrentTerms();
   const [selectedTermNum, setSelectedTermNum] = useState(currentTerms[0]?.termNum ?? '261');

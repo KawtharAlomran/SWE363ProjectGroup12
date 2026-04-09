@@ -1,4 +1,6 @@
 import { getTermSections } from '../../data';
+import { useState } from "react";
+
 
 // Reusable select component for choosing number of sections
 function SectionSelect({ value, onChange }) {
@@ -15,7 +17,18 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
   // Get section limits for selected term
   const termSections = getTermSections(termNum);
 
+  //Handle the pages 
+  const [currentPage, setCurrentPage] = useState(1);
+  const instructorsPerPage = 4;
+
+  const startIndex = (currentPage - 1) * instructorsPerPage;
+  const endIndex = startIndex + instructorsPerPage;
+
+  const currentInstructors = instructors.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(instructors.length / instructorsPerPage);
+
   return (
+    <>
     <table className="an-table" style={{ marginTop: 16 }}>
       <thead>
         <tr>
@@ -24,7 +37,7 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
         </tr>
       </thead>
       <tbody>
-        {instructors.map(inst => (
+        {currentInstructors.map(inst => (
           <tr key={inst.id}>
             <td><span className="an-course-name">{inst.name}</span></td>
             <td>
@@ -77,5 +90,17 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
         ))}
       </tbody>
     </table>
+    <div className="pageNumbers">
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index + 1}
+            className={currentPage === index + 1 ? 'active' : ''}
+            onClick={() => setCurrentPage(index + 1)}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
+    </>
   );
 }
