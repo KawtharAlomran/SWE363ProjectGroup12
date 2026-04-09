@@ -4,6 +4,7 @@ import ConfirmModal from '../../shared/ConfirmModal';
 import {getAllIcsCourses, deleteCourse, addCourse} from "../../data";
 
 export default function ManageCourses() {
+  // define some useState to monitor changes
   const [courses, setCourses] = useState(getAllIcsCourses());
   const [isDelete, setIsDelete] = useState(false);
   const [selectedCourseCode, setSelectedCourseCode] = useState(null);
@@ -13,7 +14,7 @@ export default function ManageCourses() {
   const [name, setName] = useState("");
   const [hours, setHours] = useState("");
   const [description, setDescription] = useState("");
-  const [hasLab, setHasLab] = useState(false);
+  const [hasLab, setHasLab] = useState(null);
 
   const coursesPerPage = 6;
   const startIndex = (currentPage - 1) * coursesPerPage; // to find the start index 
@@ -127,16 +128,43 @@ return (
           },
         ]}
         onConfirm={() => {
+   
+          // check if there is any missing fields
           if (!code || !name || !hours || !description) {
             alert("All fields are required");
             return;
           }
+          // check if the user choose one of the two options or not
+          if (hasLab === null) {
+          alert("Please choose whether the course has a lab");
+          return;
+          }
+            // validate code (SWE206 or ICS455)
+          const codeRegex = /^(SWE|ICS)\d{3}$/;
+          if (!codeRegex.test(code)) {
+            alert("Course code must be like SWE206 or ICS455");
+            return;
+          }
+            // validate hours (must be 1–4)
+          const hoursNum = Number(hours);
+          if (isNaN(hoursNum) || hoursNum < 1 || hoursNum > 4) {
+            alert("Course hours must be between 1 and 4");
+            return;
+          }
+          // validate name 
+          const nameRegex = /^[A-Za-z\s]+$/;
+          if (!nameRegex.test(name)) {
+            alert("Course name must contain only letters");
+            return;
+          }
+
           handleAdd(code, name, hours,hasLab, description);
           setIsAdd(false);
           setCode("");
           setName("");
           setHours("");
           setDescription("");
+          setHasLab(null);
         }}
         onCancel={() => {
           setIsAdd(false);
@@ -144,6 +172,7 @@ return (
           setName("");
           setHours("");
           setDescription("");
+          setHasLab(null);
         }}
         confirmText="Add"
         cancelText="Cancel"
