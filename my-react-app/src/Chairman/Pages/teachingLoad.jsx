@@ -1,5 +1,5 @@
 
-import {getFaculty, getAssignedCourses} from "../../data";
+import {getFaculty, getAssignedCourses, getAllIcsCourses, calculateTeachingHours} from "../../data";
 import { useState } from "react";
 import '../../styles/ManageCourses.css';
 import '../../styles/AssignCourses.css';
@@ -13,6 +13,7 @@ import '../../styles/AssignCourses.css';
   "Lecturer":12};
 
 export default function Load(){
+  const allcourses=getAllIcsCourses();
   const facultyCourses=getAssignedCourses();
   const [faculty, setfaculty] = useState(getFaculty());
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,6 +22,12 @@ export default function Load(){
   const endIndex = startIndex + facultyPerPage;
   const currentfaculty = faculty.slice(startIndex, endIndex); // to display the faculty in the specified page 
   const totalPages = Math.ceil(faculty.length / facultyPerPage); // to find the total pages 
+
+  const getTeachingHours = (name) =>{
+    const faculty = facultyCourses.find(c => c.faculty === name);
+    if (!faculty || !faculty.courses) return 0;
+    return calculateTeachingHours(faculty.courses);
+}
 
 return(
   <div className="container">
@@ -43,7 +50,7 @@ return(
           <tr key={member.email}>
             <td>{member.name}</td>
             <td>{facultyCourses.find(f => f.faculty == member.name) ? facultyCourses.find(f => f.faculty == member.name).courses.join(", ") : "No courses assigned"}</td>
-            <td></td>
+            <td>{getTeachingHours(member.name)}</td>
           </tr>
           ))}
       </tbody>
@@ -60,3 +67,4 @@ return(
     </div>
   )
 }
+

@@ -154,7 +154,7 @@ let coursePrefrences = [
 
 let assignedCourses=[
     {faculty:"Hamdi Aljamimi", courses:['ICS 343']},
-    {tfaculty:"Mufti Mahmud", courses:['ICS 104','ICS 202']},
+    {faculty:"Mufti Mahmud", courses:['ICS 104','ICS 202']},
     {faculty:"Tarek Helmy El-Bassuny", courses:['ICS 202','ICS 253']},
     {faculty:"Mohammad Rabah Alshayeb", courses:['ICS 104','ICS 253']},
     {faculty:"Mahmood Khan Niazi", courses:['ICS 104','ICS 202']},
@@ -304,4 +304,15 @@ export function deleteCourse(code){
 // Delete a term by id
 export function deleteTerm(id) {
   terms = terms.filter(t => t.id !== id);
+}
+
+export function calculateTeachingHours(courses){
+    let sum = 0;
+    courses.forEach(courseCode => {
+        const foundCourse = coursesList.find(c => c.code === courseCode);
+        if (foundCourse) {
+            sum += foundCourse.credit;
+        }
+    });
+    return sum;
 }
