@@ -287,3 +287,124 @@ body {
   overflow-y: auto;
   padding: 28px 32px;
 }
+
+
+/* Hide hamburger and overlay on desktop */
+@media (min-width: 769px) {
+  .hamburger-btn { display: none; }
+  .mobile-overlay { display: none; }
+  .layout__sidebar { position: static; left: auto; }
+}
+
+@media (max-width: 768px) {
+
+  /* Layout stacks vertically */
+  .layout {
+    flex-direction: column;
+    height: 100dvh;
+  }
+
+  /* Sidebar hidden off-screen by default */
+  .layout__sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100vh;
+    width: 260px;
+    z-index: 200;
+    transition: left 0.25s ease;
+  }
+
+  /* Sidebar visible when menu is open */
+  .layout__sidebar--open {
+    left: 0;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Dark overlay behind open sidebar */
+  .mobile-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 199;
+  }
+
+  /* Hamburger button in topbar */
+  .hamburger-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--white);
+    font-size: 16px;
+    cursor: pointer;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+
+  /* Body takes full screen */
+  .layout__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  /* Topbar */
+  .layout__topbar {
+    height: 50px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Content area */
+  .layout__content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  /* Cards */
+  .mt-card {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  /* Tables scroll horizontally on small screens */
+  .an-table-wrap {
+    overflow-x: auto;
+  }
+
+  /* Smaller greeting text */
+  .mt-greeting {
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+
+  /* Stack form row on mobile */
+  .an-term-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .an-term-input {
+    width: 100%;
+  }
+
+  /* Actions wrap on small screens */
+  .an-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Pagination center on mobile */
+  .mt-pagination {
+    justify-content: center;
+  }
+}
