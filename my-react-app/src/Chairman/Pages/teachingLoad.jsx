@@ -57,9 +57,9 @@ return(
       <tbody>
         {currentfaculty.map((member) => (
           <tr key={member.email}>
-            <td>{member.name}</td>
-            <td>{facultyCourses.find(f => f.faculty == member.name) ? facultyCourses.find(f => f.faculty == member.name).courses.join(", ") : "No courses assigned"}</td>
-            <td style={{background:getHoursColor(getTeachingHours(member.name),member.level), borderRadius: '12px',padding: '6px', display: 'flex',
+            <td data-label="Faculty Name" >{member.name}</td>
+            <td data-label="Teaching Courses">{facultyCourses.find(f => f.faculty == member.name) ? facultyCourses.find(f => f.faculty == member.name).courses.join(", ") : "No courses assigned"}</td>
+            <td data-label="Teaching hours:" style={{background:getHoursColor(getTeachingHours(member.name),member.level), borderRadius: '12px',padding: '6px', display: 'flex',
               margin: 'auto',width: 'fit-content',minWidth: '50px', justifyContent: 'center',fontWeight: '600',color:'white'}}>{getTeachingHours(member.name)}</td>
           </tr>
           ))}

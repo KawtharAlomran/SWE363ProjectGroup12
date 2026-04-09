@@ -53,16 +53,16 @@ export default function IcsFaculty(){
                   <tr>
                     <th>Faculty Name</th>
                     <th>Faculty Email</th>
-                    <th>Faculty Level</th>
+                    <th>Faculty Rank</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
                   {currentfaculty.map((member) => (
                   <tr key={member.email}>
-                    <td >{member.name}</td>
-                    <td>{member.email}</td>
-                    <td>{member.level}</td>
+                    <td data-label="Faculty Name" >{member.name}</td>
+                    <td data-label="Faculty Email">{member.email}</td>
+                    <td data-label="Faculty Rank">{member.level}</td>
                     <td><button className="deleteBtn" onClick={() => {
                   setSelectedFaculty(member.email);
                   setIsDelete(true);
