@@ -100,9 +100,8 @@ export default function AssignCourses() {
         )}
 
         <div className="an-actions" style={{ marginTop: 24 }}>
-          <button className="an-btn-save">Save</button>
           <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
-          <span className="an-note">*Note: Submitting will publish the assignments and notify all assigned faculty via email.</span>
+          <span className="an-note">*Note: Changes are saved automaticaly. Submitting will publish the assignments and notify all assigned faculty via email.</span>
         </div>
 
       </div>
