@@ -41,9 +41,9 @@
 
 .ac-course-tag {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px;
   border: 1px solid var(--border);
   border-radius: 10px;
   font-size: 14px;
@@ -53,11 +53,30 @@
   min-width: 160px;
 }
 
+.ac-tag-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.ac-tag-code {
+  flex: 1;
+  font-weight: 500;
+}
+
+.ac-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  width: 100%;
+}
 .ac-course-rank {
   width: 26px;
   height: 26px;
-  border-radius: 50%;
-  background: #2d6a6a;
+  border-radius: 6px;
+  background: var(--primary);
   color: var(--white);
   font-size: 12px;
   font-weight: 700;
@@ -66,3 +85,4 @@
   justify-content: center;
   flex-shrink: 0;
 }
+

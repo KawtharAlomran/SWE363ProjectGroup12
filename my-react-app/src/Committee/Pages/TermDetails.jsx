@@ -1,27 +1,31 @@
 import { useState } from 'react';
 import '../../styles/ManageTerms.css';
 import ConfirmModal from '../../shared/ConfirmModal';
-
-// Temporary data — will be replaced by API call later
-const COURSES = [
-  { id: 1, code: 'ICS 104', maleDemand: 70,  femaleDemand: 65, hasLab: true,  maleLec: 4, maleLab: 4, femaleLec: 3, femaleLab: 3 },
-  { id: 2, code: 'ICS 350', maleDemand: 7,   femaleDemand: 0,  hasLab: false, maleLec: 1, maleLab: 0, femaleLec: 0, femaleLab: 0 },
-  { id: 3, code: 'ICS 399', maleDemand: 52,  femaleDemand: 50, hasLab: false, maleLec: 1, maleLab: 0, femaleLec: 1, femaleLab: 0 },
-  { id: 4, code: 'SWE 399', maleDemand: 51,  femaleDemand: 49, hasLab: false, maleLec: 1, maleLab: 0, femaleLec: 1, femaleLab: 0 },
-];
-
-export default function TermDetails({ term, onBack }) {
+import { getTermCourses, updateTermCourses } from '../../data';
+export default function TermDetails({ term, onBack, onDelete }) {
+  // Only current year terms can be edited
   const canEdit = term.year === new Date().getFullYear();
+
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Load courses from shared data based on term id
+  const [courses, setCourses] = useState(getTermCourses(term.id));
+
+  // Auto-save on every section change — no need for Save button
+  const updateSection = (courseCode, field, value) => {
+    const updated = courses.map(c => c.code === courseCode ? { ...c, [field]: Number(value) } : c);
+    setCourses(updated);
+    updateTermCourses(term.id, updated);
+  };
 
   return (
     <>
       <div className="mt-card">
+
         <button className="td-back-btn" onClick={onBack}>← Back</button>
         <h3 className="mt-title" style={{ marginBottom: 4 }}>All Offered Courses</h3>
-        <div className="td-term-badge">
-          Term {term?.name?.replace('Academic Terms ', '') ?? ''}
-        </div>
+        <div className="td-term-badge">Term {term?.name?.replace('Academic Terms ', '') ?? ''}</div>
 
         <div className="an-table-wrap">
           <table className="an-table" style={{ marginTop: 24 }}>
@@ -33,13 +37,13 @@ export default function TermDetails({ term, onBack }) {
               </tr>
             </thead>
             <tbody>
-              {COURSES.map(course => (
-                <tr key={course.id}>
+              {courses.map(course => (
+                <tr key={course.code}>
                   <td><span className="an-course-name">{course.code}</span></td>
                   <td>
                     <div className="an-demand">
-                      Male: {course.maleDemand}<br />
-                      Female: {course.femaleDemand}
+                      Male: {course.maleDemand ?? '-'}<br />
+                      Female: {course.femaleDemand ?? '-'}
                     </div>
                   </td>
                   <td>
@@ -47,7 +51,7 @@ export default function TermDetails({ term, onBack }) {
                       <div className="an-section-row">
                         <span>Male:</span>
                         {canEdit
-                          ? <select className="an-select" defaultValue={course.maleLec}>
+                          ? <select className="an-select" value={course.maleLec} onChange={e => updateSection(course.code, 'maleLec', e.target.value)}>
                               {[...Array(15)].map((_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
                             </select>
                           : <span>{course.maleLec}</span>
@@ -55,7 +59,7 @@ export default function TermDetails({ term, onBack }) {
                         {course.hasLab && <>
                           <span>, Lab</span>
                           {canEdit
-                            ? <select className="an-select" defaultValue={course.maleLab}>
+                            ? <select className="an-select" value={course.maleLab} onChange={e => updateSection(course.code, 'maleLab', e.target.value)}>
                                 {[...Array(15)].map((_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
                               </select>
                             : <span>{course.maleLab}</span>
@@ -65,7 +69,7 @@ export default function TermDetails({ term, onBack }) {
                       <div className="an-section-row">
                         <span>Female:</span>
                         {canEdit
-                          ? <select className="an-select" defaultValue={course.femaleLec}>
+                          ? <select className="an-select" value={course.femaleLec} onChange={e => updateSection(course.code, 'femaleLec', e.target.value)}>
                               {[...Array(15)].map((_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
                             </select>
                           : <span>{course.femaleLec}</span>
@@ -73,7 +77,7 @@ export default function TermDetails({ term, onBack }) {
                         {course.hasLab && <>
                           <span>, Lab</span>
                           {canEdit
-                            ? <select className="an-select" defaultValue={course.femaleLab}>
+                            ? <select className="an-select" value={course.femaleLab} onChange={e => updateSection(course.code, 'femaleLab', e.target.value)}>
                                 {[...Array(15)].map((_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
                               </select>
                             : <span>{course.femaleLab}</span>
@@ -90,18 +94,34 @@ export default function TermDetails({ term, onBack }) {
 
         {canEdit && (
           <div className="an-actions">
-            <button className="an-btn-save">Save</button>
+            {/* Delete term with confirmation */}
+            <button className="tr-deleteBtn" onClick={() => setShowDeleteConfirm(true)}>
+              Delete Term
+            </button>
+            {/* Submit notifies faculty */}
             <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
           </div>
         )}
 
       </div>
 
+      {/* Submit confirmation */}
       {showConfirm && (
         <ConfirmModal
           message="Are you sure you want to submit the changes?"
           onConfirm={() => setShowConfirm(false)}
           onCancel={() => setShowConfirm(false)}
+        />
+      )}
+
+      {/* Delete term confirmation */}
+      {showDeleteConfirm && (
+        <ConfirmModal
+          message="Are you sure you want to delete this term?"
+          confirmText="Delete"
+          cancelText="Cancel"
+          onConfirm={() => { onDelete(term.id); setShowDeleteConfirm(false); }}
+          onCancel={() => setShowDeleteConfirm(false)}
         />
       )}
     </>

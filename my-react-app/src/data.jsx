@@ -25,13 +25,20 @@ let coursesList= [
     { code: "ICS 410", name: "Programming Languages", credit:3, description: "Programming paradigms: Object-oriented, imperative, functional, and logic; Application development in these paradigms; Fundamentals of Language Design: Syntax and semantics; Language implementation: virtual machines; Compilation, interpretation, and hybrid."}
   ];
 
-let terms=[
-    { id: 1, name: 'Academic Terms 261', year: 2026 },
-    { id: 2, name: 'Academic Terms 253', year: 2025 },
-    { id: 3, name: 'Academic Terms 252', year: 2024 },
-    { id: 4, name: 'Academic Terms 251', year: 2023 },
-    { id: 5, name: 'Academic Terms 242', year: 2022 },
-  ];
+  let courseDemand = [
+  { code: 'ICS 104', maleDemand: 120, femaleDemand: 105 },
+  { code: 'ICS 108', maleDemand: 35,  femaleDemand: 30  },
+  { code: 'ICS 202', maleDemand: 52,  femaleDemand: 50  },
+  { code: 'ICS 253', maleDemand: 34,  femaleDemand: 20  },
+  { code: 'ICS 321', maleDemand: 57,  femaleDemand: 55  },
+  { code: 'ICS 343', maleDemand: 57,  femaleDemand: 51  },
+  { code: 'ICS 344', maleDemand: 10,  femaleDemand: 5   },
+  { code: 'ICS 353', maleDemand: 5,   femaleDemand: 0   },
+  { code: 'ICS 381', maleDemand: 30,  femaleDemand: 20  },
+  { code: 'ICS 410', maleDemand: 20,  femaleDemand: 15  },
+];
+
+
 
 let offeredCourses=[
     {termNum:"261", courses:['ICS 104','ICS 202','ICS 253','ICS 343']},
@@ -164,6 +171,23 @@ let assignedCourses=[
 
 ];
 
+let terms = [
+  { id: 1, name: 'Academic Terms 261', year: 2026, termNum: '261', courses: [
+    { code: 'ICS 104', hasLab: true,  maleLec: 7, maleLab: 10, femaleLec: 6, femaleLab: 10 },
+    { code: 'ICS 202', hasLab: true,  maleLec: 3, maleLab: 4,  femaleLec: 3, femaleLab: 4  },
+    { code: 'ICS 253', hasLab: false, maleLec: 2, maleLab: 0,  femaleLec: 1, femaleLab: 0  },
+    { code: 'ICS 343', hasLab: true,  maleLec: 3, maleLab: 4,  femaleLec: 3, femaleLab: 4  },
+  ]},
+  { id: 3, name: 'Academic Terms 253', year: 2024, termNum: '252', courses: [
+    { code: 'ICS 104', hasLab: true,  maleLec: 7, maleLab: 10, femaleLec: 6, femaleLab: 10 },
+    { code: 'ICS 108', hasLab: true,  maleLec: 2, maleLab: 2,  femaleLec: 1, femaleLab: 1  },
+    { code: 'ICS 202', hasLab: true,  maleLec: 3, maleLab: 4,  femaleLec: 3, femaleLab: 4  },
+    { code: 'ICS 253', hasLab: false, maleLec: 2, maleLab: 0,  femaleLec: 1, femaleLab: 0  },
+    { code: 'ICS 321', hasLab: false, maleLec: 2, maleLab: 0,  femaleLec: 1, femaleLab: 0  },
+    { code: 'ICS 343', hasLab: true,  maleLec: 3, maleLab: 4,  femaleLec: 3, femaleLab: 4  },
+  ]},
+];
+
 // ----------- Getter functions -------------//
 
 //      For Login      //
@@ -185,10 +209,24 @@ export function getAllIcsCourses(){
 export function getAllOfferedCourses(){
     return offeredCourses;
 }
+export function getCourseDemand() { return courseDemand; }
 
-export function getAllTerms(){
-    return terms;
+
+export function getTerms() { return terms; }
+
+export function getCurrentTerms() {
+  return terms.filter(t => t.year === new Date().getFullYear());
 }
+
+export function getTermCourses(termId) {
+  return terms.find(t => t.id === termId)?.courses ?? [];
+}
+
+export function getTermSections(termNum) {
+  return terms.find(t => t.termNum === termNum)?.courses ?? [];
+}
+
+
 
 export function getCommittee(){
     return committee;
@@ -218,6 +256,9 @@ export function setCoursePrefrences(updatedList) {
   coursePrefrences = updatedList;
 }
 
+export function setTermSections(termNum, courses) {
+  terms = terms.map(t => t.termNum === termNum ? { ...t, courses } : t);
+}
 // ----------- Add functions -------------//
 export function addCommittee(newEmail){
     let info = faculty.find(f => f.email === newEmail);
@@ -235,11 +276,14 @@ export function addFaculty(newNAme, newEmail, newLevel){
 export function addCourse(code, name, hours, description){
     coursesList.push({code:code,name:name, credit:hours, description:description})
 }
-/*
-export function addTerm(code, name, hours){
-    coursesList.push({code:code,name:name, credit:hours})
+
+export function addTerm(newTerm) {
+  terms = [newTerm, ...terms];
 }
-    */
+
+export function updateTermCourses(termId, courses) {
+  terms = terms.map(t => t.id === termId ? { ...t, courses } : t);
+}
 
 // ----------- Deletion functions -------------//
 
@@ -256,4 +300,8 @@ export function deleteFaculty(email){
 export function deleteCourse(code){
     coursesList = coursesList.filter(course => course.code !== code);
     return coursesList;
+}
+// Delete a term by id
+export function deleteTerm(id) {
+  terms = terms.filter(t => t.id !== id);
 }

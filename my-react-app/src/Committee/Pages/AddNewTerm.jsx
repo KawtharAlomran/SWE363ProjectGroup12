@@ -1,23 +1,24 @@
 import { useState } from 'react';
 import '../../styles/ManageTerms.css';
 import ConfirmModal from '../../shared/ConfirmModal';
-
-const COURSES = [
-  { id: 1, code: 'ICS 104', maleDemand: 120, femaleDemand: 105, hasLab: true  },
-  { id: 2, code: 'ICS 108', maleDemand: 35,  femaleDemand: 30,  hasLab: true  },
-  { id: 3, code: 'ICS 202', maleDemand: 52,  femaleDemand: 50,  hasLab: true  },
-  { id: 4, code: 'ICS 253', maleDemand: 34,  femaleDemand: 20,  hasLab: false },
-  { id: 5, code: 'ICS 321', maleDemand: 57,  femaleDemand: 55,  hasLab: false },
-  { id: 6, code: 'ICS 343', maleDemand: 57,  femaleDemand: 51,  hasLab: true  },
-  { id: 7, code: 'ICS 344', maleDemand: 10,  femaleDemand: 5,   hasLab: false },
-  { id: 8, code: 'ICS 353', maleDemand: 5,   femaleDemand: 0,   hasLab: false },
-];
+import { getAllIcsCourses } from '../../data';
 
 export default function AddNewTerm({ onBack, onSubmit }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [termNumber, setTermNumber] = useState('');
   const [courses, setCourses] = useState(
-    COURSES.map(c => ({ ...c, checked: false, maleLec: 1, maleLab: 1, femaleLec: 1, femaleLab: 1 }))
+    // Load courses from shared data instead of hardcoded list
+    getAllIcsCourses().map(c => ({
+      ...c,
+      id: c.code,
+      checked: false,
+      maleDemand: 0,
+      femaleDemand: 0,
+      maleLec: 1,
+      maleLab: 1,
+      femaleLec: 1,
+      femaleLab: 1,
+    }))
   );
 
   const toggleCourse = (id) =>
@@ -32,7 +33,18 @@ export default function AddNewTerm({ onBack, onSubmit }) {
       id: Date.now(),
       name: `Academic Terms ${termNumber}`,
       year: new Date().getFullYear(),
-      courses: courses.filter(c => c.checked),
+      termNum: termNumber,
+      // Save only checked courses with their section counts
+      courses: courses
+        .filter(c => c.checked)
+        .map(c => ({
+          code: c.code,
+          hasLab: c.hasLab ?? false,
+          maleLec: c.maleLec,
+          maleLab: c.maleLab,
+          femaleLec: c.femaleLec,
+          femaleLab: c.femaleLab,
+        })),
     });
   };
 
@@ -45,7 +57,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
   return (
     <>
       <div className="mt-card">
-         <button className="td-back-btn" onClick={onBack}> › </button>
+        <button className="td-back-btn" onClick={onBack}>← Back</button>
         <div className="an-term-row">
           <label className="an-term-label">Enter Term number:</label>
           <input className="an-term-input" type="text" placeholder="251"
@@ -54,52 +66,51 @@ export default function AddNewTerm({ onBack, onSubmit }) {
 
         <div className="an-section-label">Select courses to offer in the term:</div>
         <div className="an-table-wrap">
-        <table className="an-table">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Course number</th>
-              <th>Student Demand</th>
-              <th>Number of sections</th>
-            </tr>
-          </thead>
-          <tbody>
-            {courses.map(course => (
-              <tr key={course.id}>
-                <td>
-                  <div className={`an-checkbox${course.checked ? ' an-checkbox-checked' : ''}`}
-                    onClick={() => toggleCourse(course.id)}>
-                    {course.checked && '✓'}
-                  </div>
-                </td>
-                <td><span className="an-course-name">{course.code}</span></td>
-                <td>
-                  <div className="an-demand">
-                    Male: {course.maleDemand}<br />Female: {course.femaleDemand}
-                  </div>
-                </td>
-                <td>
-                  {course.checked && (
-                    <div className="an-sections">
-                      <div className="an-section-row">
-                        <span>Male: Lec</span>
-                        <SectionSelect value={course.maleLec} field="maleLec" courseId={course.id} />
-                        {course.hasLab && <><span>, Lab</span><SectionSelect value={course.maleLab} field="maleLab" courseId={course.id} /></>}
-                      </div>
-                      <div className="an-section-row">
-                        <span>Female: Lec</span>
-                        <SectionSelect value={course.femaleLec} field="femaleLec" courseId={course.id} />
-                        {course.hasLab && <><span>, Lab</span><SectionSelect value={course.femaleLab} field="femaleLab" courseId={course.id} /></>}
-                      </div>
-                    </div>
-                  )}
-                </td>
+          <table className="an-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Course number</th>
+                <th>Student Demand</th>
+                <th>Number of sections</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {courses.map(course => (
+                <tr key={course.id}>
+                  <td>
+                    <div className={`an-checkbox${course.checked ? ' an-checkbox-checked' : ''}`}
+                      onClick={() => toggleCourse(course.id)}>
+                      {course.checked && '✓'}
+                    </div>
+                  </td>
+                  <td><span className="an-course-name">{course.code}</span></td>
+                  <td>
+                    <div className="an-demand">
+                      Male: {course.maleDemand}<br />Female: {course.femaleDemand}
+                    </div>
+                  </td>
+                  <td>
+                    {course.checked && (
+                      <div className="an-sections">
+                        <div className="an-section-row">
+                          <span>Male: Lec</span>
+                          <SectionSelect value={course.maleLec} field="maleLec" courseId={course.id} />
+                          {course.hasLab && <><span>, Lab</span><SectionSelect value={course.maleLab} field="maleLab" courseId={course.id} /></>}
+                        </div>
+                        <div className="an-section-row">
+                          <span>Female: Lec</span>
+                          <SectionSelect value={course.femaleLec} field="femaleLec" courseId={course.id} />
+                          {course.hasLab && <><span>, Lab</span><SectionSelect value={course.femaleLab} field="femaleLab" courseId={course.id} /></>}
+                        </div>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-
 
         <div className="an-actions">
           <button className="an-btn-save">Save</button>
@@ -109,12 +120,12 @@ export default function AddNewTerm({ onBack, onSubmit }) {
 
       </div>
       {showConfirm && (
-      <ConfirmModal
-        message="Are you sure you want to submit the term courses?"
-        onConfirm={() => { handleSubmit(); setShowConfirm(false); }}
-        onCancel={() => setShowConfirm(false)}
-      />
-    )}
+        <ConfirmModal
+          message="Are you sure you want to submit the term courses?"
+          onConfirm={() => { handleSubmit(); setShowConfirm(false); }}
+          onCancel={() => setShowConfirm(false)}
+        />
+      )}
     </>
   );
 }
