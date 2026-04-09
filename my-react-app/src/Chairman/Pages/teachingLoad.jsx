@@ -22,6 +22,15 @@ export default function Load(){
   const endIndex = startIndex + facultyPerPage;
   const currentfaculty = faculty.slice(startIndex, endIndex); // to display the faculty in the specified page 
   const totalPages = Math.ceil(faculty.length / facultyPerPage); // to find the total pages 
+  const getHoursColor=(hours, level) =>{
+    let color='#00b894'
+    if(hours>=facultyHours[level]){
+      color="#e53e3e"
+    }
+    return color;
+
+  }
+ 
 
   const getTeachingHours = (name) =>{
     const faculty = facultyCourses.find(c => c.faculty === name);
@@ -50,7 +59,8 @@ return(
           <tr key={member.email}>
             <td>{member.name}</td>
             <td>{facultyCourses.find(f => f.faculty == member.name) ? facultyCourses.find(f => f.faculty == member.name).courses.join(", ") : "No courses assigned"}</td>
-            <td>{getTeachingHours(member.name)}</td>
+            <td style={{background:getHoursColor(getTeachingHours(member.name),member.level), display: 'inline-flex', justifyContent: 'center',alignItems: 'center',
+              borderRadius: '10px',padding: '6px 12px', minWidth: '50px',fontWeight: '600',color:'white'}}>{getTeachingHours(member.name)}</td>
           </tr>
           ))}
       </tbody>
