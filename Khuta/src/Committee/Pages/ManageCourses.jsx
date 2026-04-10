@@ -1,6 +1,5 @@
 // import statments 
 import { useState } from "react";
-//import '../../styles/ManageCourses.css';
 import ConfirmModal from '../../shared/ConfirmModal';
 import {getAllIcsCourses, deleteCourse, addCourse} from "../../data";
 

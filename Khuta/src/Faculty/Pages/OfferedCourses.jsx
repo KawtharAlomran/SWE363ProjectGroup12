@@ -92,7 +92,7 @@ function OfferedCourses() {
 
   return (
     <>
-      <div className="mt-card">
+      <div className="container">
         <h3 className="mt-title">Offered Courses</h3>
 
         <div

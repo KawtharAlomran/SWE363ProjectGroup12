@@ -74,9 +74,9 @@ export default function AssignCourses() {
 
   return (
     <>
-      <div className="mt-card">
+      <div className="container">
 
-        <h3 className="mt-title">Assign Courses</h3>
+        <h3 className="header h2">Assign Courses</h3>
 
         {/* Term selector — only shows current year terms */}
         <div className="ac-view-toggle">

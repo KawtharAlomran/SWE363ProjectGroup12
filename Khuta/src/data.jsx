@@ -24,17 +24,32 @@ let coursesList= [
     { code: "ICS 410", name: "Programming Languages", credit:3, lab: false, description: "Programming paradigms: Object-oriented, imperative, functional, and logic; Application development in these paradigms; Fundamentals of Language Design: Syntax and semantics; Language implementation: virtual machines; Compilation, interpretation, and hybrid."}
   ];
 
-  let courseDemand = [
-  { code: 'ICS 104', maleDemand: 120, femaleDemand: 105 },
-  { code: 'ICS 108', maleDemand: 35,  femaleDemand: 30  },
-  { code: 'ICS 202', maleDemand: 52,  femaleDemand: 50  },
-  { code: 'ICS 253', maleDemand: 34,  femaleDemand: 20  },
-  { code: 'ICS 321', maleDemand: 57,  femaleDemand: 55  },
-  { code: 'ICS 343', maleDemand: 57,  femaleDemand: 51  },
-  { code: 'ICS 344', maleDemand: 10,  femaleDemand: 5   },
-  { code: 'ICS 353', maleDemand: 5,   femaleDemand: 0   },
-  { code: 'ICS 381', maleDemand: 30,  femaleDemand: 20  },
-  { code: 'ICS 410', maleDemand: 20,  femaleDemand: 15  },
+let courseDemand = [
+  // Term 261
+  { termNum: '261', code: 'ICS 104', maleDemand: 120, femaleDemand: 105 },
+  { termNum: '261', code: 'ICS 202', maleDemand: 52,  femaleDemand: 50  },
+  { termNum: '261', code: 'ICS 253', maleDemand: 34,  femaleDemand: 20  },
+  { termNum: '261', code: 'ICS 343', maleDemand: 57,  femaleDemand: 51  },
+
+  // Term 252
+  { termNum: '252', code: 'ICS 104', maleDemand: 110, femaleDemand: 95  },
+  { termNum: '252', code: 'ICS 108', maleDemand: 30,  femaleDemand: 25  },
+  { termNum: '252', code: 'ICS 202', maleDemand: 48,  femaleDemand: 44  },
+  { termNum: '252', code: 'ICS 253', maleDemand: 30,  femaleDemand: 18  },
+  { termNum: '252', code: 'ICS 321', maleDemand: 50,  femaleDemand: 48  },
+  { termNum: '252', code: 'ICS 343', maleDemand: 52,  femaleDemand: 46  },
+
+  // Term 263
+  { termNum: '263', code: 'ICS 104', maleDemand: 115, femaleDemand: 100 },
+  { termNum: '263', code: 'ICS 108', maleDemand: 40,  femaleDemand: 35  },
+  { termNum: '263', code: 'ICS 321', maleDemand: 55,  femaleDemand: 50  },
+  { termNum: '263', code: 'ICS 353', maleDemand: 8,   femaleDemand: 2   },
+
+  // Term 271
+  { termNum: '271', code: 'ICS 104', maleDemand: 130, femaleDemand: 115 },
+  { termNum: '271', code: 'ICS 202', maleDemand: 60,  femaleDemand: 55  },
+  { termNum: '271', code: 'ICS 343', maleDemand: 62,  femaleDemand: 55  },
+  { termNum: '271', code: 'ICS 344', maleDemand: 15,  femaleDemand: 8   },
 ];
 
 
@@ -241,8 +256,9 @@ export function getAllIcsCourses(){
 export function getAllOfferedCourses(){
     return offeredCourses;
 }
-export function getCourseDemand() { return courseDemand; }
-
+export function getCourseDemand(termNum) {
+  return courseDemand.filter(d => d.termNum === termNum);
+}
 
 export function getTerms() { return terms; }
 

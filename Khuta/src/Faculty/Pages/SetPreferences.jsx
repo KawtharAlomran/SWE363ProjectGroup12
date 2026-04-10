@@ -144,7 +144,7 @@ function SetPreferences() {
   return (
     <>
       <div className="fp-page">
-        <div className="fp-card">
+        <div className="container">
           <h3 className="mt-title">Set preferences</h3>
           <div className="td-term-badge">Current Term {currentTerm.termNum}</div>
 

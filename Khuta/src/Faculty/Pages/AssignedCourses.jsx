@@ -47,7 +47,7 @@ function AssignedCourses() {
   const totalPages = Math.ceil(assignedCourses.length / coursesPerPage) || 1;
 
   return (
-    <div className="mt-card">
+    <div className="container">
       <h3 className="mt-title">Assigned Courses</h3>
 
       <div

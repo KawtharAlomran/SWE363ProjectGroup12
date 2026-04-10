@@ -124,43 +124,6 @@
    MANAGE TERMS
  */
 
-/* Main page card wrapping the entire terms list */
-.mt-card {
-  background: var(--white);
-  width: 100%;
-  border-radius: 16px;
-  padding: 28px 32px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
-
-/* Page header row — title on the left, add button on the right */
-.mt-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-/* Page title text */
-.mt-title { font-size: 16px; font-weight: 700; color: var(--text); }
-
-/* "Add new term" gradient button */
-.mt-btn-add {
-  padding: 10px 20px;
-  background: var(--gradient);
-  color: var(--white);
-  border: none;
-  border-radius: 10px;
-  font-family: inherit;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-/* Add button hover state */
-.mt-btn-add:hover { opacity: 0.9; }
-
 /* Vertical list of term rows */
 .mt-list { display: flex; flex-direction: column; gap: 12px; }
 
@@ -200,45 +163,6 @@
 /* Modify button hover state */
 .mt-modify:hover { background: var(--primary-hover); }
 
-/* Chevron arrow on the right side of the row */
-.mt-arrow { color: var(--text-light); font-size: 18px; }
-
-/* Pagination row aligned to the right */
-.mt-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-top: 24px;
-}
-
-/* Individual page number button */
-.mt-page {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--white);
-  color: var(--text-muted);
-  font-family: inherit;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-/* Page number button hover state */
-.mt-page:hover { border-color: var(--primary); color: var(--primary); }
-
-/* Currently selected page number */
-.mt-page-active {
-  background: var(--primary);
-  color: var(--white);
-  border-color: var(--primary);
-  font-weight: 600;
-}
 
 
 /*  Add / Edit Term Form  */
@@ -279,6 +203,11 @@
   font-weight: 600;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border);
+}
+.ac-table-wrap {
+  max-height: calc(100vh - 380px);
+  overflow-y: auto;
+  min-height: 0;
 }
 
 /* Table body cells */
@@ -609,17 +538,7 @@
 /* Full-width page wrapper */
 .fp-page { width: 100%; }
 
-/* Main white card wrapping the drag-and-drop board */
-.fp-card {
-  background: var(--white);
-  border-radius: 24px;
-  padding: 28px 32px 36px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
 
-/* Large page title inside the card */
-/* { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 8px; text-align: left; }
-*/
 /* Two-column grid — available courses | ranked selection */
 .fp-board { display: grid; grid-template-columns: 1fr 1fr; gap: 42px; margin-top: 28px; }
 

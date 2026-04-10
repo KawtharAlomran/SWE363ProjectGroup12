@@ -27,7 +27,7 @@ function PreviousPreferences() {
   const totalPages = Math.ceil(preferences.length / preferencesPerPage) || 1;
 
   return (
-    <div className="mt-card">
+    <div className="container">
       <div
         style={{
           display: 'flex',

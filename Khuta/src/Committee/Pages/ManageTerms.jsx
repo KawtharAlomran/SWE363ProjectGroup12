@@ -1,5 +1,4 @@
 import { useState } from 'react';
-//import '../../styles/ManageTerms.css';
 import AddNewTerm from './AddNewTerm';
 import TermDetails from './TermDetails';
 import { getTerms, addTerm, deleteTerm } from '../../data';
@@ -31,29 +30,27 @@ export default function ManageTerms() {
     );
   }
 
- 
-if (selectedTerm) {
-  return (
-    <TermDetails
-      term={selectedTerm}
-      onBack={() => setSelectedTerm(null)}
-      onDelete={(termId) => {
-        deleteTerm(termId);
-        setTerms(getTerms());
-        setSelectedTerm(null);
-      }}
-    />
-  );
-}
+  if (selectedTerm) {
+    return (
+      <TermDetails
+        term={selectedTerm}
+        onBack={() => setSelectedTerm(null)}
+        onDelete={(termId) => {
+          deleteTerm(termId);
+          setTerms(getTerms());
+          setSelectedTerm(null);
+        }}
+      />
+    );
+  }
+
   return (
     <>
-      <div className="mt-card">
+      <div className="container">
 
-        <div className="mt-header">
-          <h3 className="mt-title">All Terms</h3>
-          <button className="mt-btn-add" onClick={() => setShowAddNew(true)}>
-            Add new Term
-          </button>
+        <div className="header">
+          <h3 className="header h2">All Terms</h3>
+          <button className="addBtn" onClick={() => setShowAddNew(true)}>Add new Term</button>
         </div>
 
         <div className="mt-list">
@@ -68,13 +65,14 @@ if (selectedTerm) {
           ))}
         </div>
 
+        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="mt-pagination">
-            <button className="mt-page" onClick={() => setCurrentPage(p => Math.max(1, p - 1))}>‹</button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-              <button key={n} className={`mt-page${currentPage === n ? ' mt-page-active' : ''}`} onClick={() => setCurrentPage(n)}>{n}</button>
+          <div className="pageNumbers">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button key={i+1} className={currentPage === i+1 ? 'active' : ''} onClick={() => setCurrentPage(i+1)}>
+                {i+1}
+              </button>
             ))}
-            <button className="mt-page" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}>›</button>
           </div>
         )}
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-//import '../../styles/ManageTerms.css';
 import ConfirmModal from '../../shared/ConfirmModal';
-import { getTermCourses, updateTermCourses } from '../../data';
+import { getTermCourses, updateTermCourses, getCourseDemand, getAllIcsCourses } from '../../data';
+
 export default function TermDetails({ term, onBack, onDelete }) {
   // Only current year terms can be edited
   const canEdit = term.year === new Date().getFullYear();
@@ -9,8 +9,33 @@ export default function TermDetails({ term, onBack, onDelete }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Load courses from shared data based on term id
-  const [courses, setCourses] = useState(getTermCourses(term.id));
+  // Load ALL courses and merge with term section data and demand for this term
+  const [courses, setCourses] = useState(() => {
+    const termCourses = getTermCourses(term.id);
+    const demand = getCourseDemand(term.termNum);
+
+    return getAllIcsCourses().map(c => {
+      const termCourse = termCourses.find(t => t.code === c.code);
+      const d = demand.find(d => d.code === c.code);
+      return {
+        code: c.code,
+        hasLab: c.lab ?? false,
+        maleLec: termCourse?.maleLec ?? 0,
+        maleLab: termCourse?.maleLab ?? 0,
+        femaleLec: termCourse?.femaleLec ?? 0,
+        femaleLab: termCourse?.femaleLab ?? 0,
+        maleDemand: d?.maleDemand ?? '-',
+        femaleDemand: d?.femaleDemand ?? '-',
+      };
+    });
+  });
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const coursesPerPage = canEdit ? 3 : 5;
+  const startIndex = (currentPage - 1) * coursesPerPage;
+  const currentCourses = courses.slice(startIndex, startIndex + coursesPerPage);
+  const totalPages = Math.ceil(courses.length / coursesPerPage);
 
   // Auto-save on every section change — no need for Save button
   const updateSection = (courseCode, field, value) => {
@@ -21,10 +46,10 @@ export default function TermDetails({ term, onBack, onDelete }) {
 
   return (
     <>
-      <div className="mt-card">
+      <div className="container">
 
         <button className="td-back-btn" onClick={onBack}>← Back</button>
-        <h3 className="mt-title" style={{ marginBottom: 4 }}>All Offered Courses</h3>
+        <h3 className="header h2" style={{ marginBottom: 4 }}>All Offered Courses</h3>
         <div className="td-term-badge">Term {term?.name?.replace('Academic Terms ', '') ?? ''}</div>
 
         <div className="an-table-wrap">
@@ -37,13 +62,13 @@ export default function TermDetails({ term, onBack, onDelete }) {
               </tr>
             </thead>
             <tbody>
-              {courses.map(course => (
+              {currentCourses.map(course => (
                 <tr key={course.code}>
                   <td><span className="an-course-name">{course.code}</span></td>
                   <td>
                     <div className="an-demand">
-                      Male: {course.maleDemand ?? '-'}<br />
-                      Female: {course.femaleDemand ?? '-'}
+                      Male: {course.maleDemand}<br />
+                      Female: {course.femaleDemand}
                     </div>
                   </td>
                   <td>
@@ -52,7 +77,7 @@ export default function TermDetails({ term, onBack, onDelete }) {
                         <span>Male:</span>
                         {canEdit
                           ? <select className="an-select" value={course.maleLec} onChange={e => updateSection(course.code, 'maleLec', e.target.value)}>
-                              {[...Array(15)].map((_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
+                              {[...Array(30)].map((_, i) => <option key={i} value={i}>{i}</option>)}
                             </select>
                           : <span>{course.maleLec}</span>
                         }
@@ -60,7 +85,7 @@ export default function TermDetails({ term, onBack, onDelete }) {
                           <span>, Lab</span>
                           {canEdit
                             ? <select className="an-select" value={course.maleLab} onChange={e => updateSection(course.code, 'maleLab', e.target.value)}>
-                                {[...Array(15)].map((_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
+                                {[...Array(30)].map((_, i) => <option key={i} value={i}>{i}</option>)}
                               </select>
                             : <span>{course.maleLab}</span>
                           }
@@ -70,7 +95,7 @@ export default function TermDetails({ term, onBack, onDelete }) {
                         <span>Female:</span>
                         {canEdit
                           ? <select className="an-select" value={course.femaleLec} onChange={e => updateSection(course.code, 'femaleLec', e.target.value)}>
-                              {[...Array(15)].map((_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
+                              {[...Array(30)].map((_, i) => <option key={i} value={i}>{i}</option>)}
                             </select>
                           : <span>{course.femaleLec}</span>
                         }
@@ -78,7 +103,7 @@ export default function TermDetails({ term, onBack, onDelete }) {
                           <span>, Lab</span>
                           {canEdit
                             ? <select className="an-select" value={course.femaleLab} onChange={e => updateSection(course.code, 'femaleLab', e.target.value)}>
-                                {[...Array(15)].map((_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
+                                {[...Array(30)].map((_, i) => <option key={i} value={i}>{i}</option>)}
                               </select>
                             : <span>{course.femaleLab}</span>
                           }
@@ -92,12 +117,21 @@ export default function TermDetails({ term, onBack, onDelete }) {
           </table>
         </div>
 
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="pageNumbers">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button key={i+1} className={currentPage === i+1 ? 'active' : ''} onClick={() => setCurrentPage(i+1)}>
+                {i+1}
+              </button>
+            ))}
+          </div>
+        )}
+
         {canEdit && (
           <div className="an-actions">
             {/* Delete term with confirmation */}
-            <button className="tr-deleteBtn" onClick={() => setShowDeleteConfirm(true)}>
-              Delete Term
-            </button>
+            <button className="tr-deleteBtn" onClick={() => setShowDeleteConfirm(true)}>Delete Term</button>
             {/* Submit notifies faculty */}
             <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
           </div>
