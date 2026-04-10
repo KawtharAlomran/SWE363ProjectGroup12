@@ -27,12 +27,15 @@ export default function Login() {
     const isCommittee = committee.find(u => u.username === user && u.pass === password);
 
     if(isChairman){
+      sessionStorage.setItem('UserName', isChairman.name);
       navigate('/chairman/ics-courses');
     }
     else if (isCommittee){
+      sessionStorage.setItem('UserName', isCommittee.name);
       navigate('/committee/manage-terms');
     }
     else if (isFaculty){
+      sessionStorage.setItem('UserName', isFaculty.name);
       navigate('/faculty/offered-courses');
     }
     else {

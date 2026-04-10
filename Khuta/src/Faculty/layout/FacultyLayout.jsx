@@ -13,7 +13,7 @@ function FacultyLayout() {
     // Reuse shared Layout component and pass Faculty-specific data
     <Layout
       navItems={NAV_ITEMS}        // sidebar links
-      userName="Khadija"         // displayed user name
+      userName={sessionStorage.getItem('UserName')}         // displayed user name
       userRole="Faculty member"  // displayed role
       rootLabel="Faculty"        // breadcrumb root
     />

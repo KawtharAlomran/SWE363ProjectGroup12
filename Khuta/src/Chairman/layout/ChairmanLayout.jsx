@@ -11,7 +11,7 @@ export default function ChairmanLayout() {
   return (
     <Layout
       navItems={NAV_ITEMS}
-      userName="Malak"
+      userName={sessionStorage.getItem('UserName')}
       userRole="ICS Chairman"
       rootLabel="Chairman"
     />

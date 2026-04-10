@@ -10,7 +10,7 @@ export default function CommitteeLayout() {
   return (
     <Layout
       navItems={NAV_ITEMS}
-      userName="Hamdi"
+      userName={sessionStorage.getItem('UserName')}
       userRole="Committee member"
       rootLabel="Committee"
     />
