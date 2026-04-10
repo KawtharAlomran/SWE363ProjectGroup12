@@ -24,9 +24,16 @@ function PreviousPreferences() {
   };
 
   const [selectedTerm, setSelectedTerm] = useState('261');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const preferences = submittedPreferences[selectedTerm] || [];
   const isCurrentTerm = selectedTerm === '261';
+
+  const preferencesPerPage = 4;
+  const startIndex = (currentPage - 1) * preferencesPerPage;
+  const endIndex = startIndex + preferencesPerPage;
+  const currentPreferences = preferences.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(preferences.length / preferencesPerPage) || 1;
 
   return (
     <div className="mt-card">
@@ -65,7 +72,10 @@ function PreviousPreferences() {
         <select
           className="an-select"
           value={selectedTerm}
-          onChange={(e) => setSelectedTerm(e.target.value)}
+          onChange={(e) => {
+            setSelectedTerm(e.target.value);
+            setCurrentPage(1);
+          }}
         >
           <option value="261">261</option>
           <option value="252">252</option>
@@ -84,7 +94,7 @@ function PreviousPreferences() {
         </thead>
         <tbody>
           {preferences.length > 0 ? (
-            preferences.map((course) => (
+            currentPreferences.map((course) => (
               <tr key={course.rank + course.code}>
                 <td>{course.rank}</td>
                 <td className="an-course-name">{course.code}</td>
@@ -100,6 +110,20 @@ function PreviousPreferences() {
           )}
         </tbody>
       </table>
+
+      {preferences.length > 0 && (
+        <div className="pageNumbers">
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              className={currentPage === index + 1 ? 'active' : ''}
+              onClick={() => setCurrentPage(index + 1)}
+            >
+              {index + 1}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
