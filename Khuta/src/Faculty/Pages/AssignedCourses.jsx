@@ -1,6 +1,5 @@
 import { useState } from 'react';
-//import '../../styles/ManageTerms.css';
-//import '../../styles/ManageCourses.css';
+
 
 function AssignedCourses() {
   // Temporary assigned courses grouped by term

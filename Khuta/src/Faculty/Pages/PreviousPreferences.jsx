@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getFacultySubmittedPreferences } from '../../data';
-//import '../../styles/ManageTerms.css';
 
 function PreviousPreferences() {
   const navigate = useNavigate();

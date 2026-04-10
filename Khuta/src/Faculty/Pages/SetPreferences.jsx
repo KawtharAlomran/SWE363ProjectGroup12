@@ -5,9 +5,7 @@ import {
   getFacultySubmittedPreferences,
   setFacultySubmittedPreferences
 } from '../../data';
-//import '../../styles/ManageTerms.css';
 import ConfirmModal from '../../shared/ConfirmModal';
-//import '../../styles/FacultyPreferences.css';
 
 function SetPreferences() {
   // Get all courses and current term
