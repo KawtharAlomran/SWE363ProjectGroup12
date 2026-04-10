@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import {getchairmanUsers,getFacltyUsers,getCommitteeUsers} from './data';
-import './App.css';
 //import'./styles/ManageCourses.css';
 
 

@@ -89,7 +89,7 @@ function SetPreferences() {
         </div>
 
         <div className="fp-card">
-          <h3 className="fp-title">Set preferences</h3>
+          <h3 className="mt-title">Set preferences</h3>
           <div className="td-term-badge">Current Term {currentTerm.termNum}</div>
 
           <div className="fp-board">
