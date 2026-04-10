@@ -68,7 +68,7 @@ function PreviousPreferences() {
           marginBottom: '20px',
         }}
       >
-        <label className="an-term-label">Select Term:</label>
+        <label className="td-term-badge">Select Term:</label>
         <select
           className="an-select"
           value={selectedTerm}

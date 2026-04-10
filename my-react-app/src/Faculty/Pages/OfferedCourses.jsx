@@ -35,7 +35,7 @@ function OfferedCourses() {
           marginBottom: '20px',
         }}
       >
-        <label className="an-term-label">Select Term:</label>
+        <label className="td-term-badge">Select Term:</label>
         <select
           className="an-select"
           value={selectedTerm}
@@ -50,10 +50,6 @@ function OfferedCourses() {
             </option>
           ))}
         </select>
-      </div>
-
-      <div className="td-term-badge">
-        Selected Term: {selectedTerm}
       </div>
 
       <table className="an-table" style={{ marginTop: '20px' }}>
