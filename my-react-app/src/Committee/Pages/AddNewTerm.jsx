@@ -54,6 +54,15 @@ export default function AddNewTerm({ onBack, onSubmit }) {
     </select>
   );
 
+  // to handle pages 
+  const [currentPage, setCurrentPage] = useState(1);
+  const coursesPerPage = 4;
+  const startIndex = (currentPage - 1) * coursesPerPage; // to find the start index 
+  const endIndex = startIndex + coursesPerPage;
+  const currentCourses = courses.slice(startIndex, endIndex); // to display the courses in the specified page 
+  const totalPages = Math.ceil(courses.length / coursesPerPage); // to find the total pages 
+  
+
   return (
     <>
       <div className="mt-card">
@@ -76,7 +85,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
               </tr>
             </thead>
             <tbody>
-              {courses.map(course => (
+              {currentCourses.map(course => (
                 <tr key={course.id}>
                   <td>
                     <div className={`an-checkbox${course.checked ? ' an-checkbox-checked' : ''}`}
@@ -117,7 +126,14 @@ export default function AddNewTerm({ onBack, onSubmit }) {
           <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
           <span className="an-note">*Note: by submitting the form, a notification will be send to faculty to set their preferences</span>
         </div>
-
+        <div className="pageNumbers">
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button className={currentPage === index + 1 ? "active" : ""} key={index + 1}
+              onClick={() => setCurrentPage(index + 1)}>
+              {index + 1}
+            </button>
+          ))}
+        </div>
       </div>
       {showConfirm && (
         <ConfirmModal
@@ -126,6 +142,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
           onCancel={() => setShowConfirm(false)}
         />
       )}
+     
     </>
   );
 }
