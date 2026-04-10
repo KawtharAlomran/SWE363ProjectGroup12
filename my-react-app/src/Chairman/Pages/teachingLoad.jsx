@@ -1,8 +1,8 @@
 
 import {getFaculty, getAssignedCourses, getAllIcsCourses, calculateTeachingHours} from "../../data";
 import { useState } from "react";
-import '../../styles/ManageCourses.css';
-import '../../styles/AssignCourses.css';
+//import '../../styles/ManageCourses.css';
+//import '../../styles/AssignCourses.css';
 
  const facultyHours={
   "Professor":6,

@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { getAllIcsCourses, getAllOfferedCourses } from '../../data';
-import '../../styles/ManageTerms.css';
+//import '../../styles/ManageTerms.css';
 import ConfirmModal from '../../shared/ConfirmModal';
-import '../../styles/FacultyPreferences.css';
+//import '../../styles/FacultyPreferences.css';
 
 function SetPreferences() {
   const allCourses = getAllIcsCourses();

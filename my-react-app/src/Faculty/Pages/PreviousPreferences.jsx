@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../styles/ManageTerms.css';
+//import '../../styles/ManageTerms.css';
 
 function PreviousPreferences() {
   const navigate = useNavigate();

@@ -1,4 +1,4 @@
-import '../../styles/ManageTerms.css';
+//import '../../styles/ManageTerms.css';
 
 function AssignedCourses() {
   const assignedCourses = [

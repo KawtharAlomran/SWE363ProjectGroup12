@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import '../../styles/ManageTerms.css';
+//import '../../styles/ManageTerms.css';
 import ByInstructor from './ByInstructor';
 import ByCourse from './ByCourse';
-import '../../styles/AssignCourses.css';
+//import '../../styles/AssignCourses.css';
 import ConfirmModal from '../../shared/ConfirmModal';
 import { getInstructorsPrefrences, getCoursePrefrences, setInstructorsPrefrences, setCoursePrefrences, getCurrentTerms, getTermSections } from "../../data";
 

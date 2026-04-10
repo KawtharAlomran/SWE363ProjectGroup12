@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { getAllOfferedCourses, getAllIcsCourses } from "../../data";
-import '../../styles/ManageCourses.css';
+//import '../../styles/ManageCourses.css';
 
 export default function ChairmanHomePage() {
 

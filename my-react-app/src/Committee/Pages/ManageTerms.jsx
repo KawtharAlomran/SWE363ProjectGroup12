@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import '../../styles/ManageTerms.css';
+//import '../../styles/ManageTerms.css';
 import AddNewTerm from './AddNewTerm';
 import TermDetails from './TermDetails';
 import { getTerms, addTerm, deleteTerm } from '../../data';

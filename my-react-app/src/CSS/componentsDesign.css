@@ -1,0 +1,704 @@
+/* 
+   components.css
+   Buttons, Tables, Cards, Pagination, Page-specific styles
+   Depends on tokens.css and base.css — import after them
+    */
+
+
+/* 
+   SHARED BUTTONS
+ */
+
+/* Green confirm button — used in modal and Add Term form */
+.modal-yes,
+.an-btn-submit {
+  padding: 10px 32px;
+  background: var(--accent);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+/* Confirm button hover state */
+.modal-yes:hover,
+.an-btn-submit:hover { background: #00a381; }
+
+/* Red cancel / reject button in the modal */
+.modal-no {
+  padding: 10px 32px;
+  background: var(--danger);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+/* Cancel button hover state */
+.modal-no:hover { background: var(--danger-hover); }
+
+/* Small red delete button — shared by ManageTerms and ManageCourses */
+.deleteBtn {
+  padding: 6px 20px;
+  background: var(--danger);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+/* Delete button hover state */
+.deleteBtn:hover { opacity: 0.9; }
+
+/* Larger red delete button used inside the term edit page */
+.tr-deleteBtn {
+  padding: 10px 24px;
+  background: var(--danger);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+/* Large delete button hover state */
+.tr-deleteBtn:hover { opacity: 0.9; }
+
+/* Gray save button — saves without submitting */
+.an-btn-save {
+  padding: 10px 24px;
+  background: #4a5568;
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+/* Save button hover state */
+.an-btn-save:hover { background: #2d3748; }
+
+/* Back button with a left arrow — navigates to previous page */
+.td-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: 16px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+/* Back button hover state */
+.td-back-btn:hover { background: #f3f4f6; color: var(--text); }
+
+/* Utility — centers text in a cell or element */
+.textCenter { text-align: center; }
+
+
+/* 
+   MANAGE TERMS
+ */
+
+/* Main page card wrapping the entire terms list */
+.mt-card {
+  background: var(--white);
+  width: 100%;
+  border-radius: 16px;
+  padding: 28px 32px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Page header row — title on the left, add button on the right */
+.mt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+/* Page title text */
+.mt-title { font-size: 16px; font-weight: 700; color: var(--text); }
+
+/* "Add new term" gradient button */
+.mt-btn-add {
+  padding: 10px 20px;
+  background: var(--gradient);
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+/* Add button hover state */
+.mt-btn-add:hover { opacity: 0.9; }
+
+/* Vertical list of term rows */
+.mt-list { display: flex; flex-direction: column; gap: 12px; }
+
+/* Single term row — name on the left, buttons on the right */
+.mt-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+/* Term row hover state */
+.mt-row:hover { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); }
+
+/* Term name text inside the row */
+.mt-name { font-size: 15px; font-weight: 500; color: var(--text); }
+
+/* "Modify" button inside each term row */
+.mt-modify {
+  padding: 8px 20px;
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+/* Modify button hover state */
+.mt-modify:hover { background: var(--primary-hover); }
+
+/* Chevron arrow on the right side of the row */
+.mt-arrow { color: var(--text-light); font-size: 18px; }
+
+/* Pagination row aligned to the right */
+.mt-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 24px;
+}
+
+/* Individual page number button */
+.mt-page {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+/* Page number button hover state */
+.mt-page:hover { border-color: var(--primary); color: var(--primary); }
+
+/* Currently selected page number */
+.mt-page-active {
+  background: var(--primary);
+  color: var(--white);
+  border-color: var(--primary);
+  font-weight: 600;
+}
+
+
+/* ── Add / Edit Term Form ───────────────────────────────── */
+
+/* Row containing the term name label and input field */
+.an-term-row { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
+
+/* "Term name:" label */
+.an-term-label { font-size: 15px; font-weight: 600; color: var(--text); }
+
+/* Term name text input */
+.an-term-input {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  width: 140px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+/* Term input focus state */
+.an-term-input:focus { border-color: var(--primary); }
+
+/* Section heading above the courses table */
+.an-section-label { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 16px; }
+
+/* Courses selection table */
+.an-table { width: 100%; border-collapse: collapse; }
+
+/* Table column headers */
+.an-table th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Table body cells */
+.an-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+}
+
+/* Custom checkbox — unchecked state */
+.an-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+/* Custom checkbox — checked state */
+.an-checkbox-checked {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--white);
+  font-size: 12px;
+}
+
+/* Course name text in the table */
+.an-course-name { font-size: 14px; font-weight: 500; color: var(--text); }
+
+/* Student demand / enrollment numbers */
+.an-demand { font-size: 13px; color: var(--text-muted); line-height: 1.8; }
+
+/* Column listing sections for a course */
+.an-sections { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text); }
+
+/* A single section row — number + select */
+.an-section-row { display: flex; align-items: center; gap: 6px; }
+
+/* Section type dropdown (Lecture / Lab) */
+.an-select {
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+}
+
+/* Row of Save and Submit buttons at the bottom of the form */
+.an-actions { display: flex; align-items: center; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+
+/* Small red warning note below the table */
+.an-note { font-size: 12px; color: var(--danger); font-style: italic; }
+
+/* Badge showing the term name above the courses table */
+.td-term-badge {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+
+/* 
+   MANAGE COURSES
+ */
+
+/* Main page card wrapping the courses table */
+.container {
+  width: 100%;
+  background: var(--white);
+  border-radius: 16px;
+  padding: 28px 32px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Page header row — title on left, add button on right */
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+
+/* Page heading inside the header */
+.header h2 { font-size: 16px; font-weight: 700; color: var(--text); }
+
+/* "Add course" gradient button */
+.addBtn {
+  padding: 10px 20px;
+  background: var(--gradient);
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+/* Add course button hover state */
+.addBtn:hover { opacity: 0.9; }
+
+/* Courses data table */
+.coursesTable { width: 100%; border-collapse: collapse; }
+
+/* Table header cells */
+.coursesTable thead th {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: left;
+}
+
+/* Center the course name column header */
+.coursesTable thead th:nth-child(2) { text-align: center; }
+
+/* Center the actions column header */
+.coursesTable thead th:nth-child(3) { text-align: center; }
+
+/* Separator line between all rows */
+.coursesTable tbody tr,
+.coursesTable thead tr { border-bottom: 1px solid #f3f4f6; }
+
+/* Table body cells */
+.coursesTable tbody td {
+  padding: 14px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  vertical-align: middle;
+}
+
+/* Center the course name column cells */
+.coursesTable tbody td:nth-child(2) { text-align: center; }
+
+/* Center the actions column cells */
+.coursesTable tbody td:nth-child(3) { text-align: center; }
+
+/* Pagination row aligned to the right */
+.pageNumbers { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 24px; }
+
+/* Individual page number button */
+.pageNumbers button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+/* Page number button hover state */
+.pageNumbers button:hover { border-color: var(--primary); color: var(--primary); }
+
+/* Currently active page number */
+.pageNumbers button.active {
+  background: var(--gradient);
+  color: var(--white);
+  font-weight: 600;
+  border-color: transparent;
+}
+
+/* ── Mobile: Table → Cards ──────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Reduce card padding on small screens */
+  .container { padding: 16px; border-radius: 12px; }
+
+  /* Stack header vertically on mobile */
+  .header { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 20px; }
+
+  /* Center heading on mobile */
+  .header h2 { font-size: 18px; text-align: center; }
+
+  /* Full-width add button on mobile */
+  .addBtn { width: 100%; padding: 12px 16px; font-size: 15px; }
+
+  /* Convert all table elements to block to allow card layout */
+  .coursesTable,
+  .coursesTable thead,
+  .coursesTable tbody,
+  .coursesTable tr,
+  .coursesTable th,
+  .coursesTable td { display: block; }
+
+  /* Hide column headers on mobile */
+  .coursesTable thead { display: none; }
+
+  /* Each table row becomes a standalone card */
+  .coursesTable tbody tr {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: var(--white);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Each cell becomes a flex row with label + value */
+  .coursesTable tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+    text-align: right !important;
+  }
+
+  /* Remove border from the last cell in each card */
+  .coursesTable tbody td:last-child { border-bottom: none; }
+
+  /* Inject the column label from the data-label attribute */
+  .coursesTable tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: left;
+    margin-right: 12px;
+  }
+
+  /* Hide the pseudo-label for cells without a data-label */
+  .coursesTable tbody td:not([data-label])::before { content: ""; display: none; }
+
+  /* Teaching hours label text color fix */
+  .coursesTable td[data-label="Teaching hours:"]::before { color: white; }
+
+  /* Adjust delete button size on mobile */
+  .deleteBtn { padding: 8px 20px; font-size: 13px; width: auto; min-width: 80px; }
+
+  /* Center and wrap pagination on mobile */
+  .pageNumbers { justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+
+  /* Larger tap targets for pagination buttons */
+  .pageNumbers button { width: 38px; height: 38px; font-size: 14px; }
+}
+
+
+/* 
+   ASSIGN COURSES
+ */
+
+/* Toggle row for switching between view modes */
+.ac-view-toggle { display: flex; align-items: center; gap: 10px; margin: 16px 0; }
+
+/* "View:" label before the toggle buttons */
+.ac-view-label { font-size: 14px; color: var(--text-muted); }
+
+/* View toggle button — inactive state */
+.ac-toggle-btn {
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+/* View toggle button — active / selected state */
+.ac-toggle-btn--active {
+  background: var(--gradient);
+  color: var(--white);
+  border-color: transparent;
+}
+
+/* Flex grid holding all course tag cards */
+.ac-courses-grid { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 0; }
+
+/* Individual course card showing code and sections */
+.ac-course-tag {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--white);
+  min-width: 160px;
+}
+
+/* Top row inside the card — course code + rank badge */
+.ac-tag-top { display: flex; align-items: center; gap: 8px; width: 100%; }
+
+/* Course code text e.g. "CS101" */
+.ac-tag-code { flex: 1; font-weight: 500; }
+
+/* List of sections under the course code */
+.ac-sections { display: flex; flex-direction: column; gap: 4px; font-size: 12px; width: 100%; }
+
+/* Blue square badge showing the faculty's preference rank */
+.ac-course-rank {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: var(--primary);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+
+/* 
+   FACULTY PREFERENCES
+ */
+
+/* Full-width page wrapper */
+.fp-page { width: 100%; }
+
+/* Header area above the card */
+.fp-header { margin-bottom: 18px; }
+
+/* Faculty member greeting / name */
+.fp-greeting { font-size: 18px; font-weight: 700; color: var(--text); text-align: left; }
+
+/* Main white card wrapping the drag-and-drop board */
+.fp-card {
+  background: var(--white);
+  border-radius: 24px;
+  padding: 28px 32px 36px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Large page title inside the card */
+.fp-title { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 8px; text-align: left; }
+
+/* Two-column grid — available courses | ranked selection */
+.fp-board { display: grid; grid-template-columns: 1fr 1fr; gap: 42px; margin-top: 28px; }
+
+/* Column heading above each list */
+.fp-column-title { font-size: 14px; color: var(--text-light); margin-bottom: 18px; text-align: left; }
+
+/* Vertical list of draggable course cards */
+.fp-list { display: flex; flex-direction: column; gap: 16px; }
+
+/* Draggable course card — available and selected share base styles */
+.fp-course-card,
+.fp-selected-card {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid #d9d9d9;
+  border-radius: 10px;
+  background: #fff;
+  cursor: grab;
+  text-align: left;
+}
+
+/* Extra shadow on available (unselected) course cards */
+.fp-course-card { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); }
+
+/* Drag handle dots icon */
+.fp-dots { color: #9ca3af; font-size: 18px; line-height: 1; }
+
+/* Course code — bold */
+.fp-course-code { font-weight: 700; color: var(--text); }
+
+/* Course full name — smaller muted text */
+.fp-course-name { color: #444; font-size: 14px; }
+
+/* Grid row in the ranked list — rank number + card */
+.fp-rank-row { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: center; }
+
+/* Rank position number on the left */
+.fp-rank-number { font-size: 13px; color: var(--text); text-align: center; }
+
+/* Drop target slot — can be empty or filled */
+.fp-slot { min-height: 48px; border-radius: 10px; display: flex; align-items: center; }
+
+/* Empty drop slot — dashed border */
+.fp-slot-empty { border: 1.5px dashed #d8d8d8; background: #fff; }
+
+/* Filled drop slot — no border, transparent */
+.fp-slot-filled { border: none; background: transparent; }
+
+/* Green circular badge showing confirmed rank number */
+.fp-rank-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #7cab6e;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Submit button row — aligned to the right */
+.fp-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
+
+/* Minimum width for the submit button */
+.fp-actions .an-btn-submit { min-width: 110px; }
+
+/* Single column layout on narrow screens */
+@media (max-width: 900px) {
+  .fp-board { grid-template-columns: 1fr; gap: 28px; }
+}

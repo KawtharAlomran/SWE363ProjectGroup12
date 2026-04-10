@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import {getFaculty, deleteFaculty, addFaculty} from "../../data";
-import '../../styles/ManageCourses.css';
+//import '../../styles/ManageCourses.css';
 import ConfirmModal from '../../shared/ConfirmModal';
 import AddModal from "./MemberAddition";
 

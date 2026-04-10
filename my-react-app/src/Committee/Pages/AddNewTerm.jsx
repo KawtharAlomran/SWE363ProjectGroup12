@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import '../../styles/ManageTerms.css';
+//import '../../styles/ManageTerms.css';
 import ConfirmModal from '../../shared/ConfirmModal';
 import { getAllIcsCourses } from '../../data';
 

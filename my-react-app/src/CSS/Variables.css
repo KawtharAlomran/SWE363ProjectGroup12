@@ -1,0 +1,40 @@
+/* 
+   Design Tokens — Variables, Font Import
+   Import this file FIRST before any other CSS in main.jsx
+    */
+
+/*  Font Import  */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+/*  CSS Variables  */
+:root {
+
+  /* --- Brand Colors --- */
+  --primary:        #2d3a8c;   /* main blue */
+  --primary-hover:  #1e2d7a;   /* darker blue on hover */
+  --accent:         #00b894;   /* green accent */
+
+  /* --- Status Colors --- */
+  --danger:         #e53e3e;   /* red — delete / error */
+  --danger-hover:   #c53030;   /* darker red on hover */
+
+  /* --- Neutrals --- */
+  --bg:             #f9fafb;   /* page background */
+  --white:          #ffffff;   /* card background */
+  --text:           #1a1a2e;   /* primary text */
+  --text-muted:     #6b7280;   /* secondary text / labels */
+  --text-light:     #9ca3af;   /* hints / placeholders */
+  --border:         #e5e7eb;   /* border color */
+
+  /* --- Layout Dimensions --- */
+  --sidebar-w:      260px;
+  --topbar-h:       54px;
+  --radius:         8px;
+
+  /* --- Shadows --- */
+  --shadow-sm:      0 1px 4px rgba(59, 48, 48, 0.06);
+
+  /* --- Gradients --- */
+  --gradient:       linear-gradient(135deg, #00b894, #2d3a8c);
+  --gradient-hover: linear-gradient(135deg, #00a381, #1e2d7a);
+}
