@@ -84,9 +84,6 @@ function SetPreferences() {
   return (
     <>
       <div className="fp-page">
-        <div className="fp-header">
-          <h2 className="fp-greeting">Hello Dr. Khadija 👋🏻,</h2>
-        </div>
 
         <div className="fp-card">
           <h3 className="mt-title">Set preferences</h3>

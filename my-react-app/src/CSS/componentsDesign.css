@@ -609,12 +609,6 @@
 /* Full-width page wrapper */
 .fp-page { width: 100%; }
 
-/* Header area above the card */
-.fp-header { margin-bottom: 18px; }
-
-/* Faculty member greeting / name */
-.fp-greeting { font-size: 18px; font-weight: 700; color: var(--text); text-align: left; }
-
 /* Main white card wrapping the drag-and-drop board */
 .fp-card {
   background: var(--white);
@@ -624,8 +618,8 @@
 }
 
 /* Large page title inside the card */
-.fp-title { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 8px; text-align: left; }
-
+/* { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 8px; text-align: left; }
+*/
 /* Two-column grid — available courses | ranked selection */
 .fp-board { display: grid; grid-template-columns: 1fr 1fr; gap: 42px; margin-top: 28px; }
 
