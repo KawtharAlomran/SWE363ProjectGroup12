@@ -169,7 +169,26 @@ let assignedCourses=[{"Term":'261','assignedCourses':[
     {faculty:"Fakhri Khan", courses:[{name:'ICS 104', sections:1},{name:'ICS 253', sections:2}]},
     {faculty:"Waleed Al Gobi", courses:[{name:'ICS 253', sections:3}]}]
 
-}];
+},
+{"Term":'252','assignedCourses':[
+    {faculty:"Hamdi Aljamimi", courses:[{name:'ICS 253', sections:3}]},
+    {faculty:"Mufti Mahmud", courses:[{name:'ICS 104', sections:2},{name:'ICS 253', sections:2}]},
+    {faculty:"Tarek Helmy El-Bassuny", courses:[{name:'ICS 202', sections:1},{name:'ICS 253', sections:2}]},
+    {faculty:"Mohammad Rabah Alshayeb", courses:[{name:'ICS 104', sections:3}]},
+    {faculty:"Mahmood Khan Niazi", courses:[{name:'ICS 104', sections:2},{name:'ICS 202', sections:1}]},
+    {faculty:"Mohammed Balah", courses:[{name:'ICS 253', sections:2},{name:'ICS 202', sections:1}]},
+    {faculty:"Alawi Alsaggaf", courses:[{name:'ICS 202', sections:2}]},
+    {faculty:"Mohammed Aslam", courses:[{name:'ICS 104', sections:4}]},
+    {faculty:"Rashad Othman", courses:[{name:'ICS 202', sections:2}]},
+    {faculty:"Yahya Garout", courses:[{name:'ICS 104', sections:1},{name:'ICS 202', sections:2}]},
+    {faculty:"Nuha Albadi", courses:[{name:'ICS 104', sections:1},{name:'ICS 202', sections:2}]},
+    {faculty:"Putu Raharja", courses:[{name:'ICS 104', sections:4}]},
+    {faculty:"Hani Almohair", courses:[{name:'ICS 104', sections:3}]},
+    {faculty:"Fakhri Khan", courses:[{name:'ICS 104', sections:1},{name:'ICS 202', sections:2}]},
+    {faculty:"Waleed Al Gobi", courses:[{name:'ICS 343', sections:2}]}]
+
+}
+];
 
 let terms = [
   { id: 1, name: 'Academic Terms 261', year: 2026, termNum: '261', courses: [
@@ -309,9 +328,9 @@ export function deleteTerm(id) {
 export function calculateTeachingHours(courses){
     let sum = 0;
     courses.forEach(courseCode => {
-        const foundCourse = coursesList.find(c => c.code === courseCode);
+        const foundCourse = coursesList.find(c => c.code === courseCode.name);
         if (foundCourse) {
-            sum += foundCourse.credit;
+            sum += foundCourse.credit * courseCode.sections;
         }
     });
     return sum;
