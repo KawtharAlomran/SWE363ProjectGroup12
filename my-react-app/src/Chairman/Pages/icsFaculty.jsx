@@ -27,6 +27,12 @@ export default function IcsFaculty(){
       setAddError("All fields must be filled");
       return;
     }
+
+    const codeRegex = /^.+@kfupm.edu.sa$/;
+    if (!codeRegex.test(newEmail)) {
+      setAddError("You must enter a valid email.");
+    return;
+    }
     const updatedData = addFaculty(newName, newEmail, newLevel); 
     setfaculty(updatedData);
 
