@@ -145,14 +145,14 @@ return (
           }
             // validate code (SWE206 or ICS455)
           const codeRegex = /^(SWE|ICS)\d{3}$/;
-          if (!codeRegex.test(code)) {
+          if (!codeRegex.test(code.toUpperCase())) {
             alert("Course code must start with SWE or ICS followed by 3 digits");
             return;
           }
-            // validate hours (must be 1–4)
+            // validate hours (must be 1–6)
           const hoursNum = Number(hours);
-          if (isNaN(hoursNum) || hoursNum < 1 || hoursNum > 4) {
-            alert("Course hours must be between 1 and 4");
+          if (isNaN(hoursNum) || hoursNum < 1 || hoursNum > 6) {
+            alert("Course hours must be between 1 and 6");
             return;
           }
           // validate name 
@@ -162,7 +162,7 @@ return (
             return;
           }
 
-          handleAdd(code, name, hours,hasLab, description);
+          handleAdd(code.toUpperCase(), name, hours,hasLab, description);
           setIsAdd(false);
           setCode("");
           setName("");
