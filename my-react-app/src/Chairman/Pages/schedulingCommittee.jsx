@@ -3,7 +3,7 @@ import { useState } from "react";
 import {getCommittee, deleteCommittee, addCommittee, getFaculty} from "../../data";
 //import '../../styles/ManageCourses.css';
 import ConfirmModal from '../../shared/ConfirmModal';
-import AddModal from './MemberAddition';
+// import AddModal from './MemberAddition';
 
 //---Only button handeling is remaining---//
 
@@ -81,7 +81,7 @@ export default function SchedulingCommittee(){
                 />
               )}
               {isAdd && (
-                <AddModal
+                <ConfirmModal
                   onConfirm={() => {handleAdd()}}
                   onCancel={() => {
                     setIsAdd(false);
@@ -95,6 +95,8 @@ export default function SchedulingCommittee(){
                       onChange: (val) => setNewEmail(val)
                     }
                   ]}
+                  confirmText = 'Add'
+                  cancelText = 'Cancel'
                 />
               )}
               <div className="pageNumbers">

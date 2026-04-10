@@ -3,7 +3,6 @@ import { useState } from "react";
 import {getFaculty, deleteFaculty, addFaculty} from "../../data";
 //import '../../styles/ManageCourses.css';
 import ConfirmModal from '../../shared/ConfirmModal';
-import AddModal from "./MemberAddition";
 
 //---Only button handeling is remaining---//
 
@@ -87,7 +86,7 @@ export default function IcsFaculty(){
               )}
 
               {isAdd && (
-                <AddModal
+                <ConfirmModal
                   onConfirm={() => {handleAdd()}}
                   onCancel={() => {
                     setIsAdd(false);
@@ -113,6 +112,8 @@ export default function IcsFaculty(){
                       onChange: (val) => setNewLevel(val)
                     }
                   ]}
+                  confirmText = 'Add'
+                  cancelText = 'Cancel'
                 />
               )}
 
