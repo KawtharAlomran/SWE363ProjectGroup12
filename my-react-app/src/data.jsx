@@ -1,14 +1,13 @@
 let chairmanUsers=[
-  {username: "fatimah", pass: "11", name: "Fatimah Al Tawfiq"}
+  {username: "Malak", pass: "11", name: "Malak Baslyman"}
 ]
 
 let facltyUsers=[
-  {username: "lama", pass: "22", name: "LAMA AL THUNAYYAN"}
+  {username: "Nuha", pass: "22", name: "Nuha Albadi"}
 ]
 
 let committeeUsers=[
-  {username: "nour", pass: "12", name: "NOUR AL SULAIS"},
-  {username: "kawthar", pass: "12", name: "KAWTHAR ALOMRAN"}
+  {username: "Hamdi", pass: "12", name: "Hamdi Aljamimi"},
 ]
 
 
