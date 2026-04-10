@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 function PreviousPreferences() {
   const navigate = useNavigate();
 
+  // Temporary data for submitted preferences per term
   const submittedPreferences = {
     '261': [
       { rank: 1, code: 'ICS 202', name: 'Data Structures and Algorithms' },
@@ -23,16 +24,23 @@ function PreviousPreferences() {
     '242': [],
   };
 
+  // State for selected term and pagination
   const [selectedTerm, setSelectedTerm] = useState('261');
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Get preferences for the selected term
   const preferences = submittedPreferences[selectedTerm] || [];
+
+  // Check if the selected term is the current term
   const isCurrentTerm = selectedTerm === '261';
 
+  // Pagination logic
   const preferencesPerPage = 4;
   const startIndex = (currentPage - 1) * preferencesPerPage;
   const endIndex = startIndex + preferencesPerPage;
   const currentPreferences = preferences.slice(startIndex, endIndex);
+
+  // Total number of pages (at least 1)
   const totalPages = Math.ceil(preferences.length / preferencesPerPage) || 1;
 
   return (
@@ -49,6 +57,7 @@ function PreviousPreferences() {
       >
         <h3 className="mt-title">Submitted Preferences</h3>
 
+        {/* Show modify button only for current term */}
         {isCurrentTerm && preferences.length > 0 && (
           <button
             className="mt-btn-add"
@@ -74,7 +83,7 @@ function PreviousPreferences() {
           value={selectedTerm}
           onChange={(e) => {
             setSelectedTerm(e.target.value);
-            setCurrentPage(1);
+            setCurrentPage(1); // reset page when term changes
           }}
         >
           <option value="261">261</option>
@@ -93,6 +102,7 @@ function PreviousPreferences() {
           </tr>
         </thead>
         <tbody>
+          {/* If preferences exist, show paginated list */}
           {preferences.length > 0 ? (
             currentPreferences.map((course) => (
               <tr key={course.rank + course.code}>
@@ -102,6 +112,7 @@ function PreviousPreferences() {
               </tr>
             ))
           ) : (
+            // If no preferences exist, show message
             <tr>
               <td colSpan="3" className="textCenter">
                 No preferences found for this term.
@@ -111,13 +122,14 @@ function PreviousPreferences() {
         </tbody>
       </table>
 
+      {/* Page numbering */}
       {preferences.length > 0 && (
         <div className="pageNumbers">
           {Array.from({ length: totalPages }, (_, index) => (
             <button
               key={index + 1}
               className={currentPage === index + 1 ? 'active' : ''}
-              onClick={() => setCurrentPage(index + 1)}
+              onClick={() => setCurrentPage(index + 1)} // change page
             >
               {index + 1}
             </button>
