@@ -56,7 +56,7 @@ my-react-app/
 ### 1. Install dependencies
 
 ```bash
-cd my-react-app
+cd Khuta
 npm install
 npm install react-router-dom
 ```
