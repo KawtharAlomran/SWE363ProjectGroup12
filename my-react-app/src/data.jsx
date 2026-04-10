@@ -152,24 +152,24 @@ let coursePrefrences = [
 ];
 
 
-let assignedCourses=[
-    {faculty:"Hamdi Aljamimi", courses:['ICS 343']},
-    {faculty:"Mufti Mahmud", courses:['ICS 104','ICS 202']},
-    {faculty:"Tarek Helmy El-Bassuny", courses:['ICS 202','ICS 253']},
-    {faculty:"Mohammad Rabah Alshayeb", courses:['ICS 104','ICS 253']},
-    {faculty:"Mahmood Khan Niazi", courses:['ICS 104','ICS 202']},
-    {faculty:"Mohammed Balah", courses:['ICS 104','ICS 202','ICS 253','ICS 343']},
-    {faculty:"Alawi Alsaggaf", courses:['ICS 104','ICS 202']},
-    {faculty:"Mohammed Aslam", courses:['ICS 104','ICS 202']},
-    {faculty:"Rashad Othman", courses:['ICS 104','ICS 253']},
-    {faculty:"Yahya Garout", courses:['ICS 104','ICS 202']},
-    {faculty:"Nuha Albadi", courses:['ICS 104','ICS 202']},
-    {faculty:"Putu Raharja", courses:['ICS 104','ICS 253']},
-    {faculty:"Hani Almohair", courses:['ICS 104','ICS 202','ICS 253']},
-    {faculty:"Fakhri Khan", courses:['ICS 202','ICS 253']},
-    {faculty:"Waleed Al Gobi", courses:['ICS 104','ICS 202','ICS 253']}
+let assignedCourses=[{"Term":'261','assignedCourses':[
+    {faculty:"Hamdi Aljamimi", courses:[{name:'ICS 343', sections:2}]},
+    {faculty:"Mufti Mahmud", courses:[{name:'ICS 104', sections:1},{name:'ICS 202', sections:2}]},
+    {faculty:"Tarek Helmy El-Bassuny", courses:[{name:'ICS 202', sections:1},{name:'ICS 253', sections:2}]},
+    {faculty:"Mohammad Rabah Alshayeb", courses:[{name:'ICS 104', sections:3}]},
+    {faculty:"Mahmood Khan Niazi", courses:[{name:'ICS 104', sections:2},{name:'ICS 202', sections:1}]},
+    {faculty:"Mohammed Balah", courses:[{name:'ICS 104', sections:4}]},
+    {faculty:"Alawi Alsaggaf", courses:[{name:'ICS 202', sections:2}]},
+    {faculty:"Mohammed Aslam", courses:[{name:'ICS 253', sections:2},{name:'ICS 202', sections:1}]},
+    {faculty:"Rashad Othman", courses:[{name:'ICS 104', sections:1},{name:'ICS 202', sections:2}]},
+    {faculty:"Yahya Garout", courses:[{name:'ICS 202', sections:2}]},
+    {faculty:"Nuha Albadi", courses:[{name:'ICS 104', sections:4}]},
+    {faculty:"Putu Raharja", courses:[{name:'ICS 104', sections:3}]},
+    {faculty:"Hani Almohair", courses:[{name:'ICS 202', sections:3}]},
+    {faculty:"Fakhri Khan", courses:[{name:'ICS 104', sections:1},{name:'ICS 253', sections:2}]},
+    {faculty:"Waleed Al Gobi", courses:[{name:'ICS 253', sections:3}]}]
 
-];
+}];
 
 let terms = [
   { id: 1, name: 'Academic Terms 261', year: 2026, termNum: '261', courses: [
