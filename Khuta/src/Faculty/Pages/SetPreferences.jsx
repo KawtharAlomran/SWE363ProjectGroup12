@@ -1,5 +1,10 @@
 import { useMemo, useState } from 'react';
-import { getAllIcsCourses, getAllOfferedCourses } from '../../data';
+import {
+  getAllIcsCourses,
+  getAllOfferedCourses,
+  getFacultySubmittedPreferences,
+  setFacultySubmittedPreferences
+} from '../../data';
 //import '../../styles/ManageTerms.css';
 import ConfirmModal from '../../shared/ConfirmModal';
 //import '../../styles/FacultyPreferences.css';
@@ -10,6 +15,9 @@ function SetPreferences() {
   const terms = getAllOfferedCourses();
   const currentTerm = terms[0];
 
+  // Get saved submitted preferences from data file
+  const submittedPreferences = getFacultySubmittedPreferences();
+
   // Filter only courses offered in the current term
   const availableCourses = useMemo(() => {
     return allCourses.filter((course) =>
@@ -17,15 +25,29 @@ function SetPreferences() {
     );
   }, [allCourses, currentTerm]);
 
-  // Number of preference slots (same as number of courses)
-  const MAX_SLOTS = availableCourses.length;
+  // Number of preference slots
+  const maxSlots = availableCourses.length;
 
-  // State for ranked courses, dragged course, and confirmation modal
-  const [rankedCourses, setRankedCourses] = useState(Array(MAX_SLOTS).fill(null));
+  // Load saved preferences for current term if they exist
+  const savedPreferences = submittedPreferences[currentTerm.termNum] || [];
+  const initialRankedCourses = Array(maxSlots).fill(null);
+
+  savedPreferences.forEach((course, index) => {
+    if (index < maxSlots) {
+      initialRankedCourses[index] = {
+        code: course.code,
+        name: course.name,
+      };
+    }
+  });
+
+  // State for ranked courses, dragged course, confirmation modal, and error message
+  const [rankedCourses, setRankedCourses] = useState(initialRankedCourses);
   const [draggedCourse, setDraggedCourse] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [error, setError] = useState('');
 
-  // Get codes of selected courses (to avoid duplicates)
+  // Get selected course codes to avoid duplicates
   const selectedCodes = rankedCourses.filter(Boolean).map((course) => course.code);
 
   // Courses still available on the left side
@@ -33,29 +55,29 @@ function SetPreferences() {
     (course) => !selectedCodes.includes(course.code)
   );
 
-  // Start dragging from left side
+  // Start dragging a course from the left side
   const handleDragStartFromLeft = (course) => {
     setDraggedCourse(course);
   };
 
-  // Start dragging from right (ranked list)
+  // Start dragging a course from the ranked list
   const handleDragStartFromRight = (course, fromIndex) => {
     setDraggedCourse({ ...course, fromIndex });
   };
 
-  // Drop course into a ranking slot
+  // Drop course into a selected slot
   const handleDropToSlot = (slotIndex) => {
     if (!draggedCourse) return;
 
     setRankedCourses((prev) => {
       const updated = [...prev];
 
-      // If dragging from ranked list, remove it from old position
+      // If dragging from ranked list, remove it from old position first
       if (draggedCourse.fromIndex !== undefined) {
         updated[draggedCourse.fromIndex] = null;
       }
 
-      // Place the course in the selected slot
+      // Place the course in the new slot
       updated[slotIndex] = {
         code: draggedCourse.code,
         name: draggedCourse.name,
@@ -65,9 +87,10 @@ function SetPreferences() {
     });
 
     setDraggedCourse(null);
+    setError('');
   };
 
-  // Drop course back to left side (remove from ranking)
+  // Drop course back to the left side to remove it from preferences
   const handleDropBackToLeft = () => {
     if (!draggedCourse || draggedCourse.fromIndex === undefined) return;
 
@@ -80,22 +103,47 @@ function SetPreferences() {
     setDraggedCourse(null);
   };
 
-  // Allow dropping
+  // Allow drop event
   const handleDragOver = (e) => {
     e.preventDefault();
   };
 
-  // Handle submit (just shows confirmation for now)
+  // Validate before opening confirmation modal
   const handleSubmit = () => {
     const selected = rankedCourses.filter(Boolean);
-    if (selected.length === 0) return;
+
+    // At least one course must be selected
+    if (selected.length === 0) {
+      setError('Please select at least one course before submitting.');
+      return;
+    }
+
+    setError('');
     setShowConfirm(true);
+  };
+
+  // Save submitted preferences into data file
+  const confirmSubmit = () => {
+    const selected = rankedCourses.filter(Boolean);
+
+    const formattedPreferences = selected.map((course, index) => ({
+      rank: index + 1,
+      code: course.code,
+      name: course.name,
+    }));
+
+    const updatedPreferences = {
+      ...submittedPreferences,
+      [currentTerm.termNum]: formattedPreferences,
+    };
+
+    setFacultySubmittedPreferences(updatedPreferences);
+    setShowConfirm(false);
   };
 
   return (
     <>
       <div className="fp-page">
-
         <div className="fp-card">
           <h3 className="mt-title">Set preferences</h3>
           <div className="td-term-badge">Current Term {currentTerm.termNum}</div>
@@ -167,6 +215,13 @@ function SetPreferences() {
               Submit
             </button>
           </div>
+
+          {/* Validation message */}
+          {error && (
+            <p style={{ color: 'red', marginTop: '10px', textAlign: 'left' }}>
+              {error}
+            </p>
+          )}
         </div>
       </div>
 
@@ -174,7 +229,7 @@ function SetPreferences() {
       {showConfirm && (
         <ConfirmModal
           message="Are you sure you want to submit your preferences?"
-          onConfirm={() => setShowConfirm(false)}
+          onConfirm={confirmSubmit}
           onCancel={() => setShowConfirm(false)}
         />
       )}

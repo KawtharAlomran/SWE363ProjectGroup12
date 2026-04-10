@@ -206,6 +206,20 @@ let terms = [
   ]},
 ];
 
+let facultySubmittedPreferences = {
+  '261': [],
+  '252': [
+    { rank: 1, code: 'ICS 104', name: 'Intro. to Prog. in Python & C' },
+    { rank: 2, code: 'ICS 108', name: 'Object-Oriented Programming' },
+    { rank: 3, code: 'ICS 202', name: 'Data Structures and Algorithms' },
+  ],
+  '251': [
+    { rank: 1, code: 'ICS 253', name: 'Discrete Structures' },
+    { rank: 2, code: 'ICS 321', name: 'Database Systems' },
+  ],
+  '242': [],
+};
+
 // ----------- Getter functions -------------//
 
 //      For Login      //
@@ -334,3 +348,15 @@ export function calculateTeachingHours(courses){
     });
     return sum;
 }
+
+
+// for the faculty 
+export function getFacultySubmittedPreferences() {
+  return facultySubmittedPreferences;
+}
+
+export function setFacultySubmittedPreferences(updatedPreferences) {
+  facultySubmittedPreferences = updatedPreferences;
+}
+
+

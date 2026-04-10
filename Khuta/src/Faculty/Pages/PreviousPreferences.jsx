@@ -1,37 +1,22 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getFacultySubmittedPreferences } from '../../data';
 //import '../../styles/ManageTerms.css';
 
 function PreviousPreferences() {
   const navigate = useNavigate();
 
-  // Temporary data for submitted preferences per term
-  const submittedPreferences = {
-    '261': [
-      { rank: 1, code: 'ICS 202', name: 'Data Structures and Algorithms' },
-      { rank: 2, code: 'ICS 253', name: 'Discrete Structures' },
-      { rank: 3, code: 'ICS 343', name: 'Fund. of Computer Networks' },
-    ],
-    '252': [
-      { rank: 1, code: 'ICS 104', name: 'Intro. to Prog. in Python & C' },
-      { rank: 2, code: 'ICS 108', name: 'Object-Oriented Programming' },
-      { rank: 3, code: 'ICS 202', name: 'Data Structures and Algorithms' },
-    ],
-    '251': [
-      { rank: 1, code: 'ICS 253', name: 'Discrete Structures' },
-      { rank: 2, code: 'ICS 321', name: 'Database Systems' },
-    ],
-    '242': [],
-  };
+  // Get submitted preferences from data file
+  const submittedPreferences = getFacultySubmittedPreferences();
 
-  // State for selected term and pagination
+  // State for selected term and current page
   const [selectedTerm, setSelectedTerm] = useState('261');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Get preferences for the selected term
+  // Get preferences for selected term
   const preferences = submittedPreferences[selectedTerm] || [];
 
-  // Check if the selected term is the current term
+  // Check if selected term is the current term
   const isCurrentTerm = selectedTerm === '261';
 
   // Pagination logic
@@ -39,8 +24,6 @@ function PreviousPreferences() {
   const startIndex = (currentPage - 1) * preferencesPerPage;
   const endIndex = startIndex + preferencesPerPage;
   const currentPreferences = preferences.slice(startIndex, endIndex);
-
-  // Total number of pages (at least 1)
   const totalPages = Math.ceil(preferences.length / preferencesPerPage) || 1;
 
   return (
@@ -83,7 +66,7 @@ function PreviousPreferences() {
           value={selectedTerm}
           onChange={(e) => {
             setSelectedTerm(e.target.value);
-            setCurrentPage(1); // reset page when term changes
+            setCurrentPage(1);
           }}
         >
           <option value="261">261</option>
@@ -102,7 +85,7 @@ function PreviousPreferences() {
           </tr>
         </thead>
         <tbody>
-          {/* If preferences exist, show paginated list */}
+          {/* Show preferences if available */}
           {preferences.length > 0 ? (
             currentPreferences.map((course) => (
               <tr key={course.rank + course.code}>
@@ -112,7 +95,7 @@ function PreviousPreferences() {
               </tr>
             ))
           ) : (
-            // If no preferences exist, show message
+            // Show message if no preferences exist
             <tr>
               <td colSpan="3" className="textCenter">
                 No preferences found for this term.
@@ -129,7 +112,7 @@ function PreviousPreferences() {
             <button
               key={index + 1}
               className={currentPage === index + 1 ? 'active' : ''}
-              onClick={() => setCurrentPage(index + 1)} // change page
+              onClick={() => setCurrentPage(index + 1)}
             >
               {index + 1}
             </button>
