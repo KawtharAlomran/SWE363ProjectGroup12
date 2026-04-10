@@ -241,7 +241,7 @@
 }
 
 
-/* ── Add / Edit Term Form ───────────────────────────────── */
+/*  Add / Edit Term Form  */
 
 /* Row containing the term name label and input field */
 .an-term-row { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
