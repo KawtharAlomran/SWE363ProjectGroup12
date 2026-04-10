@@ -696,3 +696,8 @@
 @media (max-width: 900px) {
   .fp-board { grid-template-columns: 1fr; gap: 28px; }
 }
+
+/* prevent the user from resizing the textarea in a horizontal way */
+textarea {
+  resize: vertical;
+}
