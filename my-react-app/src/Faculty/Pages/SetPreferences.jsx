@@ -5,49 +5,57 @@ import ConfirmModal from '../../shared/ConfirmModal';
 //import '../../styles/FacultyPreferences.css';
 
 function SetPreferences() {
+  // Get all courses and current term
   const allCourses = getAllIcsCourses();
   const terms = getAllOfferedCourses();
   const currentTerm = terms[0];
 
+  // Filter only courses offered in the current term
   const availableCourses = useMemo(() => {
     return allCourses.filter((course) =>
       currentTerm.courses.includes(course.code)
     );
   }, [allCourses, currentTerm]);
 
+  // Number of preference slots (same as number of courses)
   const MAX_SLOTS = availableCourses.length;
 
+  // State for ranked courses, dragged course, and confirmation modal
   const [rankedCourses, setRankedCourses] = useState(Array(MAX_SLOTS).fill(null));
   const [draggedCourse, setDraggedCourse] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  // Get codes of selected courses (to avoid duplicates)
   const selectedCodes = rankedCourses.filter(Boolean).map((course) => course.code);
 
+  // Courses still available on the left side
   const leftCourses = availableCourses.filter(
     (course) => !selectedCodes.includes(course.code)
   );
 
+  // Start dragging from left side
   const handleDragStartFromLeft = (course) => {
     setDraggedCourse(course);
   };
 
+  // Start dragging from right (ranked list)
   const handleDragStartFromRight = (course, fromIndex) => {
     setDraggedCourse({ ...course, fromIndex });
   };
 
+  // Drop course into a ranking slot
   const handleDropToSlot = (slotIndex) => {
     if (!draggedCourse) return;
 
     setRankedCourses((prev) => {
       const updated = [...prev];
 
-      // if dragging from ranked list, remove from old position first
+      // If dragging from ranked list, remove it from old position
       if (draggedCourse.fromIndex !== undefined) {
         updated[draggedCourse.fromIndex] = null;
       }
 
-      // if target slot already has a course, move it back only when dragging from left
-      // for now we simply replace it
+      // Place the course in the selected slot
       updated[slotIndex] = {
         code: draggedCourse.code,
         name: draggedCourse.name,
@@ -59,6 +67,7 @@ function SetPreferences() {
     setDraggedCourse(null);
   };
 
+  // Drop course back to left side (remove from ranking)
   const handleDropBackToLeft = () => {
     if (!draggedCourse || draggedCourse.fromIndex === undefined) return;
 
@@ -71,10 +80,12 @@ function SetPreferences() {
     setDraggedCourse(null);
   };
 
+  // Allow dropping
   const handleDragOver = (e) => {
     e.preventDefault();
   };
 
+  // Handle submit (just shows confirmation for now)
   const handleSubmit = () => {
     const selected = rankedCourses.filter(Boolean);
     if (selected.length === 0) return;
@@ -90,6 +101,7 @@ function SetPreferences() {
           <div className="td-term-badge">Current Term {currentTerm.termNum}</div>
 
           <div className="fp-board">
+            {/* Left side: available courses */}
             <div
               className="fp-column"
               onDragOver={handleDragOver}
@@ -115,6 +127,7 @@ function SetPreferences() {
               </div>
             </div>
 
+            {/* Right side: ranked preferences */}
             <div className="fp-column">
               <div className="fp-column-title">Preferences</div>
 
@@ -148,6 +161,7 @@ function SetPreferences() {
             </div>
           </div>
 
+          {/* Submit button */}
           <div className="fp-actions">
             <button className="an-btn-submit" onClick={handleSubmit}>
               Submit
@@ -156,6 +170,7 @@ function SetPreferences() {
         </div>
       </div>
 
+      {/* Confirmation modal */}
       {showConfirm && (
         <ConfirmModal
           message="Are you sure you want to submit your preferences?"
