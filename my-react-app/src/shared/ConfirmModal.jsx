@@ -1,8 +1,8 @@
-export default function ConfirmModal({ message, fileds, onConfirm, onCancel, confirmText = 'Yes', cancelText = 'No' }) {
+export default function ConfirmModal({ message, fileds, onConfirm, onCancel, confirmText = 'Yes', cancelText = 'No', errorMessage }) {
   return (
     <div className="modal-overlay">
       <div className="modal">
-        <p className="modal-text">{message}</p>
+        {message && <p className="modal-text">{message}</p>}
         <button className="modal-close" onClick={onCancel}>✕</button>
 
         {fileds && (
@@ -23,6 +23,11 @@ export default function ConfirmModal({ message, fileds, onConfirm, onCancel, con
           <button className="modal-yes" onClick={onConfirm}>{confirmText}</button>
           <button className="modal-no" onClick={onCancel}>{cancelText}</button>
         </div>
+        {errorMessage && (
+                <p style={{color: 'red', marginTop: '10px', fontSize: '14px' }}>
+                    {errorMessage}
+                </p>
+            )}
 
       </div>
     </div>

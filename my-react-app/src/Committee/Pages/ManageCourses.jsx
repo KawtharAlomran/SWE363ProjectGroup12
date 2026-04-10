@@ -16,6 +16,7 @@ export default function ManageCourses() {
   const [hours, setHours] = useState("");
   const [description, setDescription] = useState("");
   const [hasLab, setHasLab] = useState(null);
+  const [addError, setAddError] = useState("")
 
   // to handle pages 
   const coursesPerPage = 6;
@@ -135,30 +136,30 @@ return (
    
           // check if there is any missing fields
           if (!code || !name || !hours || !description) {
-            alert("All fields are required");
+            setAddError("All fields are required");
             return;
           }
           // check if the user choose one of the two options or not
           if (hasLab === null) {
-          alert("Please choose whether the course has a lab");
+          setAddError("Please choose whether the course has a lab");
           return;
           }
             // validate code (SWE206 or ICS455)
           const codeRegex = /^(SWE|ICS)\d{3}$/;
           if (!codeRegex.test(code.toUpperCase())) {
-            alert("Course code must start with SWE or ICS followed by 3 digits");
+            setAddError("Course code must start with SWE or ICS followed by 3 digits");
             return;
           }
             // validate hours (must be 1–6)
           const hoursNum = Number(hours);
           if (isNaN(hoursNum) || hoursNum < 1 || hoursNum > 6) {
-            alert("Course hours must be between 1 and 6");
+            setAddError("Course hours must be between 1 and 6");
             return;
           }
           // validate name 
           const nameRegex = /^[A-Za-z\s]+$/;
           if (!nameRegex.test(name)) {
-            alert("Course name must contain only letters");
+            setAddError("Course name must contain only letters");
             return;
           }
 
@@ -180,6 +181,7 @@ return (
         }}
         confirmText="Add"
         cancelText="Cancel"
+        errorMessage={addError}
       />
     )}
 
