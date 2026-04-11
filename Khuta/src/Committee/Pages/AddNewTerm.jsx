@@ -5,6 +5,7 @@ import { getAllIcsCourses, getCourseDemand } from '../../data';
 export default function AddNewTerm({ onBack, onSubmit }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [termNumber, setTermNumber] = useState('');
+  const [termError, setTermError] = useState(false);
 
   // Load all ICS courses from shared data — no hardcoded list
   const [courses, setCourses] = useState(() =>
@@ -20,21 +21,17 @@ export default function AddNewTerm({ onBack, onSubmit }) {
   // Search demand for the entered term number — only triggers when 3 digits are entered
   const termDemand = termNumber.length === 3 ? getCourseDemand(termNumber) : [];
 
-  // Returns demand value for a course field, or '-' if not found
   const getDemand = (code, field) => {
     const d = termDemand.find(d => d.code === code);
     return d ? d[field] : '-';
   };
 
-  // Toggle course selection
   const toggleCourse = (id) =>
     setCourses(prev => prev.map(c => c.id === id ? { ...c, checked: !c.checked } : c));
 
-  // Update section count for a specific course and field
   const updateSection = (id, field, value) =>
     setCourses(prev => prev.map(c => c.id === id ? { ...c, [field]: Number(value) } : c));
 
-  // Build and submit the new term object, then go back to main page
   const handleSubmit = () => {
     if (!termNumber) return;
     onSubmit({
@@ -42,17 +39,23 @@ export default function AddNewTerm({ onBack, onSubmit }) {
       name: `Academic Terms ${termNumber}`,
       year: new Date().getFullYear(),
       termNum: termNumber,
-      // Only include checked courses with their section counts
       courses: courses.filter(c => c.checked).map(c => ({
         code: c.code, hasLab: c.hasLab,
         maleLec: c.maleLec, maleLab: c.maleLab,
         femaleLec: c.femaleLec, femaleLab: c.femaleLab,
       })),
     });
-    // onSubmit in ManageTerms already calls setShowAddNew(false) which goes back
   };
 
-  // Reusable select for choosing number of sections (0–15)
+  const handleSubmitClick = () => {
+    if (!termNumber) {
+      setTermError(true); // show red border
+      return;
+    }
+    setTermError(false);
+    setShowConfirm(true);
+  };
+
   const SectionSelect = ({ value, field, courseId }) => (
     <select className="an-select" value={value} onChange={e => updateSection(courseId, field, e.target.value)}>
       {[...Array(16)].map((_, i) => <option key={i} value={i}>{i}</option>)}
@@ -74,17 +77,25 @@ export default function AddNewTerm({ onBack, onSubmit }) {
         <div className="an-term-row">
           <label className="an-term-label">Enter Term number:</label>
           <div>
-            {/* Only allows 3 digits — triggers demand lookup automatically */}
             <input
               className="an-term-input"
               type="text"
               placeholder="251"
               maxLength={3}
               value={termNumber}
-              onChange={e => setTermNumber(e.target.value.replace(/\D/g, ''))}
+              style={termError ? { border: '2px solid red', borderRadius: 6 } : {}}
+              onChange={e => {
+                const val = e.target.value.replace(/\D/g, '');
+                setTermNumber(val);
+                if (val) setTermError(false); // clear error when user types
+              }}
             />
-            {/* Prompt user to enter term number before demand is shown */}
-            {termNumber.length < 3 && (
+            {termError && (
+              <span style={{ color: 'red', fontSize: 13, marginLeft: 8 }}>
+                * Please enter a term number
+              </span>
+            )}
+            {!termError && termNumber.length < 3 && (
               <span className="an-note">* Enter term number first to see student demand</span>
             )}
           </div>
@@ -118,7 +129,6 @@ export default function AddNewTerm({ onBack, onSubmit }) {
                     </div>
                   </td>
                   <td>
-                    {/* Section selects only appear when course is checked */}
                     {course.checked && (
                       <div className="an-sections">
                         <div className="an-section-row">
@@ -141,11 +151,10 @@ export default function AddNewTerm({ onBack, onSubmit }) {
         </div>
 
         <div className="an-actions">
-          <button className="an-btn-submit" onClick={() => { if (!termNumber) { alert('Please enter a term number first'); return; } setShowConfirm(true); }}>Submit</button>
+          <button className="an-btn-submit" onClick={handleSubmitClick}>Submit</button>
           <span className="an-note">*Note: by submitting the form, a notification will be send to faculty to set their preferences</span>
         </div>
 
-        {/* Pagination controls */}
         <div className="pageNumbers">
           {Array.from({ length: totalPages }, (_, i) => (
             <button key={i+1} className={currentPage === i+1 ? 'active' : ''} onClick={() => setCurrentPage(i+1)}>
@@ -156,7 +165,6 @@ export default function AddNewTerm({ onBack, onSubmit }) {
 
       </div>
 
-      {/* Submit confirmation modal — goes back after confirm */}
       {showConfirm && (
         <ConfirmModal
           message="Are you sure you want to submit the term courses?"

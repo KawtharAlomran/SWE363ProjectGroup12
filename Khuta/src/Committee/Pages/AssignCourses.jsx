@@ -1,20 +1,23 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ByInstructor from './ByInstructor';
 import ByCourse from './ByCourse';
 import ConfirmModal from '../../shared/ConfirmModal';
 import { getInstructorsPrefrences, getCoursePrefrences, setInstructorsPrefrences, setCoursePrefrences, getCurrentTerms, getTermSections } from "../../data";
 
-export default function AssignCourses({ onBack }) {
+export default function AssignCourses() {
+  const navigate = useNavigate();
   const [viewType, setViewType] = useState('instructor');
   const [instructors, setInstructors] = useState(getInstructorsPrefrences());
   const [coursesList, setCoursesList] = useState(getCoursePrefrences());
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Only show terms that have Modify button (current year)
+  // { instructorId, courseId, field } — which select exceeded the limit
+  const [sectionError, setSectionError] = useState(null);
+
   const currentTerms = getCurrentTerms();
   const [selectedTermNum, setSelectedTermNum] = useState(currentTerms[0]?.termNum ?? '261');
 
-  // Toggle assignment for both instructor and course views simultaneously
   const toggle = (instructorId, courseId) => {
     const updatedInstructorsList = instructors.map((inst) =>
       inst.id === instructorId ? {...inst, courses: inst.courses.map((c) => c.id === courseId ? { ...c, assigned: !c.assigned } : c)} : inst);
@@ -28,11 +31,9 @@ export default function AssignCourses({ onBack }) {
     setCoursesList(updatedCourseList);
   };
 
-  // Update section count with validation — syncs both instructors and courses lists
   const updateSection = (instructorId, courseId, field, value) => {
     const termSections = getTermSections(selectedTermNum);
 
-    // Find course code from either coursesList or instructors
     const courseCode = coursesList.find(c => c.id === courseId)?.code
       ?? instructors.find(i => i.id === instructorId)?.courses.find(c => c.id === courseId)?.code;
 
@@ -41,24 +42,24 @@ export default function AssignCourses({ onBack }) {
     if (termCourse) {
       const maxAllowed = termCourse[field] ?? 99;
 
-      // Calculate total from coursesList — all assigned instructors except current
       const coursePref = coursesList.find(c => c.id === courseId);
       const currentTotal = coursePref?.instructors
         .filter(i => i.assigned && i.id !== instructorId)
         .reduce((sum, i) => sum + (i[field] || 0), 0) ?? 0;
 
-      // Block if adding this value exceeds the term limit
       if (currentTotal + value > maxAllowed) {
-        alert(`Cannot exceed ${maxAllowed} sections for ${courseCode}`);
+        // Set error instead of alert — points to the specific select
+        setSectionError({ instructorId, courseId, field, max: maxAllowed, code: courseCode });
         return;
       }
     }
 
-    // Update instructors list
+    // Clear error on valid input
+    setSectionError(null);
+
     const updatedInstructors = instructors.map(i =>
       i.id === instructorId ? { ...i, courses: i.courses.map(c => c.id === courseId ? { ...c, [field]: value } : c) } : i);
 
-    // Update courses list too so ByCourse reads the same updated data
     const updatedCourses = coursesList.map(c =>
       c.id === courseId ? {
         ...c,
@@ -71,7 +72,6 @@ export default function AssignCourses({ onBack }) {
     setCoursePrefrences(updatedCourses);
   };
 
-  // Filter instructors to only show courses in selected term
   const termCourses = getTermSections(selectedTermNum);
   const termCourseCodes = termCourses.map(c => c.code);
   const filteredInstructors = instructors.map(inst => ({
@@ -79,7 +79,6 @@ export default function AssignCourses({ onBack }) {
     courses: inst.courses.filter(c => termCourseCodes.includes(c.code))
   }));
 
-  // Show all term courses even if no instructors prefer them
   const filteredCourses = termCourses.map(tc => {
     const existing = coursesList.find(c => c.code === tc.code);
     return existing ?? { id: tc.code, code: tc.code, instructors: [] };
@@ -91,26 +90,37 @@ export default function AssignCourses({ onBack }) {
 
         <h3 className="header h2">Assign Courses</h3>
 
-        {/* Term selector — only shows current year terms */}
         <div className="ac-view-toggle">
           <span className="ac-view-label">Term:</span>
-          <select className="an-select" value={selectedTermNum} onChange={e => setSelectedTermNum(e.target.value)}>
+          <select className="an-select" value={selectedTermNum} onChange={e => { setSelectedTermNum(e.target.value); setSectionError(null); }}>
             {currentTerms.map(t => <option key={t.termNum} value={t.termNum}>{t.name}</option>)}
           </select>
         </div>
 
         <div className="ac-view-toggle">
           <span className="ac-view-label">View type:</span>
-          <button className={`ac-toggle-btn${viewType === 'instructor' ? ' ac-toggle-btn--active' : ''}`} onClick={() => setViewType('instructor')}>By instructor</button>
-          <button className={`ac-toggle-btn${viewType === 'course' ? ' ac-toggle-btn--active' : ''}`} onClick={() => setViewType('course')}>By course</button>
+          <button className={`ac-toggle-btn${viewType === 'instructor' ? ' ac-toggle-btn--active' : ''}`} onClick={() => { setViewType('instructor'); setSectionError(null); }}>By instructor</button>
+          <button className={`ac-toggle-btn${viewType === 'course' ? ' ac-toggle-btn--active' : ''}`} onClick={() => { setViewType('course'); setSectionError(null); }}>By course</button>
         </div>
 
         {viewType === 'instructor' && (
-          <ByInstructor instructors={filteredInstructors} onToggle={toggle} onUpdateSection={updateSection} termNum={selectedTermNum} />
+          <ByInstructor
+            instructors={filteredInstructors}
+            onToggle={toggle}
+            onUpdateSection={updateSection}
+            termNum={selectedTermNum}
+            sectionError={sectionError}
+          />
         )}
 
         {viewType === 'course' && (
-          <ByCourse courses={filteredCourses} onToggle={toggle} onUpdateSection={updateSection} termNum={selectedTermNum} />
+          <ByCourse
+            courses={filteredCourses}
+            onToggle={toggle}
+            onUpdateSection={updateSection}
+            termNum={selectedTermNum}
+            sectionError={sectionError}
+          />
         )}
 
         <div className="an-actions" style={{ marginTop: 24 }}>
@@ -120,11 +130,10 @@ export default function AssignCourses({ onBack }) {
 
       </div>
 
-      {/* Submit confirmation — goes back to main page after confirm */}
       {showConfirm && (
         <ConfirmModal
           message="Are you sure you want to submit the changes?"
-          onConfirm={() => { setShowConfirm(false); onBack(); }}
+          onConfirm={() => { setShowConfirm(false); navigate(-1); }}
           onCancel={() => setShowConfirm(false)}
         />
       )}

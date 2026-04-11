@@ -1,22 +1,22 @@
 import { getTermSections } from '../../data';
 import { useState } from "react";
 
-// Reusable select component for choosing number of sections (0–15)
-function SectionSelect({ value, onChange }) {
+function SectionSelect({ value, onChange, hasError }) {
   return (
-    <select className="an-select" value={value} onChange={e => onChange(Number(e.target.value))}>
+    <select
+      className="an-select"
+      value={value}
+      style={hasError ? { border: '1.5px solid red', borderRadius: 4 } : {}}
+      onChange={e => onChange(Number(e.target.value))}
+    >
       {[...Array(16)].map((_, i) => <option key={i} value={i}>{i}</option>)}
     </select>
   );
 }
 
-// Displays courses grouped by instructor
-// Each course shows a checkbox, and if assigned shows Lec/Lab section selects
-export default function ByInstructor({ instructors, onToggle, onUpdateSection, termNum }) {
-  // Get section limits for selected term
+export default function ByInstructor({ instructors, onToggle, onUpdateSection, termNum, sectionError }) {
   const termSections = getTermSections(termNum);
 
-  // Pagination — 4 instructors per page
   const [currentPage, setCurrentPage] = useState(1);
   const instructorsPerPage = 4;
   const startIndex = (currentPage - 1) * instructorsPerPage;
@@ -44,7 +44,6 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
                       return (
                         <div key={course.id} className={`ac-course-tag${course.assigned ? ' ac-course-tag--assigned' : ''}`}>
                           <div className="ac-tag-top">
-                            {/* Use sequential index + 1 instead of course.rank */}
                             <span className="ac-course-rank">{index + 1}</span>
                             <span className="ac-tag-code">{course.code}</span>
                             <div
@@ -55,25 +54,46 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
                             </div>
                           </div>
 
-                          {/* Show section selects only when course is assigned and exists in term */}
                           {course.assigned && termCourse && (
                             <div className="ac-sections">
                               <div className="an-section-row">
                                 <span>M: Lec</span>
-                                <SectionSelect value={course.maleLec || 0} onChange={v => onUpdateSection(inst.id, course.id, 'maleLec', v)} />
+                                <SectionSelect
+                                  value={course.maleLec || 0}
+                                  hasError={sectionError?.instructorId === inst.id && sectionError?.courseId === course.id && sectionError?.field === 'maleLec'}
+                                  onChange={v => onUpdateSection(inst.id, course.id, 'maleLec', v)}
+                                />
                                 {termCourse.hasLab && <>
                                   <span>, Lab</span>
-                                  <SectionSelect value={course.maleLab || 0} onChange={v => onUpdateSection(inst.id, course.id, 'maleLab', v)} />
+                                  <SectionSelect
+                                    value={course.maleLab || 0}
+                                    hasError={sectionError?.instructorId === inst.id && sectionError?.courseId === course.id && sectionError?.field === 'maleLab'}
+                                    onChange={v => onUpdateSection(inst.id, course.id, 'maleLab', v)}
+                                  />
                                 </>}
                               </div>
                               <div className="an-section-row">
                                 <span>F: Lec</span>
-                                <SectionSelect value={course.femaleLec || 0} onChange={v => onUpdateSection(inst.id, course.id, 'femaleLec', v)} />
+                                <SectionSelect
+                                  value={course.femaleLec || 0}
+                                  hasError={sectionError?.instructorId === inst.id && sectionError?.courseId === course.id && sectionError?.field === 'femaleLec'}
+                                  onChange={v => onUpdateSection(inst.id, course.id, 'femaleLec', v)}
+                                />
                                 {termCourse.hasLab && <>
                                   <span>, Lab</span>
-                                  <SectionSelect value={course.femaleLab || 0} onChange={v => onUpdateSection(inst.id, course.id, 'femaleLab', v)} />
+                                  <SectionSelect
+                                    value={course.femaleLab || 0}
+                                    hasError={sectionError?.instructorId === inst.id && sectionError?.courseId === course.id && sectionError?.field === 'femaleLab'}
+                                    onChange={v => onUpdateSection(inst.id, course.id, 'femaleLab', v)}
+                                  />
                                 </>}
                               </div>
+                              {/* Inline error message below the selects */}
+                              {sectionError?.instructorId === inst.id && sectionError?.courseId === course.id && (
+                                <div style={{ color: 'red', fontSize: 12, marginTop: 4 }}>
+                                  Max {sectionError.max} sections for {sectionError.code}
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -87,7 +107,6 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
         </table>
       </div>
 
-      {/* Pagination controls */}
       <div className="pageNumbers">
         {Array.from({ length: totalPages }, (_, i) => (
           <button key={i+1} className={currentPage === i+1 ? 'active' : ''} onClick={() => setCurrentPage(i+1)}>
