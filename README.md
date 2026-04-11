@@ -1,4 +1,4 @@
-# Khuta System — Developer Guide
+# Khuta System
 
 ## Project Overview
 
@@ -60,10 +60,12 @@ Khuta/
 ### 1. Open the Termanal
 
 Go to Termanal
+
 New Termanal
 
 ### 2. Install dependencies
 
+You have to run them one by one on the termenat
 ```bash
 cd Khuta
 npm install
@@ -119,61 +121,79 @@ http://localhost:5173
 ### Chairman
 
 1. Login into the system using your KFUPM account
+
 2. View All offered courses:
-- Click on ICS Courses button.
-- You can view current offered courses.
-- You can view courses offered in previous terms by change the selected term.
+    - Click on ICS Courses button.
+    - You can view current offered courses.
+    - You can view courses offered in previous terms by change the selected term.
 
 3. View Scheduling Committee members:
-- Click on Scheduling Committee button.
-- You can remove a member by clicking on the remove button mext to the member information
-- You can add a new member by clicking on Add new committee button and typing the faculty email and clicking add
+    - Click on Scheduling Committee button.
+    - You can remove a member by clicking on the remove button mext to the member information
+    - You can add a new member by clicking on Add new committee button and typing the faculty email and clicking add
 
 4. View Faculty members:
-- Click on ICS Faculty button.
-- You can delete a faculty by clicking on the delete button mext to the faculty information
-- You can add a new faculty by clicking on Add new faculty button and filling the required information
+    - Click on ICS Faculty button.
+    - You can delete a faculty by clicking on the delete button mext to the faculty information
+    - You can add a new faculty by clicking on Add new faculty button and filling the required information
 
 5. View Faculty Teaching Load:
-- Click on Teaching Load button.
-- You can view the teaching load for each faculty by showing the teached courses and number of sections with the total teaching hours.
-- You can view the teaching load in previous terms by change the selected term.
-- the red box in the teaching hours means that the teaching hours reached the maximum hours for the faculty rank
+    - Click on Teaching Load button.
+    - You can view the teaching load for each faculty by showing the teached courses and number of sections with the total teaching hours.
+    - You can view the teaching load in previous terms by change the selected term.
+    - the red box in the teaching hours means that the teaching hours reached the maximum hours for the faculty rank
 
 ### Committee
 
 1. Login into the system using your KFUPM account
 
+2. You can view and manage terms by clicking on Manage Terms button.
+    - You can view all terms and see offered coursese and number of sections by clicking on the term.
+    - you can modify current term by clicking on modify button
+    - You can add a new term by clicking on Add new Term button
+        - You must rnter the term number to view the courses demand and then select the number of sections.
+        - If you submit the form a notification email will be send to faculty to set their prefrences. However you can still modify the offered courses and number of sections.
+3. View and Manage Courses:
+    - You can brows all ICS courses by clicking on Manage Courses button
+    - You can delet a course by clicking on Delet button
+    - You can add a new course by clicking on Add new Course and filling the course information form.
+4. View faculty prefrences
+    - You can brows all faculty preferences by clicking on Assign Courses button
+    - You can select the term from the drop-down menue
+    - you have the chance to view the preferences by instructors or by courses by changing the view type.
+    - To assign instructior, You have to click on the check box and select the number of sections
+
 ### Faculty
 
 1. Login into the system using your KFUPM account
+
 2. View All offered courses:
-- Click on Offered Courses button.
-- You can view current offered courses.
-- You can view courses offered in previous terms by change the selected term.
-- You can view each course information by clicking on the course name or course number
+    - Click on Offered Courses button.
+    - You can view current offered courses.
+    - You can view courses offered in previous terms by change the selected term.
+    - You can view each course information by clicking on the course name or course number
 
 2. Set courses prefrences:
-- Click on Set Preferences button.
-- Drag and drop the courses that you are interested to each in prefrences area. you must rank them based on your interest.
-- Submit your preferences by clicking Submit buttom
+    - Click on Set Preferences button.
+    - Drag and drop the courses that you are interested to each in prefrences area. you must rank them based on your interest.
+    - Submit your preferences by clicking Submit buttom
 
 3. View Assigned Courses:
-- Click on Assigned Courses button.
-- You can view all assigned courses with the number of sections in all terms
+    - Click on Assigned Courses button.
+    - You can view all assigned courses with the number of sections in all terms
 
 3. View Submitted Preferences:
-- Click on Submitted Preferences button.
-- You can view all prefrences that you submit in current or previous terms
-- You can modify your prefrences in the current term by clicking on Modify Submitted Preferences button.
-- You are unable to modify your preferences unless you set and submit your preferences.
+    - Click on Submitted Preferences button.
+    - You can view all prefrences that you submit in current or previous terms
+    - You can modify your prefrences in the current term by clicking on Modify Submitted Preferences button.
+    - You are unable to modify your preferences unless you set and submit your preferences.
 ---
 
 ## Team member
 
 | Member Name | Roles |
 |---|---|
-| Nour Al Sulais |  |
-| Fatimah Al Tawfiq |  |
-| Kawthar Alomran | |
-| Lama Al Thunayyan |  |
+| Nour Al Sulais | App.jsx, CSS, data.jsx, ConfirmModal.jsx, Layout.jsx, CommitteeLayout.jsx, ManageTerms.jsx, TermDetails.jsx, AddNewTerm.jsx, AssignCourses.jsx, ByCourse.jsx, ByInstructor.jsx |
+| Fatimah Al Tawfiq | App.jsx, CSS, data.jsx, login.jsx, all Chairman interfaces |
+| Kawthar Alomran | App.jsx, CSS, data.jsx, ManageCourses.jsx, AssignCourses.jsx, ByCourse.jsx, ByInstructor.jsx |
+| Lama Al Thunayyan | App.jsx, CSS, all Faculty interfaces |
