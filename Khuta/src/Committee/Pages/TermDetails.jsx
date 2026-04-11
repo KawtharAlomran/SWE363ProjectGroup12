@@ -9,17 +9,19 @@ export default function TermDetails({ term, onBack, onDelete }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Load ALL courses and merge with term section data and demand for this term
+  // Load ALL ICS courses, mark ones already in the term as checked
   const [courses, setCourses] = useState(() => {
     const termCourses = getTermCourses(term.id);
     const demand = getCourseDemand(term.termNum);
+    const allCourses = getAllIcsCourses();
 
-    return getAllIcsCourses().map(c => {
-      const termCourse = termCourses.find(t => t.code === c.code);
+    return allCourses.map(c => {
+      const termCourse = termCourses.find(tc => tc.code === c.code);
       const d = demand.find(d => d.code === c.code);
       return {
         code: c.code,
         hasLab: c.lab ?? false,
+        checked: !!termCourse, // pre-check if already in term
         maleLec: termCourse?.maleLec ?? 0,
         maleLab: termCourse?.maleLab ?? 0,
         femaleLec: termCourse?.femaleLec ?? 0,
@@ -30,6 +32,37 @@ export default function TermDetails({ term, onBack, onDelete }) {
     });
   });
 
+  // Toggle course in/out of the term and auto-save
+  const toggleCourse = (code) => {
+    const updated = courses.map(c => c.code === code ? { ...c, checked: !c.checked } : c);
+    setCourses(updated);
+    saveToTerm(updated);
+  };
+
+  // Update section count and auto-save
+  const updateSection = (courseCode, field, value) => {
+    const updated = courses.map(c =>
+      c.code === courseCode ? { ...c, [field]: Number(value) } : c
+    );
+    setCourses(updated);
+    saveToTerm(updated);
+  };
+
+  // Save only checked courses to the term data
+  const saveToTerm = (updatedCourses) => {
+    const termCourses = updatedCourses
+      .filter(c => c.checked)
+      .map(c => ({
+        code: c.code,
+        hasLab: c.hasLab,
+        maleLec: c.maleLec,
+        maleLab: c.maleLab,
+        femaleLec: c.femaleLec,
+        femaleLab: c.femaleLab,
+      }));
+    updateTermCourses(term.id, termCourses);
+  };
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const coursesPerPage = canEdit ? 3 : 5;
@@ -37,12 +70,12 @@ export default function TermDetails({ term, onBack, onDelete }) {
   const currentCourses = courses.slice(startIndex, startIndex + coursesPerPage);
   const totalPages = Math.ceil(courses.length / coursesPerPage);
 
-  // Auto-save on every section change — no need for Save button
-  const updateSection = (courseCode, field, value) => {
-    const updated = courses.map(c => c.code === courseCode ? { ...c, [field]: Number(value) } : c);
-    setCourses(updated);
-    updateTermCourses(term.id, updated);
-  };
+  // Reusable section select (0–29)
+  const SectionSelect = ({ value, courseCode, field }) => (
+    <select className="an-select" value={value} onChange={e => updateSection(courseCode, field, e.target.value)}>
+      {[...Array(30)].map((_, i) => <option key={i} value={i}>{i}</option>)}
+    </select>
+  );
 
   return (
     <>
@@ -56,6 +89,7 @@ export default function TermDetails({ term, onBack, onDelete }) {
           <table className="an-table" style={{ marginTop: 24 }}>
             <thead>
               <tr>
+                {canEdit && <th></th>}
                 <th>Course number</th>
                 <th>Student Demand</th>
                 <th>Number of sections</th>
@@ -64,6 +98,16 @@ export default function TermDetails({ term, onBack, onDelete }) {
             <tbody>
               {currentCourses.map(course => (
                 <tr key={course.code}>
+                  {canEdit && (
+                    <td>
+                      <div
+                        className={`an-checkbox${course.checked ? ' an-checkbox-checked' : ''}`}
+                        onClick={() => toggleCourse(course.code)}
+                      >
+                        {course.checked && '✓'}
+                      </div>
+                    </td>
+                  )}
                   <td><span className="an-course-name">{course.code}</span></td>
                   <td>
                     <div className="an-demand">
@@ -72,44 +116,39 @@ export default function TermDetails({ term, onBack, onDelete }) {
                     </div>
                   </td>
                   <td>
-                    <div className="an-sections">
-                      <div className="an-section-row">
-                        <span>Male:</span>
-                        {canEdit
-                          ? <select className="an-select" value={course.maleLec} onChange={e => updateSection(course.code, 'maleLec', e.target.value)}>
-                              {[...Array(30)].map((_, i) => <option key={i} value={i}>{i}</option>)}
-                            </select>
-                          : <span>{course.maleLec}</span>
-                        }
-                        {course.hasLab && <>
-                          <span>, Lab</span>
+                    {/* Show sections only when course is checked (in term) */}
+                    {course.checked && (
+                      <div className="an-sections">
+                        <div className="an-section-row">
+                          <span>Male: Lec</span>
                           {canEdit
-                            ? <select className="an-select" value={course.maleLab} onChange={e => updateSection(course.code, 'maleLab', e.target.value)}>
-                                {[...Array(30)].map((_, i) => <option key={i} value={i}>{i}</option>)}
-                              </select>
-                            : <span>{course.maleLab}</span>
+                            ? <SectionSelect value={course.maleLec} courseCode={course.code} field="maleLec" />
+                            : <span>{course.maleLec}</span>
                           }
-                        </>}
-                      </div>
-                      <div className="an-section-row">
-                        <span>Female:</span>
-                        {canEdit
-                          ? <select className="an-select" value={course.femaleLec} onChange={e => updateSection(course.code, 'femaleLec', e.target.value)}>
-                              {[...Array(30)].map((_, i) => <option key={i} value={i}>{i}</option>)}
-                            </select>
-                          : <span>{course.femaleLec}</span>
-                        }
-                        {course.hasLab && <>
-                          <span>, Lab</span>
+                          {course.hasLab && <>
+                            <span>, Lab</span>
+                            {canEdit
+                              ? <SectionSelect value={course.maleLab} courseCode={course.code} field="maleLab" />
+                              : <span>{course.maleLab}</span>
+                            }
+                          </>}
+                        </div>
+                        <div className="an-section-row">
+                          <span>Female: Lec</span>
                           {canEdit
-                            ? <select className="an-select" value={course.femaleLab} onChange={e => updateSection(course.code, 'femaleLab', e.target.value)}>
-                                {[...Array(30)].map((_, i) => <option key={i} value={i}>{i}</option>)}
-                              </select>
-                            : <span>{course.femaleLab}</span>
+                            ? <SectionSelect value={course.femaleLec} courseCode={course.code} field="femaleLec" />
+                            : <span>{course.femaleLec}</span>
                           }
-                        </>}
+                          {course.hasLab && <>
+                            <span>, Lab</span>
+                            {canEdit
+                              ? <SectionSelect value={course.femaleLab} courseCode={course.code} field="femaleLab" />
+                              : <span>{course.femaleLab}</span>
+                            }
+                          </>}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -130,20 +169,18 @@ export default function TermDetails({ term, onBack, onDelete }) {
 
         {canEdit && (
           <div className="an-actions">
-            {/* Delete term with confirmation */}
             <button className="tr-deleteBtn" onClick={() => setShowDeleteConfirm(true)}>Delete Term</button>
-            {/* Submit notifies faculty */}
             <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
           </div>
         )}
 
       </div>
 
-      {/* Submit confirmation */}
+      {/* Submit confirmation — goes back to main page after confirm */}
       {showConfirm && (
         <ConfirmModal
           message="Are you sure you want to submit the changes?"
-          onConfirm={() => setShowConfirm(false)}
+          onConfirm={() => { setShowConfirm(false); onBack(); }}
           onCancel={() => setShowConfirm(false)}
         />
       )}

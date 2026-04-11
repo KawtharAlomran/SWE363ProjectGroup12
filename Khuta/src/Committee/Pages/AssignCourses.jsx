@@ -4,7 +4,7 @@ import ByCourse from './ByCourse';
 import ConfirmModal from '../../shared/ConfirmModal';
 import { getInstructorsPrefrences, getCoursePrefrences, setInstructorsPrefrences, setCoursePrefrences, getCurrentTerms, getTermSections } from "../../data";
 
-export default function AssignCourses() {
+export default function AssignCourses({ onBack }) {
   const [viewType, setViewType] = useState('instructor');
   const [instructors, setInstructors] = useState(getInstructorsPrefrences());
   const [coursesList, setCoursesList] = useState(getCoursePrefrences());
@@ -120,10 +120,11 @@ export default function AssignCourses() {
 
       </div>
 
+      {/* Submit confirmation — goes back to main page after confirm */}
       {showConfirm && (
         <ConfirmModal
           message="Are you sure you want to submit the changes?"
-          onConfirm={() => setShowConfirm(false)}
+          onConfirm={() => { setShowConfirm(false); onBack(); }}
           onCancel={() => setShowConfirm(false)}
         />
       )}

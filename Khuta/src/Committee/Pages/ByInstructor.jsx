@@ -39,12 +39,13 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
                 <td><span className="an-course-name">{inst.name}</span></td>
                 <td>
                   <div className="ac-courses-grid">
-                    {inst.courses.map(course => {
+                    {inst.courses.map((course, index) => {
                       const termCourse = termSections.find(t => t.code === course.code);
                       return (
                         <div key={course.id} className={`ac-course-tag${course.assigned ? ' ac-course-tag--assigned' : ''}`}>
                           <div className="ac-tag-top">
-                            <span className="ac-course-rank">{course.rank}</span>
+                            {/* Use sequential index + 1 instead of course.rank */}
+                            <span className="ac-course-rank">{index + 1}</span>
                             <span className="ac-tag-code">{course.code}</span>
                             <div
                               className={`an-checkbox${course.assigned ? ' an-checkbox-checked' : ''}`}

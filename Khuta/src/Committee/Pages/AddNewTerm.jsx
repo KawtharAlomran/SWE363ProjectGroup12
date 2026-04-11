@@ -11,7 +11,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
     getAllIcsCourses().map(c => ({
       ...c,
       id: c.code,
-      hasLab: c.lab ?? false, // coursesList uses 'lab', we normalize to 'hasLab'
+      hasLab: c.lab ?? false,
       checked: false,
       maleLec: 0, maleLab: 0, femaleLec: 0, femaleLab: 0,
     }))
@@ -34,7 +34,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
   const updateSection = (id, field, value) =>
     setCourses(prev => prev.map(c => c.id === id ? { ...c, [field]: Number(value) } : c));
 
-  // Build and submit the new term object
+  // Build and submit the new term object, then go back to main page
   const handleSubmit = () => {
     if (!termNumber) return;
     onSubmit({
@@ -49,6 +49,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
         femaleLec: c.femaleLec, femaleLab: c.femaleLab,
       })),
     });
+    // onSubmit in ManageTerms already calls setShowAddNew(false) which goes back
   };
 
   // Reusable select for choosing number of sections (0–15)
@@ -111,7 +112,6 @@ export default function AddNewTerm({ onBack, onSubmit }) {
                   </td>
                   <td><span className="an-course-name">{course.code}</span></td>
                   <td>
-                    {/* Demand is fetched dynamically based on entered term number */}
                     <div className="an-demand">
                       Male: {getDemand(course.code, 'maleDemand')}<br />
                       Female: {getDemand(course.code, 'femaleDemand')}
@@ -141,7 +141,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
         </div>
 
         <div className="an-actions">
-          <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
+          <button className="an-btn-submit" onClick={() => { if (!termNumber) { alert('Please enter a term number first'); return; } setShowConfirm(true); }}>Submit</button>
           <span className="an-note">*Note: by submitting the form, a notification will be send to faculty to set their preferences</span>
         </div>
 
@@ -156,7 +156,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
 
       </div>
 
-      {/* Submit confirmation modal */}
+      {/* Submit confirmation modal — goes back after confirm */}
       {showConfirm && (
         <ConfirmModal
           message="Are you sure you want to submit the term courses?"
