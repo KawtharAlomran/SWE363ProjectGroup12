@@ -1,11 +1,11 @@
 import { getTermSections } from '../../data';
 import { useState } from "react";
 
-// Reusable select component for choosing number of sections
+// Reusable select component for choosing number of sections (0–15)
 function SectionSelect({ value, onChange }) {
   return (
     <select className="an-select" value={value} onChange={e => onChange(Number(e.target.value))}>
-      {[...Array(15)].map((_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
+      {[...Array(16)].map((_, i) => <option key={i} value={i}>{i}</option>)}
     </select>
   );
 }
@@ -25,7 +25,6 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
 
   return (
     <>
-      {/* Scrollable table area */}
       <div className="ac-table-wrap">
         <table className="an-table" style={{ marginTop: 16 }}>
           <thead>
@@ -41,12 +40,9 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
                 <td>
                   <div className="ac-courses-grid">
                     {inst.courses.map(course => {
-                      // Find section limits for this course from term data
                       const termCourse = termSections.find(t => t.code === course.code);
                       return (
                         <div key={course.id} className={`ac-course-tag${course.assigned ? ' ac-course-tag--assigned' : ''}`}>
-
-                          {/* Course tag header — rank, code, checkbox */}
                           <div className="ac-tag-top">
                             <span className="ac-course-rank">{course.rank}</span>
                             <span className="ac-tag-code">{course.code}</span>
@@ -63,18 +59,18 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
                             <div className="ac-sections">
                               <div className="an-section-row">
                                 <span>M: Lec</span>
-                                <SectionSelect value={course.maleLec || 1} onChange={v => onUpdateSection(inst.id, course.id, 'maleLec', v)} />
+                                <SectionSelect value={course.maleLec || 0} onChange={v => onUpdateSection(inst.id, course.id, 'maleLec', v)} />
                                 {termCourse.hasLab && <>
                                   <span>, Lab</span>
-                                  <SectionSelect value={course.maleLab || 1} onChange={v => onUpdateSection(inst.id, course.id, 'maleLab', v)} />
+                                  <SectionSelect value={course.maleLab || 0} onChange={v => onUpdateSection(inst.id, course.id, 'maleLab', v)} />
                                 </>}
                               </div>
                               <div className="an-section-row">
                                 <span>F: Lec</span>
-                                <SectionSelect value={course.femaleLec || 1} onChange={v => onUpdateSection(inst.id, course.id, 'femaleLec', v)} />
+                                <SectionSelect value={course.femaleLec || 0} onChange={v => onUpdateSection(inst.id, course.id, 'femaleLec', v)} />
                                 {termCourse.hasLab && <>
                                   <span>, Lab</span>
-                                  <SectionSelect value={course.femaleLab || 1} onChange={v => onUpdateSection(inst.id, course.id, 'femaleLab', v)} />
+                                  <SectionSelect value={course.femaleLab || 0} onChange={v => onUpdateSection(inst.id, course.id, 'femaleLab', v)} />
                                 </>}
                               </div>
                             </div>

@@ -28,36 +28,47 @@ export default function AssignCourses() {
     setCoursesList(updatedCourseList);
   };
 
-  // Update section count with validation against term limits
+  // Update section count with validation — syncs both instructors and courses lists
   const updateSection = (instructorId, courseId, field, value) => {
     const termSections = getTermSections(selectedTermNum);
-    const inst = instructors.find(i => i.id === instructorId);
-    const course = inst?.courses.find(c => c.id === courseId);
-    const termCourse = termSections.find(t => t.code === course?.code);
+
+    // Find course code from either coursesList or instructors
+    const courseCode = coursesList.find(c => c.id === courseId)?.code
+      ?? instructors.find(i => i.id === instructorId)?.courses.find(c => c.id === courseId)?.code;
+
+    const termCourse = termSections.find(t => t.code === courseCode);
 
     if (termCourse) {
       const maxAllowed = termCourse[field] ?? 99;
 
-      // Calculate total sections already assigned across all instructors for this course
-      const currentTotal = instructors.reduce((sum, i) => {
-        const c = i.courses.find(c => c.code === course.code && c.assigned);
-        return sum + (c?.[field] || 0);
-      }, 0);
+      // Calculate total from coursesList — all assigned instructors except current
+      const coursePref = coursesList.find(c => c.id === courseId);
+      const currentTotal = coursePref?.instructors
+        .filter(i => i.assigned && i.id !== instructorId)
+        .reduce((sum, i) => sum + (i[field] || 0), 0) ?? 0;
 
-      const oldValue = course[field] || 0;
-
-      // Block if new total exceeds max allowed
-      if (currentTotal - oldValue + value > maxAllowed) {
-        alert(`Cannot exceed ${maxAllowed} sections for ${course.code}`);
+      // Block if adding this value exceeds the term limit
+      if (currentTotal + value > maxAllowed) {
+        alert(`Cannot exceed ${maxAllowed} sections for ${courseCode}`);
         return;
       }
     }
 
-    // Apply update and save to db
-    const updated = instructors.map(i =>
+    // Update instructors list
+    const updatedInstructors = instructors.map(i =>
       i.id === instructorId ? { ...i, courses: i.courses.map(c => c.id === courseId ? { ...c, [field]: value } : c) } : i);
-    setInstructors(updated);
-    setInstructorsPrefrences(updated);
+
+    // Update courses list too so ByCourse reads the same updated data
+    const updatedCourses = coursesList.map(c =>
+      c.id === courseId ? {
+        ...c,
+        instructors: c.instructors.map(i => i.id === instructorId ? { ...i, [field]: value } : i)
+      } : c);
+
+    setInstructors(updatedInstructors);
+    setInstructorsPrefrences(updatedInstructors);
+    setCoursesList(updatedCourses);
+    setCoursePrefrences(updatedCourses);
   };
 
   // Filter instructors to only show courses in selected term
