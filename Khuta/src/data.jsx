@@ -69,7 +69,7 @@ let committee=[
 
 let faculty=[
     {name: "Hamdi Aljamimi",email:"aljamimi@kfupm.edu.sa", level:"Associate Professor"},
-    {name: "Mufti Mahmud",email:"mufti.mahmud@kfupm.edu.sa", level:"Professor"},
+    {name: "Mufti Mahmud",email:"mufti.m@kfupm.edu.sa", level:"Professor"},
     {name: "Tarek Helmy El-Bassuny",email:"helmy@kfupm.edu.sa", level:"Professor"},
     {name: "Mohammad Rabah Alshayeb",email:"alshayeb@kfupm.edu.sa", level:"Professor"},
     {name: "Mahmood Khan Niazi",email:"mkniazi@kfupm.edu.sa", level:"Professor"},
