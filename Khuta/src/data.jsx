@@ -76,7 +76,7 @@ let faculty=[
     {name: "Mohammed Balah",email:" mbalah@kfupm.edu.sa", level:"Instructor"},
     {name: "Alawi Alsaggaf",email:"alawi@kfupm.edu.sa", level:"Senior Lecturer"},
     {name: "Mohammed Aslam",email:"mwaslam@kfupm.edu.sa", level:"Lecturer"},
-    {name: "Rashad Othman",email:"rashad.othman@kfupm.edu.sa", level:"Senior Lecturer"},
+    {name: "Rashad Othman",email:"rashad.o@kfupm.edu.sa", level:"Senior Lecturer"},
     {name: "Yahya Garout",email:"garout@kfupm.edu.sa", level:"Lecturer"},
     {name: "Nuha Albadi",email:"nuha.badi@kfupm.edu.sa", level:"Assistant Professor"},
     {name: "Putu Raharja",email:"raharja@kfupm.edu.sa", level:"Lecturer"},
