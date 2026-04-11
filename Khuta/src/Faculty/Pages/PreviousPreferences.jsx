@@ -42,7 +42,7 @@ function PreviousPreferences() {
         {/* Show modify button only for current term */}
         {isCurrentTerm && preferences.length > 0 && (
           <button
-            className="mt-btn-add"
+            className="addBtn"
             onClick={() => navigate('/faculty/set-preferences')}
           >
             Modify Submitted Preferences
