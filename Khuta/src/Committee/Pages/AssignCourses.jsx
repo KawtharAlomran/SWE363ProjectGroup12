@@ -1,8 +1,6 @@
 import { useState } from 'react';
-//import '../../styles/ManageTerms.css';
 import ByInstructor from './ByInstructor';
 import ByCourse from './ByCourse';
-//import '../../styles/AssignCourses.css';
 import ConfirmModal from '../../shared/ConfirmModal';
 import { getInstructorsPrefrences, getCoursePrefrences, setInstructorsPrefrences, setCoursePrefrences, getCurrentTerms, getTermSections } from "../../data";
 
@@ -12,8 +10,7 @@ export default function AssignCourses() {
   const [coursesList, setCoursesList] = useState(getCoursePrefrences());
   const [showConfirm, setShowConfirm] = useState(false);
 
-
-  // Only show terms that have Modify button 
+  // Only show terms that have Modify button (current year)
   const currentTerms = getCurrentTerms();
   const [selectedTermNum, setSelectedTermNum] = useState(currentTerms[0]?.termNum ?? '261');
 
@@ -63,14 +60,19 @@ export default function AssignCourses() {
     setInstructorsPrefrences(updated);
   };
 
-  // Filter instructors preferences to only show courses in selected term
+  // Filter instructors to only show courses in selected term
   const termCourses = getTermSections(selectedTermNum);
   const termCourseCodes = termCourses.map(c => c.code);
   const filteredInstructors = instructors.map(inst => ({
     ...inst,
     courses: inst.courses.filter(c => termCourseCodes.includes(c.code))
   }));
-  const filteredCourses = coursesList.filter(c => termCourseCodes.includes(c.code));
+
+  // Show all term courses even if no instructors prefer them
+  const filteredCourses = termCourses.map(tc => {
+    const existing = coursesList.find(c => c.code === tc.code);
+    return existing ?? { id: tc.code, code: tc.code, instructors: [] };
+  });
 
   return (
     <>
@@ -106,6 +108,7 @@ export default function AssignCourses() {
         </div>
 
       </div>
+
       {showConfirm && (
         <ConfirmModal
           message="Are you sure you want to submit the changes?"
