@@ -1,30 +1,24 @@
-
-
 import { useState } from 'react';
 import { getAllOfferedCourses, getAllIcsCourses } from "../../data";
-//import '../../styles/ManageCourses.css';
 
 export default function ChairmanHomePage() {
 
-
-
-  //const courses = getAllIcsCourses();
+ // Load all offeres ICS courses from shared data
   const terms = getAllOfferedCourses();
-const [courses, setCourses] = useState(getAllIcsCourses());
+  const [courses, setCourses] = useState(getAllIcsCourses());
 
   if (!terms || terms.length === 0) {
     return <div>There is no terms</div>;
   }
 
   const [selectedTerm, setSelectedTerm] = useState(terms[0].termNum);
-  
   const currentTermData = terms.find(t => t.termNum === selectedTerm);
   
   const filteredCourses = courses.filter(course => 
     currentTermData?.courses.includes(course.code)
   );
-
-const [currentPage, setCurrentPage] = useState(1);
+  // Pagination logic
+  const [currentPage, setCurrentPage] = useState(1);
   const coursesPerPage = 8;
   const startIndex = (currentPage - 1) * coursesPerPage; // to find the start index 
   const endIndex = startIndex + coursesPerPage;
@@ -39,8 +33,8 @@ const [currentPage, setCurrentPage] = useState(1);
           </div>
           <div className="td-term-badge">
             <p>Select Term </p>
-
-            <select className="selection" value={selectedTerm} 
+            {/* term selection logic */}
+            <select className="an-select" value={selectedTerm} 
               onChange={(e) => setSelectedTerm(e.target.value)}
             >
               {terms.map((term) => (
@@ -52,7 +46,7 @@ const [currentPage, setCurrentPage] = useState(1);
           </div>
         
           
-
+          {/* display courses */}
           <table className="coursesTable">
             <thead>
               <tr>
@@ -70,7 +64,8 @@ const [currentPage, setCurrentPage] = useState(1);
               ))}
             </tbody>
           </table>
-          
+        
+        {/* showing the page numbering */}
         <div className="pageNumbers">
         {Array.from({ length: totalPages }, (_, index) => (
           <button className={currentPage === index + 1 ? "active" : ""} key={index + 1}

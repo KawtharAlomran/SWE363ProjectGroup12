@@ -1,5 +1,6 @@
 import Layout from '../../shared/Layout';
 
+// Navigation items for Faculty sidebar
 const NAV_ITEMS = [
   { path: '/chairman/ics-committee', label: 'Scheduling Committee' },
   { path: '/chairman/ics-faculty',   label: 'ICS Faculty'   },
@@ -9,6 +10,7 @@ const NAV_ITEMS = [
 
 export default function ChairmanLayout() {
   return (
+    // Reuse shared Layout component and pass Chsirman-specific data
     <Layout
       navItems={NAV_ITEMS}
       userName={sessionStorage.getItem('UserName')}

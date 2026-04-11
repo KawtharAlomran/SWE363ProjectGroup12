@@ -142,8 +142,31 @@ http://localhost:5173
 
 ### Committee
 
+1. Login into the system using your KFUPM account
+
 ### Faculty
 
+1. Login into the system using your KFUPM account
+2. View All offered courses:
+- Click on Offered Courses button.
+- You can view current offered courses.
+- You can view courses offered in previous terms by change the selected term.
+- You can view each course information by clicking on the course name or course number
+
+2. Set courses prefrences:
+- Click on Set Preferences button.
+- Drag and drop the courses that you are interested to each in prefrences area. you must rank them based on your interest.
+- Submit your preferences by clicking Submit buttom
+
+3. View Assigned Courses:
+- Click on Assigned Courses button.
+- You can view all assigned courses with the number of sections in all terms
+
+3. View Submitted Preferences:
+- Click on Submitted Preferences button.
+- You can view all prefrences that you submit in current or previous terms
+- You can modify your prefrences in the current term by clicking on Modify Submitted Preferences button.
+- You are unable to modify your preferences unless you set and submit your preferences.
 ---
 
 ## Team member

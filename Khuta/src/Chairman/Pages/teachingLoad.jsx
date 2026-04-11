@@ -14,13 +14,15 @@ import { useState } from "react";
 export default function Load(){
   const allTermsData =getAssignedCourses();
   const [faculty, setfaculty] = useState(getFaculty());
+
   // find number of pages for the page bar 
   const [currentPage, setCurrentPage] = useState(1);
   const facultyPerPage = 8;
   const startIndex = (currentPage - 1) * facultyPerPage; // to find the start index 
   const endIndex = startIndex + facultyPerPage;
   const currentfaculty = faculty.slice(startIndex, endIndex); // to display the faculty in the specified page 
-  const totalPages = Math.ceil(faculty.length / facultyPerPage); // to find the total pages 
+  const totalPages = Math.ceil(faculty.length / facultyPerPage); // to find the total pages
+   
   // to display the data for the selected term
   const [selectedTerm, setSelectedTerm] = useState(allTermsData[0]?.Term || '');
   const currentTermData = allTermsData.find(term => term.Term === selectedTerm);
