@@ -13,7 +13,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
       id: c.code,
       hasLab: c.lab ?? false, // coursesList uses 'lab', we normalize to 'hasLab'
       checked: false,
-      maleLec: 1, maleLab: 1, femaleLec: 1, femaleLab: 1,
+      maleLec: 0, maleLab: 0, femaleLec: 0, femaleLab: 0,
     }))
   );
 
@@ -51,14 +51,14 @@ export default function AddNewTerm({ onBack, onSubmit }) {
     });
   };
 
-  // Reusable select for choosing number of sections (1–15)
+  // Reusable select for choosing number of sections (0–15)
   const SectionSelect = ({ value, field, courseId }) => (
     <select className="an-select" value={value} onChange={e => updateSection(courseId, field, e.target.value)}>
-      {[...Array(15)].map((_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
+      {[...Array(16)].map((_, i) => <option key={i} value={i}>{i}</option>)}
     </select>
   );
 
-  // Pagination — 4 courses per page
+  // Pagination — 3 courses per page
   const [currentPage, setCurrentPage] = useState(1);
   const coursesPerPage = 3;
   const startIndex = (currentPage - 1) * coursesPerPage;
@@ -84,8 +84,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
             />
             {/* Prompt user to enter term number before demand is shown */}
             {termNumber.length < 3 && (
-                <span className="an-note">* Enter term number first to see student demand</span>
-
+              <span className="an-note">* Enter term number first to see student demand</span>
             )}
           </div>
         </div>
