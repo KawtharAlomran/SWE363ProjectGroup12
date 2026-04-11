@@ -383,7 +383,7 @@
 }
 
 /* ── Mobile: Table → Cards ──────────────────────────────── */
-@media (max-width: 768px) {
+@media (max-width: 800px) {
 
   /* Reduce card padding on small screens */
   .container { padding: 16px; border-radius: 12px; }

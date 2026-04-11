@@ -26,15 +26,15 @@ Khuta/
     │   └── Pages/
     │       ├── AddNewTerm.jsx        ← Form to create a new academic term
     │       ├── AssignCourses.jsx     ← Assign courses to faculty for a term
-    │       ├── ByCourse.jsx          ← View faculty prefrences grouped by course
-    │       ├── ByInstructor.jsx      ← View faculty prefrences grouped by instructor
+    │       ├── ByCourse.jsx          ← View faculty preferences grouped by course
+    │       ├── ByInstructor.jsx      ← View faculty preferences grouped by instructor
     │       ├── ManageCourses.jsx     ← View/manage all ICS courses
     │       ├── ManageTerms.jsx       ← List and manage all academic terms
     │       └── TermDetails.jsx       ← View details of a specific term
     ├── CSS/
-    │   ├── componentsDesign.jsx    ← Styled component definitions
-    │   ├── layoutDesign.jsx        ← Layout styling (sidebar, header, etc.)
-    │   └── Variables.jsx           ← CSS variables (colors, fonts, breakpoints)
+    │   ├── componentsDesign.css    ← Styled component definitions
+    │   ├── layoutDesign.css       ← Layout styling (sidebar, header, etc.)
+    │   └── Variables.css           ← CSS variables (colors, fonts, breakpoints)
     ├── Faculty/
     │   ├── layout/
     │   │   └── FacultyLayout.jsx         ← Layout wrapper for Faculty role
@@ -152,12 +152,12 @@ http://localhost:5173
     - you can modify current term by clicking on modify button
     - You can add a new term by clicking on Add new Term button
         - You must rnter the term number to view the courses demand and then select the number of sections.
-        - If you submit the form a notification email will be send to faculty to set their prefrences. However you can still modify the offered courses and number of sections.
+        - If you submit the form a notification email will be send to faculty to set their preferences. However you can still modify the offered courses and number of sections.
 3. View and Manage Courses:
     - You can brows all ICS courses by clicking on Manage Courses button
     - You can delet a course by clicking on Delet button
     - You can add a new course by clicking on Add new Course and filling the course information form.
-4. View faculty prefrences
+4. View faculty preferences
     - You can brows all faculty preferences by clicking on Assign Courses button
     - You can select the term from the drop-down menue
     - you have the chance to view the preferences by instructors or by courses by changing the view type.
@@ -173,9 +173,9 @@ http://localhost:5173
     - You can view courses offered in previous terms by change the selected term.
     - You can view each course information by clicking on the course name or course number
 
-2. Set courses prefrences:
+2. Set courses preferences:
     - Click on Set Preferences button.
-    - Drag and drop the courses that you are interested to each in prefrences area. you must rank them based on your interest.
+    - Drag and drop the courses that you are interested to each in preferences area. you must rank them based on your interest.
     - Submit your preferences by clicking Submit buttom
 
 3. View Assigned Courses:
@@ -184,9 +184,21 @@ http://localhost:5173
 
 3. View Submitted Preferences:
     - Click on Submitted Preferences button.
-    - You can view all prefrences that you submit in current or previous terms
-    - You can modify your prefrences in the current term by clicking on Modify Submitted Preferences button.
+    - You can view all preferences that you submit in current or previous terms
+    - You can modify your preferences in the current term by clicking on Modify Submitted Preferences button.
     - You are unable to modify your preferences unless you set and submit your preferences.
+
+---
+
+## Interfaces Design
+
+The Figma file is used as a reference to create the style for all interfaces. However, we add extra features, that found useful for inhancing the user experiance, which is not in the Figma file.
+
+```
+https://www.figma.com/design/Zn9AeipZGnvmaUCEqFusan/Khuta-system?node-id=0-1&t=QDerzryPjf1qd1La-1
+```
+
+
 ---
 
 ## Team member

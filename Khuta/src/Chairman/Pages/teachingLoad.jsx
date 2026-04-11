@@ -53,7 +53,7 @@ return(
     {/* term selection drop-down menue */}
     <div className="td-term-badge">
       <p>Select Term </p>
-      <select className="selection" value={selectedTerm} onChange={(e) => setSelectedTerm(e.target.value)}>
+      <select className="an-select" value={selectedTerm} onChange={(e) => setSelectedTerm(e.target.value)}>
         {allTermsData.map((term) => (
           <option key={term.Term} value={term.Term}>{term.Term}</option>))}
       </select>

@@ -109,6 +109,7 @@ h1, h2 {
   font-weight: 400;
   text-align: left;
   transition: background 0.15s, color 0.15s;
+  cursor: pointer;
 }
 
 /* Nav link hover state */
@@ -374,16 +375,16 @@ h1, h2 {
    RESPONSIVE
  */
 
-/*  Desktop (769px+)  */
-@media (min-width: 769px) {
+/*  Desktop 800px+)  */
+@media (min-width: 800px) {
   /* Hide mobile-only elements on desktop */
   .hamburger-btn  { display: none; }
   .mobile-overlay { display: none; }
   .layout__sidebar{ position: static; left: auto; }
 }
 
-/*  Mobile (max 768px)  */
-@media (max-width: 768px) {
+/*  Mobile (max 799px)  */
+@media (max-width: 799px) {
 
   /* Reset body centering so pages scroll from the top */
   body { align-items: flex-start; }
