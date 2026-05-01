@@ -71,9 +71,6 @@ function AssignedCourses() {
     fetchAssignedCourses();
   }, [selectedTerm]);
 
-  // Get courses for the selected term
-  const assignedCourses = assignedCoursesByTerm[selectedTerm] || [];
-
   // Number of courses shown per page
   const coursesPerPage = 4;
 
@@ -121,7 +118,13 @@ function AssignedCourses() {
           </tr>
         </thead>
         <tbody>
-          {assignedCourses.length > 0 ? (
+          {isLoading ? (
+            <tr>
+              <td colSpan="3" className="textCenter">
+                Loading...
+              </td>
+            </tr>
+          ) : assignedCourses.length > 0 ? (
             currentCourses.map((course) => (
               <tr key={course.code + course.section}>
                 <td className="an-course-name">{course.code}</td>
