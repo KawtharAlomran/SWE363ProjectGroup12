@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ByInstructor from './ByInstructor';
 import ByCourse from './ByCourse';
 import ConfirmModal from '../../shared/ConfirmModal';
-import { getInstructorsPrefrences, getCoursePrefrences, setInstructorsPrefrences, setCoursePrefrences, getCurrentTerms, getTermSections } from "../../data";
+import { getInstructorsPrefrences, getCoursePrefrences, setInstructorsPrefrences, setCoursePrefrences, getTermSections } from "../../data";
 
 export default function AssignCourses() {
   const navigate = useNavigate();
@@ -15,8 +15,34 @@ export default function AssignCourses() {
   // { instructorId, courseId, field } — which select exceeded the limit
   const [sectionError, setSectionError] = useState(null);
 
-  const currentTerms = getCurrentTerms();
-  const [selectedTermNum, setSelectedTermNum] = useState(currentTerms[0]?.termNum ?? '261');
+  // Term logic 
+  const [currentTerms, setCurrentTerms] = useState([]);
+  const [selectedTermNum, setSelectedTermNum] = useState('');
+
+  // Loading state to inform the user of the state of the website 
+  const [loadingTerms, setLoadingTerms] = useState(true);
+
+  useEffect(() => {
+    // Fetch terms from backend API
+    fetch("http://localhost:5174/api/terms")
+      .then(res => res.json())
+      .then(data => {
+        // Store terms in state
+        setCurrentTerms(data);
+
+        // Set default selected term (first one)
+        if (data.length > 0) {
+          setSelectedTermNum(data[0].termNum);
+        }
+
+        // Stop loading
+        setLoadingTerms(false);
+      })
+      .catch(err => {
+        console.error("Error fetching terms:", err);
+        setLoadingTerms(false);
+      });
+  }, []);
 
   const toggle = (instructorId, courseId) => {
     const updatedInstructorsList = instructors.map((inst) =>
@@ -84,6 +110,10 @@ export default function AssignCourses() {
     return existing ?? { id: tc.code, code: tc.code, instructors: [] };
   });
 
+  // Show loading message while fetching terms
+  if (loadingTerms) {
+    return <div className="container">Loading terms...</div>;
+  }
   return (
     <>
       <div className="container">
@@ -93,7 +123,7 @@ export default function AssignCourses() {
         <div className="ac-view-toggle">
           <span className="ac-view-label">Term:</span>
           <select className="an-select" value={selectedTermNum} onChange={e => { setSelectedTermNum(e.target.value); setSectionError(null); }}>
-            {currentTerms.map(t => <option key={t.termNum} value={t.termNum}>{t.name}</option>)}
+            {currentTerms.map(t => <option key={t._id} value={t.termId}>{t.termId}</option>)}
           </select>
         </div>
 
