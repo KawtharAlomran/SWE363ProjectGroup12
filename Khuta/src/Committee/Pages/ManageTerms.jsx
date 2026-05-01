@@ -7,7 +7,7 @@ const API = 'http://localhost:5174';
 
 export default function ManageTerms() {
   const TERMS_PER_PAGE = 5;
-  
+
   // Removed: const [terms, setTerms] = useState(getTerms());
   const [terms, setTerms] = useState([]);
   const [showAddNew, setShowAddNew] = useState(false);
@@ -37,19 +37,11 @@ export default function ManageTerms() {
     return (
       <AddNewTerm
         onBack={() => setShowAddNew(false)}
-        onSubmit={async (newTerm) => {
-          try {
-            // Save new term to the database then refresh the list
-            await fetch(`${API}/api/terms`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ termId: newTerm.termNum }),
-            });
-            await fetchTerms();
-            setShowAddNew(false);
-          } catch (err) {
-            console.error("Error adding term:", err);
-          }
+        onSubmit={async () => {
+          // Term is already saved inside AddNewTerm via /api/sections
+          // Just refresh the list and go back
+          await fetchTerms();
+          setShowAddNew(false);
         }}
       />
     );
