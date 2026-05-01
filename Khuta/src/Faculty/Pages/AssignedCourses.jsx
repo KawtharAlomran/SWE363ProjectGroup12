@@ -41,6 +41,31 @@ function AssignedCourses() {
   // loading state while fetching data
   const [isLoading, setIsLoading] = useState(true);
 
+  // temporary faculty name (until login is connected to backend)
+  const facultyName = 'Khadija Alsafwan';
+
+  // fetch assigned courses from backend
+  const fetchAssignedCourses = async () => {
+    try {
+      setIsLoading(true);
+
+      const res = await fetch(
+        `${API}/api/assignments/${selectedTerm}/${encodeURIComponent(facultyName)}`
+      );
+
+      if (!res.ok) throw new Error('Failed to fetch');
+
+      const data = await res.json();
+
+      setAssignedCourses(data);
+    } catch (error) {
+      console.error('Error fetching assigned courses:', error);
+      setAssignedCourses([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Get courses for the selected term
   const assignedCourses = assignedCoursesByTerm[selectedTerm] || [];
 
