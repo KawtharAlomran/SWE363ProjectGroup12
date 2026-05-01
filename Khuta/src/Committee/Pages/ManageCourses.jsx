@@ -31,8 +31,8 @@ export default function ManageCourses() {
     };
 
   // handle adding course 
-  const handleAdd = (code, name, hours, description ) => {
-        addCourse(code, name, hours, description);
+  const handleAdd = (code, name, hours, hasLab, description ) => {
+        addCourse(code, name, hours, hasLab, description);
         setCourses(getAllIcsCourses());
     };
 
