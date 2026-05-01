@@ -38,9 +38,12 @@ export default function ManageCourses() {
     setCourses(courses.filter(c => c.code !== code));
   };
 
+  // function to handle adding a new course
   const handleAdd = async () => {
+
+    // create a new course object to send to backend
     const newCourse = {
-      code: code.slice(0, 3).toUpperCase() + " " + code.slice(3),
+      code: code.slice(0, 3).toUpperCase() + " " + code.slice(3), // format the code
       name,
       description,
       credit_hours: Number(hours),
