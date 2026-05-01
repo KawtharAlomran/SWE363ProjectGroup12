@@ -93,6 +93,26 @@ export default function ManageCourses() {
   const currentCourses = courses.slice(startIndex, endIndex); // to display the courses in the specified page 
   const totalPages = Math.ceil(courses.length / coursesPerPage); // to find the total pages 
   
+  // Smart pagination — shows first, last, and 1 page around current
+  const getPageNumbers = () => {
+    const pages = [];
+    const delta = 1;
+    const left = currentPage - delta;
+    const right = currentPage + delta;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= left && i <= right)) {
+        pages.push(i);
+      }
+    }
+     const withEllipsis = [];
+    let prev = null;
+    for (const page of pages) {
+      if (prev && page - prev > 1) withEllipsis.push('...');
+      withEllipsis.push(page);
+      prev = page;
+    }
+    return withEllipsis;
+  }
 
 return (
     <div className="container">
@@ -235,15 +255,18 @@ return (
         errorMessage={addError}
       />
     )}
-
-      <div className="pageNumbers">
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button className={currentPage === index + 1 ? "active" : ""} key={index + 1}
-            onClick={() => setCurrentPage(index + 1)}>
-            {index + 1}
-          </button>
-        ))}
-      </div>
+    {/* Smart pagination */}
+        {totalPages > 1 && (
+          <div className="pageNumbers">
+            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
+            {getPageNumbers().map((page, i) =>
+              page === '...'
+                ? <span key={`ellipsis-${i}`} style={{ margin: '0 4px' }}>...</span>
+                : <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+            )}
+            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
+          </div>
+        )}
     </div>
   )
 }
