@@ -35,6 +35,12 @@ function AssignedCourses() {
   const [selectedTerm, setSelectedTerm] = useState('261');
   const [currentPage, setCurrentPage] = useState(1);
 
+  // state to store assigned courses from API
+  const [assignedCourses, setAssignedCourses] = useState([]);
+
+  // loading state while fetching data
+  const [isLoading, setIsLoading] = useState(true);
+
   // Get courses for the selected term
   const assignedCourses = assignedCoursesByTerm[selectedTerm] || [];
 
