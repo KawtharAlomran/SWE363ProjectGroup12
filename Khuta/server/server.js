@@ -8,6 +8,8 @@ import { Faculty } from "./models/Faculty.js";
 import { Course } from "./models/Course.js";
 import courseRoutes from "./routes/courseRoutes.js";
 import { Term } from "./models/Term.js";
+import { Plan } from "./models/Plan.js";
+
 
 dotenv.config();
 const app = express();
