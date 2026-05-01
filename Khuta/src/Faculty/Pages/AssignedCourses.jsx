@@ -4,32 +4,6 @@ import { useEffect, useState } from 'react';
 const API = 'http://localhost:5174';
 
 function AssignedCourses() {
-  // Temporary assigned courses grouped by term
-  const assignedCoursesByTerm = {
-    '261': [
-      { code: 'ICS 202', name: 'Data Structures and Algorithms', section: 'Lec 1' },
-      { code: 'ICS 343', name: 'Fund. of Computer Networks', section: 'Lec 2' },
-      { code: 'ICS 253', name: 'Discrete Structures', section: 'Lec 1' },
-      { code: 'ICS 321', name: 'Database Systems', section: 'Lec 2' },
-      { code: 'ICS 104', name: 'Intro. to Prog. in Python & C', section: 'Lec 3' },
-      { code: 'ICS 108', name: 'Object-Oriented Programming', section: 'Lec 1' },
-      { code: 'ICS 381', name: 'Principles of Artificial Intelligence', section: 'Lec 1' },
-      { code: 'ICS 410', name: 'Programming Languages', section: 'Lec 1' },
-      { code: 'ICS 344', name: 'Information Security', section: 'Lec 2' },
-    ],
-    '252': [
-      { code: 'ICS 104', name: 'Intro. to Prog. in Python & C', section: 'Lec 1' },
-      { code: 'ICS 108', name: 'Object-Oriented Programming', section: 'Lec 2' },
-      { code: 'ICS 202', name: 'Data Structures and Algorithms', section: 'Lec 1' },
-      { code: 'ICS 253', name: 'Discrete Structures', section: 'Lec 2' },
-      { code: 'ICS 321', name: 'Database Systems', section: 'Lec 1' },
-    ],
-    '251': [
-      { code: 'ICS 253', name: 'Discrete Structures', section: 'Lec 1' },
-      { code: 'ICS 321', name: 'Database Systems', section: 'Lec 1' },
-    ],
-    '242': [],
-  };
 
   // State for selected term and current page
   const [selectedTerm, setSelectedTerm] = useState('261');
