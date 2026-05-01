@@ -17,10 +17,11 @@ export default function AssignCourses() {
 
   // Term logic 
   const [currentTerms, setCurrentTerms] = useState([]);
-  const [selectedTermNum, setSelectedTermNum] = useState('');
+  const [selectedTermID, setSelectedTermID] = useState('');
 
-  // Loading state to inform the user of the state of the website 
+  // Loading states to inform the user of the state of the website 
   const [loadingTerms, setLoadingTerms] = useState(true);
+  const [loadingPreferences, setLoadingPreferences] = useState(false);
 
   useEffect(() => {
     // Fetch terms from backend API
@@ -32,7 +33,7 @@ export default function AssignCourses() {
 
         // Set default selected term (first one)
         if (data.length > 0) {
-          setSelectedTermNum(data[0].termNum);
+          setSelectedTermID(data[0].termID);
         }
 
         // Stop loading
@@ -43,6 +44,34 @@ export default function AssignCourses() {
         setLoadingTerms(false);
       });
   }, []);
+
+  useEffect(() => {
+    if (!selectedTermID) return;
+
+    setLoadingPreferences(true);
+
+    fetch(`http://localhost:5174/api/preferences/term/${selectedTermID}/instructor`)
+      .then(res => res.json())
+      .then(data => {
+        const formattedInstructors = data.map((inst, index) => ({
+          id: index + 1,
+          name: inst.facultyName,
+          courses: inst.preferences.map(pref => ({
+            id: pref.courseId,
+            code: pref.courseId,
+            rank: pref.order,
+            assigned: false
+          }))
+        }));
+
+        setInstructors(formattedInstructors);
+        setLoadingPreferences(false);
+      })
+      .catch(err => {
+        console.error("Error fetching instructor preferences:", err);
+        setLoadingPreferences(false);
+      });
+  }, [selectedTermID]);
 
   const toggle = (instructorId, courseId) => {
     const updatedInstructorsList = instructors.map((inst) =>
@@ -58,7 +87,7 @@ export default function AssignCourses() {
   };
 
   const updateSection = (instructorId, courseId, field, value) => {
-    const termSections = getTermSections(selectedTermNum);
+    const termSections = getTermSections(selectedTermID);
 
     const courseCode = coursesList.find(c => c.id === courseId)?.code
       ?? instructors.find(i => i.id === instructorId)?.courses.find(c => c.id === courseId)?.code;
@@ -98,7 +127,7 @@ export default function AssignCourses() {
     setCoursePrefrences(updatedCourses);
   };
 
-  const termCourses = getTermSections(selectedTermNum);
+  const termCourses = getTermSections(selectedTermID);
   const termCourseCodes = termCourses.map(c => c.code);
   const filteredInstructors = instructors.map(inst => ({
     ...inst,
@@ -122,7 +151,7 @@ export default function AssignCourses() {
 
         <div className="ac-view-toggle">
           <span className="ac-view-label">Term:</span>
-          <select className="an-select" value={selectedTermNum} onChange={e => { setSelectedTermNum(e.target.value); setSectionError(null); }}>
+          <select className="an-select" value={selectedTermID} onChange={e => { setSelectedTermID(e.target.value); setSectionError(null); }}>
             {currentTerms.map(t => <option key={t._id} value={t.termId}>{t.termId}</option>)}
           </select>
         </div>
@@ -133,12 +162,13 @@ export default function AssignCourses() {
           <button className={`ac-toggle-btn${viewType === 'course' ? ' ac-toggle-btn--active' : ''}`} onClick={() => { setViewType('course'); setSectionError(null); }}>By course</button>
         </div>
 
-        {viewType === 'instructor' && (
+        {loadingPreferences && <p>Loading preferences...</p>}
+        {!loadingPreferences && viewType === 'instructor' && (
           <ByInstructor
             instructors={filteredInstructors}
             onToggle={toggle}
             onUpdateSection={updateSection}
-            termNum={selectedTermNum}
+            termNum={selectedTermID}
             sectionError={sectionError}
           />
         )}
@@ -148,7 +178,7 @@ export default function AssignCourses() {
             courses={filteredCourses}
             onToggle={toggle}
             onUpdateSection={updateSection}
-            termNum={selectedTermNum}
+            termNum={selectedTermID}
             sectionError={sectionError}
           />
         )}
