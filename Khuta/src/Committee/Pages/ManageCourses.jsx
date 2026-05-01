@@ -1,11 +1,9 @@
 // import statments 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ConfirmModal from '../../shared/ConfirmModal';
-import {getAllIcsCourses, deleteCourse, addCourse} from "../../data";
 
 export default function ManageCourses() {
   // define some useState to monitor changes
-  const [courses, setCourses] = useState(getAllIcsCourses());
   const [isDelete, setIsDelete] = useState(false);
   const [selectedCourseCode, setSelectedCourseCode] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,25 +14,57 @@ export default function ManageCourses() {
   const [description, setDescription] = useState("");
   const [hasLab, setHasLab] = useState(null);
   const [addError, setAddError] = useState("")
+  const [courses, setCourses] = useState([]);
+  
+  const API_URL = "http://localhost:5174/api/courses";
+  
+  useEffect(() => {
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => setCourses(data))
+      .catch(err => console.error(err));
+  }, []);
+
+  const handleDelete = async (code) => {
+  await fetch(`http://localhost:5174/api/courses/${encodeURIComponent(code)}`, {
+    method: "DELETE"
+  });
+
+  setCourses(courses.filter(c => c.code !== code));
+  };
+
+  const handleAdd = async () => {
+    const newCourse = {
+      code,
+      name,
+      description,
+      credit_hours: Number(hours),
+      has_lab: hasLab,
+      level: "undegraduate"
+    };
+
+    const res = await fetch("http://localhost:5174/api/courses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(newCourse)
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setCourses([...courses, data]);
+    }
+  };
 
   // to handle pages 
-  const coursesPerPage = 6;
+  const coursesPerPage = 9;
   const startIndex = (currentPage - 1) * coursesPerPage; // to find the start index 
   const endIndex = startIndex + coursesPerPage;
   const currentCourses = courses.slice(startIndex, endIndex); // to display the courses in the specified page 
   const totalPages = Math.ceil(courses.length / coursesPerPage); // to find the total pages 
   
-  // handle deleting course
-  const handleDelete = (code) => {
-        const updatedData = deleteCourse(code);
-        setCourses(updatedData);
-    };
-
-  // handle adding course 
-  const handleAdd = (code, name, hours, hasLab, description ) => {
-        addCourse(code, name, hours, hasLab, description);
-        setCourses(getAllIcsCourses());
-    };
 
 return (
     <div className="container">

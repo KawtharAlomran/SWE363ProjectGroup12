@@ -6,6 +6,7 @@ import dotenv  from "dotenv";
 import { connectDB } from "./db.js";
 import { Faculty } from "./models/Faculty.js";
 import { Course } from "./models/Course.js";
+import courseRoutes from "./routes/courseRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -13,6 +14,7 @@ const PORT = process.env.PORT || 5174;
 
 app.use(cors());              
 app.use(express.json());
+app.use("/api/courses", courseRoutes);
 
 await connectDB(process.env.MONGO_URL);
 
