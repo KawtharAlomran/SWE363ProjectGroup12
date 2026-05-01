@@ -14,7 +14,6 @@ import planRoutes from "./routes/planRoutes.js";
 import sectionRoutes from "./routes/sectionRoutes.js";
 import preferenceRoutes from "./routes/preferenceRoutes.js";
 //test
-
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5174;
