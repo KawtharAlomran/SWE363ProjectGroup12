@@ -54,3 +54,41 @@ export const getPreferencesByInstructor = async (req, res) => {
     });
   }
 };
+
+// GET — group preferences by course
+export const getPreferencesByCourse = async (req, res) => {
+  try {
+    const { termId } = req.params;
+
+    // fetch all preferences for the term
+    const data = await Preferences.find({ termId })
+      .sort({ courseId: 1, order: 1 });
+
+    const result = {};
+
+    // group instructors under each course
+    data.forEach(p => {
+      if (!result[p.courseId]) {
+        result[p.courseId] = [];
+      }
+
+      result[p.courseId].push({
+        facultyName: p.facultyName,
+        order: p.order
+      });
+    });
+
+    // convert object into array format
+    const formatted = Object.keys(result).map(course => ({
+      courseId: course,
+      instructors: result[course]
+    }));
+
+    res.status(200).json(formatted);
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch preferences by course",
+      error: error.message
+    });
+  }
+};

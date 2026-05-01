@@ -9,4 +9,5 @@ router.get("/term/:termId", getPreferencesByTerm);
 // GET preferences grouped by instructor (used in "By Instructor" view)
 router.get("/term/:termId/instructor", getPreferencesByInstructor);
 
+
 export default router;
