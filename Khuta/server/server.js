@@ -13,6 +13,7 @@ import termRoutes from "./routes/termRoutes.js";
 import planRoutes from "./routes/planRoutes.js";
 import sectionRoutes from "./routes/sectionRoutes.js";
 import preferenceRoutes from "./routes/preferenceRoutes.js";
+//test
 
 dotenv.config();
 const app = express();
