@@ -18,23 +18,28 @@ export default function ManageCourses() {
   
   const API_URL = "http://localhost:5174/api/courses";
   
+  // fetch courses when component loads (runs once)
   useEffect(() => {
     fetch(API_URL)
-      .then(res => res.json())
-      .then(data => setCourses(data))
-      .catch(err => console.error(err));
+      .then(res => res.json()) // convert response to JSON
+      .then(data => setCourses(data)) // store courses in state
+      .catch(err => console.error(err)); // handle errors
   }, []);
 
+  // function to delete a course
   const handleDelete = async (code) => {
+    // send DELETE request with encoded code to handle spaces 
     const res = await fetch(`${API_URL}/${encodeURIComponent(code)}`, {
       method: "DELETE"
     });
 
+    // if deletion failed notify the user 
     if (!res.ok) {
       console.error("Failed to delete course");
+      alert("Failed to delete course");
       return;
     }
-
+   // update UI by removing deleted course
     setCourses(courses.filter(c => c.code !== code));
   };
 
@@ -46,11 +51,12 @@ export default function ManageCourses() {
       code: code.slice(0, 3).toUpperCase() + " " + code.slice(3), // format the code
       name,
       description,
-      credit_hours: Number(hours),
+      credit_hours: Number(hours), // convert hours to number
       has_lab: hasLab,
-      level: "undegraduate"
+      level: "undegraduate"  // default level
     };
 
+    // send POST request to backend API
     const res = await fetch(API_URL, {
       method: "POST",
       headers: {
@@ -61,13 +67,16 @@ export default function ManageCourses() {
 
     const data = await res.json();
 
+    // if request failed, show error message
     if (!res.ok) {
       setAddError(data.message || "Failed to add course");
       return;
     }
 
+    // update UI by adding the new course to the list
     setCourses([...courses, data]);
 
+    // clear form fields
     setIsAdd(false);
     setCode("");
     setName("");
