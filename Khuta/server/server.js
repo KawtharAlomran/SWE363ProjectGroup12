@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import preferenceRoutes from "./routes/preferenceRoutes.js";
 
 
 import dotenv  from "dotenv";
@@ -27,6 +26,7 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/terms", termRoutes);
 app.use("/api/plans", planRoutes);
 app.use("/api/sections", sectionRoutes);
+app.use("/api/preferences", preferenceRoutes);
 
 await connectDB(process.env.MONGO_URL);
 
