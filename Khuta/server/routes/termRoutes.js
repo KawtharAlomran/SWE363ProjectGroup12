@@ -13,6 +13,16 @@ router.get("/", async (req, res) => {
   }
 });
 
+// CHECK if term exists — used for real-time feedback in AddNewTerm
+router.get("/check/:termId", async (req, res) => {
+  try {
+    const term = await Term.findOne({ termId: req.params.termId });
+    res.status(200).json({ exists: !!term });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // POST a new term
 router.post("/", async (req, res) => {
   try {

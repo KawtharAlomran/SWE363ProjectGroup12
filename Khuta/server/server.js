@@ -11,6 +11,7 @@ import { Term } from "./models/Term.js";
 import courseRoutes from "./routes/courseRoutes.js";
 import termRoutes from "./routes/termRoutes.js";
 import planRoutes from "./routes/planRoutes.js";
+import sectionRoutes from "./routes/sectionRoutes.js";
 
 
 dotenv.config();
@@ -22,6 +23,8 @@ app.use(express.json());
 app.use("/api/courses", courseRoutes);
 app.use("/api/terms", termRoutes);
 app.use("/api/plans", planRoutes);
+app.use("/api/sections", sectionRoutes);
+
 await connectDB(process.env.MONGO_URL);
 
 // get all courses

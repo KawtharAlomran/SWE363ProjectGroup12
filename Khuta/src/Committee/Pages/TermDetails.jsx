@@ -1,74 +1,110 @@
-import { useState } from 'react';
+// Updated: replaced local data.js calls with API fetch calls
+// Shows all ICS courses, pre-checks ones already in Sections for this term
+// Added: search bar, show selected only toggle, saves changes to Sections on submit
+import { useState, useEffect } from 'react';
 import ConfirmModal from '../../shared/ConfirmModal';
-import { getTermCourses, updateTermCourses, getCourseDemand, getAllIcsCourses } from '../../data';
+
+const API = 'http://localhost:5174';
 
 export default function TermDetails({ term, onBack, onDelete }) {
-  // Only current year terms can be edited
-  const canEdit = term.year === new Date().getFullYear();
-
   const [showConfirm, setShowConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSelectedOnly, setShowSelectedOnly] = useState(false); // toggle selected courses
 
-  // Load ALL ICS courses, mark ones already in the term as checked
-  const [courses, setCourses] = useState(() => {
-    const termCourses = getTermCourses(term.id);
-    const demand = getCourseDemand(term.termNum);
-    const allCourses = getAllIcsCourses();
+  // Removed: useState(() => { getTermCourses, getCourseDemand, getAllIcsCourses })
+  const [courses, setCourses] = useState([]);
 
-    return allCourses.map(c => {
-      const termCourse = termCourses.find(tc => tc.code === c.code);
-      const d = demand.find(d => d.code === c.code);
-      return {
-        code: c.code,
-        hasLab: c.lab ?? false,
-        checked: !!termCourse, // pre-check if already in term
-        maleLec: termCourse?.maleLec ?? 0,
-        maleLab: termCourse?.maleLab ?? 0,
-        femaleLec: termCourse?.femaleLec ?? 0,
-        femaleLab: termCourse?.femaleLab ?? 0,
-        maleDemand: d?.maleDemand ?? '-',
-        femaleDemand: d?.femaleDemand ?? '-',
-      };
-    });
+  // Fetch all ICS courses, existing sections for this term, and demand
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch all courses from ICS-courses collection
+        const coursesRes = await fetch(`${API}/api/courses`);
+        const allCourses = await coursesRes.json();
+
+        // Fetch existing sections for this term from Sections collection
+        const sectionsRes = await fetch(`${API}/api/sections/${term.termId}`);
+        const sectionsData = await sectionsRes.json();
+
+        // Fetch student demand from Plans collection
+        const demandRes = await fetch(`${API}/api/plans/${term.termId}`);
+        const demandData = await demandRes.json();
+
+        setCourses(allCourses.map(c => {
+          // Find existing LEC and LAB sections for this course in this term
+          const lec = sectionsData.find(s => s.courseId === c.code && s.type === 'LEC');
+          const lab = sectionsData.find(s => s.courseId === c.code && s.type === 'LAB');
+          const d = demandData.find(d => d.courseCode === c.code);
+
+          return {
+            code: c.code,
+            hasLab: c.has_lab ?? false,
+            checked: !!lec, // pre-check if course already has sections in this term
+            maleLec: lec?.maleSections ?? 0,
+            maleLab: lab?.maleSections ?? 0,
+            femaleLec: lec?.femaleSections ?? 0,
+            femaleLab: lab?.femaleSections ?? 0,
+            maleDemand: d?.mDemand ?? '-',
+            femaleDemand: d?.fDemand ?? '-',
+          };
+        }));
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      }
+    };
+    fetchData();
+  }, [term.termId]);
+
+  // Toggle course in/out of the term
+  const toggleCourse = (code) =>
+    setCourses(prev => prev.map(c => c.code === code ? { ...c, checked: !c.checked } : c));
+
+  // Update section count
+  const updateSection = (courseCode, field, value) =>
+    setCourses(prev => prev.map(c =>
+      c.code === courseCode ? { ...c, [field]: Number(value) } : c
+    ));
+
+  // Submit — update Sections collection (add new, remove unchecked, update counts)
+  const handleSubmit = async () => {
+    try {
+      await fetch(`${API}/api/sections/${term.termId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          courses: courses.filter(c => c.checked).map(c => ({
+            code: c.code,
+            hasLab: c.hasLab,
+            maleLec: c.maleLec,
+            maleLab: c.maleLab,
+            femaleLec: c.femaleLec,
+            femaleLab: c.femaleLab,
+          })),
+        }),
+      });
+      onBack();
+    } catch (err) {
+      console.error("Error submitting changes:", err);
+    }
+  };
+
+  // Search — normalize removes spaces and converts to uppercase for flexible matching
+  const normalize = (str) => str.replace(/\s/g, '').toUpperCase();
+
+  // Apply search and showSelectedOnly filters
+  const filteredCourses = courses.filter(c => {
+    const matchesSearch = normalize(c.code).includes(normalize(searchQuery));
+    const matchesSelected = showSelectedOnly ? c.checked : true;
+    return matchesSearch && matchesSelected;
   });
 
-  // Toggle course in/out of the term and auto-save
-  const toggleCourse = (code) => {
-    const updated = courses.map(c => c.code === code ? { ...c, checked: !c.checked } : c);
-    setCourses(updated);
-    saveToTerm(updated);
-  };
-
-  // Update section count and auto-save
-  const updateSection = (courseCode, field, value) => {
-    const updated = courses.map(c =>
-      c.code === courseCode ? { ...c, [field]: Number(value) } : c
-    );
-    setCourses(updated);
-    saveToTerm(updated);
-  };
-
-  // Save only checked courses to the term data
-  const saveToTerm = (updatedCourses) => {
-    const termCourses = updatedCourses
-      .filter(c => c.checked)
-      .map(c => ({
-        code: c.code,
-        hasLab: c.hasLab,
-        maleLec: c.maleLec,
-        maleLab: c.maleLab,
-        femaleLec: c.femaleLec,
-        femaleLab: c.femaleLab,
-      }));
-    updateTermCourses(term.id, termCourses);
-  };
-
-  // Pagination
+  // Pagination — 3 courses per page
   const [currentPage, setCurrentPage] = useState(1);
-  const coursesPerPage = canEdit ? 3 : 5;
+  const coursesPerPage = 3;
   const startIndex = (currentPage - 1) * coursesPerPage;
-  const currentCourses = courses.slice(startIndex, startIndex + coursesPerPage);
-  const totalPages = Math.ceil(courses.length / coursesPerPage);
+  const currentCourses = filteredCourses.slice(startIndex, startIndex + coursesPerPage);
+  const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
 
   // Reusable section select (0–29)
   const SectionSelect = ({ value, courseCode, field }) => (
@@ -83,13 +119,40 @@ export default function TermDetails({ term, onBack, onDelete }) {
 
         <button className="td-back-btn" onClick={onBack}>← Back</button>
         <h3 className="header h2" style={{ marginBottom: 4 }}>All Offered Courses</h3>
-        <div className="td-term-badge">Term {term?.name?.replace('Academic Terms ', '') ?? ''}</div>
+        {/* Use termId from MongoDB instead of term.name */}
+        <div className="td-term-badge">Term {term.termId}</div>
+
+        {/* Search bar — case insensitive, ignores spaces */}
+        <div className="an-term-row" style={{ marginTop: 16 }}>
+          <label className="an-term-label">Search course:</label>
+          <input
+            className="an-term-input"
+            type="text"
+            placeholder="ICS 104"
+            value={searchQuery}
+            onChange={e => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1); // reset to first page on new search
+            }}
+          />
+          {/* Toggle to show selected courses only */}
+          <button
+            className={`an-btn-submit${showSelectedOnly ? '' : ' an-btn-outline'}`}
+            style={{ marginLeft: 12 }}
+            onClick={() => {
+              setShowSelectedOnly(prev => !prev);
+              setCurrentPage(1);
+            }}
+          >
+            {showSelectedOnly ? 'Show All' : 'Show Selected'}
+          </button>
+        </div>
 
         <div className="an-table-wrap">
-          <table className="an-table" style={{ marginTop: 24 }}>
+          <table className="an-table" style={{ marginTop: 16 }}>
             <thead>
               <tr>
-                {canEdit && <th></th>}
+                <th></th>
                 <th>Course number</th>
                 <th>Student Demand</th>
                 <th>Number of sections</th>
@@ -98,16 +161,14 @@ export default function TermDetails({ term, onBack, onDelete }) {
             <tbody>
               {currentCourses.map(course => (
                 <tr key={course.code}>
-                  {canEdit && (
-                    <td>
-                      <div
-                        className={`an-checkbox${course.checked ? ' an-checkbox-checked' : ''}`}
-                        onClick={() => toggleCourse(course.code)}
-                      >
-                        {course.checked && '✓'}
-                      </div>
-                    </td>
-                  )}
+                  <td>
+                    <div
+                      className={`an-checkbox${course.checked ? ' an-checkbox-checked' : ''}`}
+                      onClick={() => toggleCourse(course.code)}
+                    >
+                      {course.checked && '✓'}
+                    </div>
+                  </td>
                   <td><span className="an-course-name">{course.code}</span></td>
                   <td>
                     <div className="an-demand">
@@ -116,35 +177,23 @@ export default function TermDetails({ term, onBack, onDelete }) {
                     </div>
                   </td>
                   <td>
-                    {/* Show sections only when course is checked (in term) */}
+                    {/* Show sections only when course is checked */}
                     {course.checked && (
                       <div className="an-sections">
                         <div className="an-section-row">
                           <span>Male: Lec</span>
-                          {canEdit
-                            ? <SectionSelect value={course.maleLec} courseCode={course.code} field="maleLec" />
-                            : <span>{course.maleLec}</span>
-                          }
+                          <SectionSelect value={course.maleLec} courseCode={course.code} field="maleLec" />
                           {course.hasLab && <>
                             <span>, Lab</span>
-                            {canEdit
-                              ? <SectionSelect value={course.maleLab} courseCode={course.code} field="maleLab" />
-                              : <span>{course.maleLab}</span>
-                            }
+                            <SectionSelect value={course.maleLab} courseCode={course.code} field="maleLab" />
                           </>}
                         </div>
                         <div className="an-section-row">
                           <span>Female: Lec</span>
-                          {canEdit
-                            ? <SectionSelect value={course.femaleLec} courseCode={course.code} field="femaleLec" />
-                            : <span>{course.femaleLec}</span>
-                          }
+                          <SectionSelect value={course.femaleLec} courseCode={course.code} field="femaleLec" />
                           {course.hasLab && <>
                             <span>, Lab</span>
-                            {canEdit
-                              ? <SectionSelect value={course.femaleLab} courseCode={course.code} field="femaleLab" />
-                              : <span>{course.femaleLab}</span>
-                            }
+                            <SectionSelect value={course.femaleLab} courseCode={course.code} field="femaleLab" />
                           </>}
                         </div>
                       </div>
@@ -167,20 +216,18 @@ export default function TermDetails({ term, onBack, onDelete }) {
           </div>
         )}
 
-        {canEdit && (
-          <div className="an-actions">
-            <button className="tr-deleteBtn" onClick={() => setShowDeleteConfirm(true)}>Delete Term</button>
-            <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
-          </div>
-        )}
+        <div className="an-actions">
+          <button className="tr-deleteBtn" onClick={() => setShowDeleteConfirm(true)}>Delete Term</button>
+          <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
+        </div>
 
       </div>
 
-      {/* Submit confirmation — goes back to main page after confirm */}
+      {/* Submit confirmation — saves changes to Sections collection then goes back */}
       {showConfirm && (
         <ConfirmModal
           message="Are you sure you want to submit the changes?"
-          onConfirm={() => { setShowConfirm(false); onBack(); }}
+          onConfirm={() => { handleSubmit(); setShowConfirm(false); }}
           onCancel={() => setShowConfirm(false)}
         />
       )}
@@ -191,7 +238,8 @@ export default function TermDetails({ term, onBack, onDelete }) {
           message="Are you sure you want to delete this term?"
           confirmText="Delete"
           cancelText="Cancel"
-          onConfirm={() => { onDelete(term.id); setShowDeleteConfirm(false); }}
+          // Use _id from MongoDB instead of term.id
+          onConfirm={() => { onDelete(term._id); setShowDeleteConfirm(false); }}
           onCancel={() => setShowDeleteConfirm(false)}
         />
       )}
