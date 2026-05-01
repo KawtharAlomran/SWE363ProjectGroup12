@@ -66,6 +66,11 @@ function AssignedCourses() {
     }
   };
 
+  // call fetch when component loads or term changes
+  useEffect(() => {
+    fetchAssignedCourses();
+  }, [selectedTerm]);
+
   // Get courses for the selected term
   const assignedCourses = assignedCoursesByTerm[selectedTerm] || [];
 
