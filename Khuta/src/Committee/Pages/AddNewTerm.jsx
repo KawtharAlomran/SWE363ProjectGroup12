@@ -1,6 +1,7 @@
 // Updated: replaced local data.js calls with API fetch calls
 // Added: duplicate term error, search bar, saves to Sections + Terms on submit
 // Added: real-time term existence check when 3 digits are entered
+// Added: smart pagination (1 ... 4 5 6 ... 68)
 import { useState, useEffect } from 'react';
 import ConfirmModal from '../../shared/ConfirmModal';
 
@@ -10,7 +11,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [termNumber, setTermNumber] = useState('');
   const [termError, setTermError] = useState(false);
-  const [duplicateError, setDuplicateError] = useState(false); // shown when term already exists
+  const [duplicateError, setDuplicateError] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Removed: useState(() => getAllIcsCourses().map(...))
@@ -26,7 +27,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
         setCourses(data.map(c => ({
           ...c,
           id: c.code,
-          hasLab: c.has_lab ?? false, // has_lab from Course model
+          hasLab: c.has_lab ?? false,
           checked: false,
           maleLec: 0, maleLab: 0, femaleLec: 0, femaleLab: 0,
         })));
@@ -112,7 +113,6 @@ export default function AddNewTerm({ onBack, onSubmit }) {
 
       if (!res.ok) throw new Error("Failed to save");
 
-      // Notify parent to refresh list and go back
       onSubmit({ termNum: termNumber });
 
     } catch (err) {
@@ -126,9 +126,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
       return;
     }
     // Block submit if term already exists — show error instead of confirm
-    if (duplicateError) {
-      return;
-    }
+    if (duplicateError) return;
     setTermError(false);
     setShowConfirm(true);
   };
@@ -145,12 +143,33 @@ export default function AddNewTerm({ onBack, onSubmit }) {
     normalize(c.code).includes(normalize(searchQuery))
   );
 
-  // Pagination — 3 courses per page
+  // Pagination — 3 courses per page with smart page numbers
   const [currentPage, setCurrentPage] = useState(1);
   const coursesPerPage = 3;
   const startIndex = (currentPage - 1) * coursesPerPage;
   const currentCourses = filteredCourses.slice(startIndex, startIndex + coursesPerPage);
   const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
+
+  // Smart pagination — shows first, last, and 1 page around current
+  const getPageNumbers = () => {
+    const pages = [];
+    const delta = 1;
+    const left = currentPage - delta;
+    const right = currentPage + delta;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= left && i <= right)) {
+        pages.push(i);
+      }
+    }
+    const withEllipsis = [];
+    let prev = null;
+    for (const page of pages) {
+      if (prev && page - prev > 1) withEllipsis.push('...');
+      withEllipsis.push(page);
+      prev = page;
+    }
+    return withEllipsis;
+  };
 
   return (
     <>
@@ -200,7 +219,7 @@ export default function AddNewTerm({ onBack, onSubmit }) {
             value={searchQuery}
             onChange={e => {
               setSearchQuery(e.target.value);
-              setCurrentPage(1); // reset to first page on new search
+              setCurrentPage(1);
             }}
           />
         </div>
@@ -259,13 +278,18 @@ export default function AddNewTerm({ onBack, onSubmit }) {
           <span className="an-note">*Note: by submitting the form, a notification will be send to faculty to set their preferences</span>
         </div>
 
-        <div className="pageNumbers">
-          {Array.from({ length: totalPages }, (_, i) => (
-            <button key={i+1} className={currentPage === i+1 ? 'active' : ''} onClick={() => setCurrentPage(i+1)}>
-              {i+1}
-            </button>
-          ))}
-        </div>
+        {/* Smart pagination — 1 ... 4 5 6 ... 68 */}
+        {totalPages > 1 && (
+          <div className="pageNumbers">
+            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
+            {getPageNumbers().map((page, i) =>
+              page === '...'
+                ? <span key={`ellipsis-${i}`} style={{ margin: '0 4px' }}>...</span>
+                : <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+            )}
+            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
+          </div>
+        )}
 
       </div>
 

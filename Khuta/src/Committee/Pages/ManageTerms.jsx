@@ -1,4 +1,5 @@
 // Updated: replaced local data.js calls with API fetch calls
+// Added: Modify button logic based on term year and semester number
 import { useState, useEffect } from 'react';
 import AddNewTerm from './AddNewTerm';
 import TermDetails from './TermDetails';
@@ -8,17 +9,25 @@ const API = 'http://localhost:5174';
 export default function ManageTerms() {
   const TERMS_PER_PAGE = 5;
 
-  // Removed: const [terms, setTerms] = useState(getTerms());
   const [terms, setTerms] = useState([]);
   const [showAddNew, setShowAddNew] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTerm, setSelectedTerm] = useState(null);
-  const currentYear = new Date().getFullYear();
-  const totalPages = Math.ceil(terms.length / TERMS_PER_PAGE);
-  const start = (currentPage - 1) * TERMS_PER_PAGE;
-  const visibleTerms = terms.slice(start, start + TERMS_PER_PAGE);
 
-  // Fetch all terms from the database on component mount
+  // Get current year's 2-digit prefix e.g. 2026 → "26"
+  const currentYearPrefix = String(new Date().getFullYear()).slice(-2);
+  // Last year's 2-digit prefix e.g. 2025 → "25"
+  const lastYearPrefix = String(new Date().getFullYear() - 1).slice(-2);
+
+  // A term is editable if:
+  // - it belongs to the current year (e.g. 26X), OR
+  // - it belongs to last year AND is semester 3 (e.g. 253)
+  const canEdit = (termId) => {
+    const prefix = termId.slice(0, 2);
+    const semester = termId.slice(2);
+    return prefix === currentYearPrefix || (prefix === lastYearPrefix && semester === '3');
+  };
+
   const fetchTerms = async () => {
     try {
       const res = await fetch(`${API}/api/terms`);
@@ -32,6 +41,10 @@ export default function ManageTerms() {
   useEffect(() => {
     fetchTerms();
   }, []);
+
+  const totalPages = Math.ceil(terms.length / TERMS_PER_PAGE);
+  const start = (currentPage - 1) * TERMS_PER_PAGE;
+  const visibleTerms = terms.slice(start, start + TERMS_PER_PAGE);
 
   if (showAddNew) {
     return (
@@ -51,6 +64,7 @@ export default function ManageTerms() {
     return (
       <TermDetails
         term={selectedTerm}
+        canEdit={canEdit(selectedTerm.termId)}
         onBack={() => setSelectedTerm(null)}
         onDelete={async (termId) => {
           try {
@@ -77,10 +91,9 @@ export default function ManageTerms() {
 
         <div className="mt-list">
           {visibleTerms.map((term) => (
-            // Use _id from MongoDB instead of id
             <div key={term._id} className="mt-row" onClick={() => setSelectedTerm(term)}>
               <span className="mt-name">Academic Term {term.termId}</span>
-              {currentYear === new Date().getFullYear()
+              {canEdit(term.termId)
                 ? <button className="mt-modify" onClick={e => { e.stopPropagation(); setSelectedTerm(term); }}>Modify</button>
                 : <span className="mt-arrow">›</span>
               }

@@ -1,16 +1,17 @@
 // Updated: replaced local data.js calls with API fetch calls
 // Shows all ICS courses, pre-checks ones already in Sections for this term
 // Added: search bar, show selected only toggle, saves changes to Sections on submit
+// Added: canEdit prop — read-only view for old terms, editable for current/last semester 3
 import { useState, useEffect } from 'react';
 import ConfirmModal from '../../shared/ConfirmModal';
 
 const API = 'http://localhost:5174';
 
-export default function TermDetails({ term, onBack, onDelete }) {
+export default function TermDetails({ term, onBack, onDelete, canEdit }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSelectedOnly, setShowSelectedOnly] = useState(false); // toggle selected courses
+  const [showSelectedOnly, setShowSelectedOnly] = useState(false);
 
   // Removed: useState(() => { getTermCourses, getCourseDemand, getAllIcsCourses })
   const [courses, setCourses] = useState([]);
@@ -56,11 +57,11 @@ export default function TermDetails({ term, onBack, onDelete }) {
     fetchData();
   }, [term.termId]);
 
-  // Toggle course in/out of the term
+  // Toggle course in/out of the term (edit mode only)
   const toggleCourse = (code) =>
     setCourses(prev => prev.map(c => c.code === code ? { ...c, checked: !c.checked } : c));
 
-  // Update section count
+  // Update section count (edit mode only)
   const updateSection = (courseCode, field, value) =>
     setCourses(prev => prev.map(c =>
       c.code === courseCode ? { ...c, [field]: Number(value) } : c
@@ -99,12 +100,31 @@ export default function TermDetails({ term, onBack, onDelete }) {
     return matchesSearch && matchesSelected;
   });
 
-  // Pagination — 3 courses per page
+  // Pagination — 3 courses per page with smart page numbers
   const [currentPage, setCurrentPage] = useState(1);
   const coursesPerPage = 3;
   const startIndex = (currentPage - 1) * coursesPerPage;
   const currentCourses = filteredCourses.slice(startIndex, startIndex + coursesPerPage);
   const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
+
+  // Smart pagination — shows first, last, and 1 page around current
+  const getPageNumbers = () => {
+    const pages = [];
+    const delta = 1;
+    const left = currentPage - delta;
+    const right = currentPage + delta;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= left && i <= right)) pages.push(i);
+    }
+    const withEllipsis = [];
+    let prev = null;
+    for (const page of pages) {
+      if (prev && page - prev > 1) withEllipsis.push('...');
+      withEllipsis.push(page);
+      prev = page;
+    }
+    return withEllipsis;
+  };
 
   // Reusable section select (0–29)
   const SectionSelect = ({ value, courseCode, field }) => (
@@ -122,7 +142,7 @@ export default function TermDetails({ term, onBack, onDelete }) {
         {/* Use termId from MongoDB instead of term.name */}
         <div className="td-term-badge">Term {term.termId}</div>
 
-        {/* Search bar — case insensitive, ignores spaces */}
+        {/* Search bar and show selected toggle */}
         <div className="an-term-row" style={{ marginTop: 16 }}>
           <label className="an-term-label">Search course:</label>
           <input
@@ -132,12 +152,12 @@ export default function TermDetails({ term, onBack, onDelete }) {
             value={searchQuery}
             onChange={e => {
               setSearchQuery(e.target.value);
-              setCurrentPage(1); // reset to first page on new search
+              setCurrentPage(1);
             }}
           />
           {/* Toggle to show selected courses only */}
           <button
-            className={`an-btn-submit${showSelectedOnly ? '' : ' an-btn-outline'}`}
+            className="an-btn-submit"
             style={{ marginLeft: 12 }}
             onClick={() => {
               setShowSelectedOnly(prev => !prev);
@@ -152,7 +172,7 @@ export default function TermDetails({ term, onBack, onDelete }) {
           <table className="an-table" style={{ marginTop: 16 }}>
             <thead>
               <tr>
-                <th></th>
+                {canEdit && <th></th>}
                 <th>Course number</th>
                 <th>Student Demand</th>
                 <th>Number of sections</th>
@@ -161,14 +181,17 @@ export default function TermDetails({ term, onBack, onDelete }) {
             <tbody>
               {currentCourses.map(course => (
                 <tr key={course.code}>
-                  <td>
-                    <div
-                      className={`an-checkbox${course.checked ? ' an-checkbox-checked' : ''}`}
-                      onClick={() => toggleCourse(course.code)}
-                    >
-                      {course.checked && '✓'}
-                    </div>
-                  </td>
+                  {/* Checkbox only in edit mode */}
+                  {canEdit && (
+                    <td>
+                      <div
+                        className={`an-checkbox${course.checked ? ' an-checkbox-checked' : ''}`}
+                        onClick={() => toggleCourse(course.code)}
+                      >
+                        {course.checked && '✓'}
+                      </div>
+                    </td>
+                  )}
                   <td><span className="an-course-name">{course.code}</span></td>
                   <td>
                     <div className="an-demand">
@@ -182,18 +205,31 @@ export default function TermDetails({ term, onBack, onDelete }) {
                       <div className="an-sections">
                         <div className="an-section-row">
                           <span>Male: Lec</span>
-                          <SectionSelect value={course.maleLec} courseCode={course.code} field="maleLec" />
+                          {/* Dropdown in edit mode, plain text in view mode */}
+                          {canEdit
+                            ? <SectionSelect value={course.maleLec} courseCode={course.code} field="maleLec" />
+                            : <span>{course.maleLec}</span>
+                          }
                           {course.hasLab && <>
                             <span>, Lab</span>
-                            <SectionSelect value={course.maleLab} courseCode={course.code} field="maleLab" />
+                            {canEdit
+                              ? <SectionSelect value={course.maleLab} courseCode={course.code} field="maleLab" />
+                              : <span>{course.maleLab}</span>
+                            }
                           </>}
                         </div>
                         <div className="an-section-row">
                           <span>Female: Lec</span>
-                          <SectionSelect value={course.femaleLec} courseCode={course.code} field="femaleLec" />
+                          {canEdit
+                            ? <SectionSelect value={course.femaleLec} courseCode={course.code} field="femaleLec" />
+                            : <span>{course.femaleLec}</span>
+                          }
                           {course.hasLab && <>
                             <span>, Lab</span>
-                            <SectionSelect value={course.femaleLab} courseCode={course.code} field="femaleLab" />
+                            {canEdit
+                              ? <SectionSelect value={course.femaleLab} courseCode={course.code} field="femaleLab" />
+                              : <span>{course.femaleLab}</span>
+                            }
                           </>}
                         </div>
                       </div>
@@ -205,21 +241,26 @@ export default function TermDetails({ term, onBack, onDelete }) {
           </table>
         </div>
 
-        {/* Pagination */}
+        {/* Smart pagination — 1 ... 4 5 6 ... 68 */}
         {totalPages > 1 && (
           <div className="pageNumbers">
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button key={i+1} className={currentPage === i+1 ? 'active' : ''} onClick={() => setCurrentPage(i+1)}>
-                {i+1}
-              </button>
-            ))}
+            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
+            {getPageNumbers().map((page, i) =>
+              page === '...'
+                ? <span key={`ellipsis-${i}`} style={{ margin: '0 4px' }}>...</span>
+                : <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+            )}
+            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
           </div>
         )}
 
-        <div className="an-actions">
-          <button className="tr-deleteBtn" onClick={() => setShowDeleteConfirm(true)}>Delete Term</button>
-          <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
-        </div>
+        {/* Show Delete and Submit only in edit mode */}
+        {canEdit && (
+          <div className="an-actions">
+            <button className="tr-deleteBtn" onClick={() => setShowDeleteConfirm(true)}>Delete Term</button>
+            <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
+          </div>
+        )}
 
       </div>
 
