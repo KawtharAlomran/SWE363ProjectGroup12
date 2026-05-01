@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import preferenceRoutes from "./routes/preferenceRoutes.js";
 
 
 import dotenv  from "dotenv";
@@ -13,7 +14,9 @@ import termRoutes from "./routes/termRoutes.js";
 import planRoutes from "./routes/planRoutes.js";
 import sectionRoutes from "./routes/sectionRoutes.js";
 import preferenceRoutes from "./routes/preferenceRoutes.js";
-//test
+
+
+
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5174;
