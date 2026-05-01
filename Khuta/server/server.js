@@ -13,6 +13,7 @@ import termRoutes from "./routes/termRoutes.js";
 import planRoutes from "./routes/planRoutes.js";
 import sectionRoutes from "./routes/sectionRoutes.js";
 import preferenceRoutes from "./routes/preferenceRoutes.js";
+import teachingLoadRoutes from "./routes/loadRoute.js";
 
 
 
@@ -27,6 +28,7 @@ app.use("/api/terms", termRoutes);
 app.use("/api/plans", planRoutes);
 app.use("/api/sections", sectionRoutes);
 app.use("/api/preferences", preferenceRoutes);
+app.use("/api/assignments/load", teachingLoadRoutes);
 
 await connectDB(process.env.MONGO_URL);
 
