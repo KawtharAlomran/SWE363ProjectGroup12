@@ -1,23 +1,26 @@
-import { getTermSections } from '../../data';
+// Updated: replaced local data.js with API props
+// Added: section number dropdown + tags UI
+// Fixed: optional chaining on inst.preferences to prevent undefined map error
 import { useState } from "react";
 
-function SectionSelect({ value, onChange, hasError }) {
-  return (
-    <select
-      className="an-select"
-      value={value}
-      style={hasError ? { border: '1.5px solid red', borderRadius: 4 } : {}}
-      onChange={e => onChange(Number(e.target.value))}
-    >
-      {[...Array(16)].map((_, i) => <option key={i} value={i}>{i}</option>)}
-    </select>
-  );
-}
+export default function ByInstructor({ instructors, sectionNumbers, assignments, onAdd, onRemove }) {
 
-export default function ByInstructor({ instructors, onToggle, onUpdateSection, termNum, sectionError }) {
-  const termSections = getTermSections(termNum);
+  const getAvailableSections = (courseId, type, gender) => {
+    const sectionData = sectionNumbers.find(s => s.courseId === courseId && s.type === type);
+    if (!sectionData) return [];
+    const allSections = gender === 'male' ? sectionData.maleSections : sectionData.femaleSections;
+    const assigned = assignments.filter(a => a.courseId === courseId && a.type === type).map(a => a.section);
+    return allSections.filter(s => !assigned.includes(s));
+  };
 
-  // pages logic 
+  const getAssignedSections = (courseId, type, instructorName) => {
+    return assignments.filter(a =>
+      a.courseId === courseId && a.type === type && a.instructorName === instructorName
+    ).map(a => a.section);
+  };
+
+  const hasLab = (courseId) => sectionNumbers.some(s => s.courseId === courseId && s.type === 'LAB');
+
   const [currentPage, setCurrentPage] = useState(1);
   const instructorsPerPage = 4;
   const startIndex = (currentPage - 1) * instructorsPerPage;
@@ -30,11 +33,9 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
     const left = currentPage - delta;
     const right = currentPage + delta;
     for (let i = 1; i <= totalPages; i++) {
-      if (i === 1 || i === totalPages || (i >= left && i <= right)) {
-        pages.push(i);
-      }
+      if (i === 1 || i === totalPages || (i >= left && i <= right)) pages.push(i);
     }
-     const withEllipsis = [];
+    const withEllipsis = [];
     let prev = null;
     for (const page of pages) {
       if (prev && page - prev > 1) withEllipsis.push('...');
@@ -42,7 +43,40 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
       prev = page;
     }
     return withEllipsis;
-  }
+  };
+
+  const SectionPicker = ({ courseId, type, gender, instructorName }) => {
+    const available = getAvailableSections(courseId, type, gender);
+    const assigned = getAssignedSections(courseId, type, instructorName)
+      .filter(s => gender === 'male' ? !s.startsWith('F') : s.startsWith('F'));
+
+    return (
+      <div style={{ marginBottom: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 12 }}>{gender === 'male' ? 'M' : 'F'}:</span>
+          {assigned.map(sec => (
+            <span key={sec} style={{
+              background: '#e0f0ff', borderRadius: 4, padding: '2px 6px',
+              fontSize: 12, display: 'flex', alignItems: 'center', gap: 4
+            }}>
+              {sec}
+              <span style={{ cursor: 'pointer', color: 'red', fontWeight: 'bold' }}
+                onClick={() => onRemove(courseId, type, sec, instructorName)}>×</span>
+            </span>
+          ))}
+          {available.filter(s => gender === 'male' ? !s.startsWith('F') : s.startsWith('F')).length > 0 && (
+            <select className="an-select" value=""
+              onChange={e => { if (e.target.value) onAdd(courseId, type, e.target.value, instructorName); }}>
+              <option value="">+ Add</option>
+              {available
+                .filter(s => gender === 'male' ? !s.startsWith('F') : s.startsWith('F'))
+                .map(sec => <option key={sec} value={sec}>{sec}</option>)}
+            </select>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -56,70 +90,25 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
           </thead>
           <tbody>
             {currentInstructors.map(inst => (
-              <tr key={inst.id}>
-                <td><span className="an-course-name">{inst.name}</span></td>
+              <tr key={inst.facultyName}>
+                <td><span className="an-course-name">{inst.facultyName}</span></td>
                 <td>
                   <div className="ac-courses-grid">
-                    {inst.courses.map((course, index) => {
-                      const termCourse = termSections.find(t => t.code === course.code);
-                      return (
-                        <div key={course.id} className={`ac-course-tag${course.assigned ? ' ac-course-tag--assigned' : ''}`}>
-                          <div className="ac-tag-top">
-                            <span className="ac-course-rank">{index + 1}</span>
-                            <span className="ac-tag-code">{course.code}</span>
-                            <div
-                              className={`an-checkbox${course.assigned ? ' an-checkbox-checked' : ''}`}
-                              onClick={() => onToggle(inst.id, course.id)}
-                            >
-                              {course.assigned && '✓'}
-                            </div>
-                          </div>
-
-                          {course.assigned && termCourse && (
-                            <div className="ac-sections">
-                              <div className="an-section-row">
-                                <span>M: Lec</span>
-                                <SectionSelect
-                                  value={course.maleLec || 0}
-                                  hasError={sectionError?.instructorId === inst.id && sectionError?.courseId === course.id && sectionError?.field === 'maleLec'}
-                                  onChange={v => onUpdateSection(inst.id, course.id, 'maleLec', v)}
-                                />
-                                {termCourse.hasLab && <>
-                                  <span>, Lab</span>
-                                  <SectionSelect
-                                    value={course.maleLab || 0}
-                                    hasError={sectionError?.instructorId === inst.id && sectionError?.courseId === course.id && sectionError?.field === 'maleLab'}
-                                    onChange={v => onUpdateSection(inst.id, course.id, 'maleLab', v)}
-                                  />
-                                </>}
-                              </div>
-                              <div className="an-section-row">
-                                <span>F: Lec</span>
-                                <SectionSelect
-                                  value={course.femaleLec || 0}
-                                  hasError={sectionError?.instructorId === inst.id && sectionError?.courseId === course.id && sectionError?.field === 'femaleLec'}
-                                  onChange={v => onUpdateSection(inst.id, course.id, 'femaleLec', v)}
-                                />
-                                {termCourse.hasLab && <>
-                                  <span>, Lab</span>
-                                  <SectionSelect
-                                    value={course.femaleLab || 0}
-                                    hasError={sectionError?.instructorId === inst.id && sectionError?.courseId === course.id && sectionError?.field === 'femaleLab'}
-                                    onChange={v => onUpdateSection(inst.id, course.id, 'femaleLab', v)}
-                                  />
-                                </>}
-                              </div>
-                              {/* Inline error message below the selects */}
-                              {sectionError?.instructorId === inst.id && sectionError?.courseId === course.id && (
-                                <div style={{ color: 'red', fontSize: 12, marginTop: 4 }}>
-                                  Max {sectionError.max} sections for {sectionError.code}
-                                </div>
-                              )}
-                            </div>
-                          )}
+                    {/* Fixed: optional chaining to prevent undefined map error */}
+                    {inst.preferences?.map((pref) => (
+                      <div key={pref.courseId} className="ac-course-tag">
+                        <div className="ac-tag-top">
+                          <span className="ac-course-rank">{pref.order}</span>
+                          <span className="ac-tag-code">{pref.courseId}</span>
                         </div>
-                      );
-                    })}
+                        <SectionPicker courseId={pref.courseId} type="LEC" gender="male" instructorName={inst.facultyName} />
+                        <SectionPicker courseId={pref.courseId} type="LEC" gender="female" instructorName={inst.facultyName} />
+                        {hasLab(pref.courseId) && <>
+                          <SectionPicker courseId={pref.courseId} type="LAB" gender="male" instructorName={inst.facultyName} />
+                          <SectionPicker courseId={pref.courseId} type="LAB" gender="female" instructorName={inst.facultyName} />
+                        </>}
+                      </div>
+                    ))}
                   </div>
                 </td>
               </tr>
@@ -128,18 +117,17 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
         </table>
       </div>
 
-      {/* Smart pagination */}
-        {totalPages > 1 && (
-          <div className="pageNumbers">
-            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
-            {getPageNumbers().map((page, i) =>
-              page === '...'
-                ? <span key={`ellipsis-${i}`} style={{ margin: '0 4px' }}>...</span>
-                : <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
-            )}
-            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
-          </div>
-        )}
+      {totalPages > 1 && (
+        <div className="pageNumbers">
+          <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
+          {getPageNumbers().map((page, i) =>
+            page === '...'
+              ? <span key={`ellipsis-${i}`} style={{ margin: '0 4px' }}>...</span>
+              : <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+          )}
+          <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
+        </div>
+      )}
     </>
   );
 }
