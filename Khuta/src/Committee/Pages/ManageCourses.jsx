@@ -40,7 +40,7 @@ export default function ManageCourses() {
 
   const handleAdd = async () => {
     const newCourse = {
-      code: code.toUpperCase(),
+      code: code.slice(0, 3).toUpperCase() + " " + code.slice(3),
       name,
       description,
       credit_hours: Number(hours),
@@ -192,7 +192,7 @@ return (
             // validate code (SWE206 or ICS455)
           const codeRegex = /^(SWE|ICS)\d{3}$/;
           if (!codeRegex.test(code.toUpperCase())) {
-            setAddError("Course code must start with SWE or ICS followed by 3 digits");
+            setAddError("Course code must start with SWE or ICS followed directly by 3 digits");
             return;
           }
             // validate hours (must be 1–6)
