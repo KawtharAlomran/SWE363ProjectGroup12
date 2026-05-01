@@ -16,4 +16,53 @@ app.use(express.json());
 
 await connectDB(process.env.MONGO_URL);
 
+// get all courses
+app.get("/api/courses", async (req, res) => {
+  try {
+    const courses = await Course.find();
+    
+    res.status(200).json(courses);
+  } catch (error) {
+    res.status(500).json({ 
+      message: "Error retrieving courses", 
+      error: error.message 
+    });
+  }
+});
+
+// get faculty
+app.get("/api/faculty", async (req, res) => {
+  try {
+    const { role } = req.query;
+    let query = {};
+    
+    if (role) {
+      query.role = role;
+    }
+
+    const facultyList = await Faculty.find(query);
+    
+    res.status(200).json(facultyList);
+  } catch (error) {
+    res.status(500).json({ 
+      message: "Error fetching faculty data", 
+      error: error.message 
+    });
+  }
+});
+
+app.get("/api/faculty/:email", async (req, res) => {
+  try {
+    const member = await Faculty.findOne({ email: req.params.email.toLowerCase() });
+    
+    if (!member) {
+      return res.status(404).json({ message: "Faculty member not found" });
+    }
+    
+    res.status(200).json(member);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));

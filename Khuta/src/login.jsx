@@ -1,50 +1,44 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import {getchairmanUsers,getFacltyUsers,getCommitteeUsers} from './data';
-
 
 
 
 export default function Login() {
-  // Load all nessesary information from shared data
-  let chairman=getchairmanUsers();
-  let faclty=getFacltyUsers();
-  let committee=getCommitteeUsers();
-
-  const [user, setUsername]=useState ("");
-  const [password, setPassword]=useState ("");
+  const [user, setUsername] = useState(""); // This will be the email
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // handle clicking on Sign In button
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-    
-    // check if the username belongs to a chairman, committee, or a faculty
-    const isChairman = chairman.find(u => u.username === user && u.pass === password);
-    const isFaculty = faclty.find(u => u.username === user && u.pass === password);
-    const isCommittee = committee.find(u => u.username === user && u.pass === password);
-    
-    // navigate the user to the correct home page based on its role
-    if(isChairman){
-      sessionStorage.setItem('UserName', isChairman.name);
-      navigate('/chairman/ics-courses');
-    }
-    else if (isCommittee){
-      sessionStorage.setItem('UserName', isCommittee.name);
-      navigate('/committee/manage-terms');
-    }
-    else if (isFaculty){
-      sessionStorage.setItem('UserName', isFaculty.name);
-      navigate('/faculty/offered-courses');
-    }
-    else {
-      setError("Invalid username or password. Please try again.")
-    }
-    
-      
 
+    try {
+      const response = await fetch(`http://localhost:5174/api/faculty/${user}`);
+      
+      if (!response.ok) {
+        throw new Error("Invalid username or password. Please try again.");
+      }
+
+      const facultyMember = await response.json();
+
+      if (facultyMember.pass === password) {
+        sessionStorage.setItem('UserName', facultyMember.name);
+        sessionStorage.setItem('UserRole', facultyMember.role);
+
+        if (facultyMember.role === 'chairman') {
+          navigate('/chairman/ics-courses');
+        } else if (facultyMember.role === 'faculty') {
+          navigate('/faculty/offered-courses');
+        } else if (facultyMember.role === 'committee')  {
+          navigate('/committee/manage-terms');
+        }
+      } else {
+        setError("Invalid username or password. Please try again.");
+      }
+    } catch (err) {
+      setError("Login failed. Check your KFUPM username/email.");
+    }
   };
 
   return (
