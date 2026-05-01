@@ -1,29 +1,61 @@
-import { useState } from 'react';
+// Updated: replaced local data.js calls with API fetch calls
+import { useState, useEffect } from 'react';
 import ConfirmModal from '../../shared/ConfirmModal';
-import { getAllIcsCourses, getCourseDemand } from '../../data';
+
+const API = 'http://localhost:5174';
 
 export default function AddNewTerm({ onBack, onSubmit }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [termNumber, setTermNumber] = useState('');
   const [termError, setTermError] = useState(false);
 
-  // Load all ICS courses from shared data — no hardcoded list
-  const [courses, setCourses] = useState(() =>
-    getAllIcsCourses().map(c => ({
-      ...c,
-      id: c.code,
-      hasLab: c.lab ?? false,
-      checked: false,
-      maleLec: 0, maleLab: 0, femaleLec: 0, femaleLab: 0,
-    }))
-  );
+  // Removed: useState(() => getAllIcsCourses().map(...))
+  const [courses, setCourses] = useState([]);
+  const [termDemand, setTermDemand] = useState([]);
 
-  // Search demand for the entered term number — only triggers when 3 digits are entered
-  const termDemand = termNumber.length === 3 ? getCourseDemand(termNumber) : [];
+  // Fetch all ICS courses from the database on component mount
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const res = await fetch(`${API}/api/courses`);
+        const data = await res.json();
+        setCourses(data.map(c => ({
+          ...c,
+          id: c.code,
+          hasLab: c.has_lab ?? false,
+          checked: false,
+          maleLec: 0, maleLab: 0, femaleLec: 0, femaleLab: 0,
+        })));
+      } catch (err) {
+        console.error("Error fetching courses:", err);
+      }
+    };
+    fetchCourses();
+  }, []);
 
+  // Fetch student demand when term number is fully entered (3 digits)
+  useEffect(() => {
+    if (termNumber.length === 3) {
+      const fetchDemand = async () => {
+        try {
+          const res = await fetch(`${API}/api/plans/${termNumber}`);
+          const data = await res.json();
+          setTermDemand(data);
+        } catch (err) {
+          console.error("Error fetching demand:", err);
+        }
+      };
+      fetchDemand();
+    } else {
+      setTermDemand([]);
+    }
+  }, [termNumber]);
+
+  // Removed: getCourseDemand(termNumber) — now using termDemand from API
   const getDemand = (code, field) => {
-    const d = termDemand.find(d => d.code === code);
-    return d ? d[field] : '-';
+    const d = termDemand.find(d => d.courseCode === code);
+    if (!d) return '-';
+    return field === 'maleDemand' ? d.mDemand : d.fDemand;
   };
 
   const toggleCourse = (id) =>
