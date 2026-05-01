@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
+// API base URL for backend requests
+const API = 'http://localhost:5174';
 
 function AssignedCourses() {
   // Temporary assigned courses grouped by term
