@@ -1,5 +1,6 @@
 import express from "express";
 import { getPreferencesByTerm } from "../controllers/preferenceController.js";
+import { getPreferencesByInstructor } from "../controllers/preferenceController.js";
 
 const router = express.Router();
 
