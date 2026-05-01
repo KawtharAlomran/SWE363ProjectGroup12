@@ -7,8 +7,8 @@ import { connectDB } from "./db.js";
 import { Faculty } from "./models/Faculty.js";
 import { Course } from "./models/Course.js";
 import courseRoutes from "./routes/courseRoutes.js";
-import { Term } from "./models/Term.js";
-import { Plan } from "./models/Plan.js";
+import termRoutes from "./routes/termRoutes.js";
+import planRoutes from "./routes/planRoutes.js";
 
 
 dotenv.config();
@@ -18,7 +18,8 @@ const PORT = process.env.PORT || 5174;
 app.use(cors());              
 app.use(express.json());
 app.use("/api/courses", courseRoutes);
-
+app.use("/api/terms", termRoutes);
+app.use("/api/plans", planRoutes);
 await connectDB(process.env.MONGO_URL);
 
 // get all courses
@@ -110,24 +111,5 @@ app.patch("/api/faculty/:email", async (req, res) => {
   }
 });
 
-// get all terms
-app.get("/api/terms", async (req, res) => {
-  try {
-    const terms = await Term.find();
-    res.status(200).json(terms);
-  } catch (error) {
-    res.status(500).json({ message: "Error retrieving terms", error: error.message });
-  }
-});
-
-// get plans by termId
-app.get("/api/plans/:termId", async (req, res) => {
-  try {
-    const plans = await Plan.find({ termId: req.params.termId });
-    res.status(200).json(plans);
-  } catch (error) {
-    res.status(500).json({ message: "Error retrieving plans", error: error.message });
-  }
-});
 
 app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));
