@@ -15,8 +15,7 @@ function AssignedCourses() {
   // loading state while fetching data
   const [isLoading, setIsLoading] = useState(true);
 
-  // temporary faculty name (until login is connected to backend)
-  const facultyName = 'Khadija Alsafwan';
+  const facultyName = sessionStorage.getItem('UserName');
 
   // fetch assigned courses from backend
   const fetchAssignedCourses = async () => {
