@@ -118,5 +118,14 @@ app.get("/api/terms", async (req, res) => {
   }
 });
 
+// get plans by termId
+app.get("/api/plans/:termId", async (req, res) => {
+  try {
+    const plans = await Plan.find({ termId: req.params.termId });
+    res.status(200).json(plans);
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving plans", error: error.message });
+  }
+});
 
 app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));
