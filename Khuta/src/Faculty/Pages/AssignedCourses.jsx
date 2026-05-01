@@ -1,40 +1,49 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
+// API base URL for backend requests
+const API = 'http://localhost:5174';
 
 function AssignedCourses() {
-  // Temporary assigned courses grouped by term
-  const assignedCoursesByTerm = {
-    '261': [
-      { code: 'ICS 202', name: 'Data Structures and Algorithms', section: 'Lec 1' },
-      { code: 'ICS 343', name: 'Fund. of Computer Networks', section: 'Lec 2' },
-      { code: 'ICS 253', name: 'Discrete Structures', section: 'Lec 1' },
-      { code: 'ICS 321', name: 'Database Systems', section: 'Lec 2' },
-      { code: 'ICS 104', name: 'Intro. to Prog. in Python & C', section: 'Lec 3' },
-      { code: 'ICS 108', name: 'Object-Oriented Programming', section: 'Lec 1' },
-      { code: 'ICS 381', name: 'Principles of Artificial Intelligence', section: 'Lec 1' },
-      { code: 'ICS 410', name: 'Programming Languages', section: 'Lec 1' },
-      { code: 'ICS 344', name: 'Information Security', section: 'Lec 2' },
-    ],
-    '252': [
-      { code: 'ICS 104', name: 'Intro. to Prog. in Python & C', section: 'Lec 1' },
-      { code: 'ICS 108', name: 'Object-Oriented Programming', section: 'Lec 2' },
-      { code: 'ICS 202', name: 'Data Structures and Algorithms', section: 'Lec 1' },
-      { code: 'ICS 253', name: 'Discrete Structures', section: 'Lec 2' },
-      { code: 'ICS 321', name: 'Database Systems', section: 'Lec 1' },
-    ],
-    '251': [
-      { code: 'ICS 253', name: 'Discrete Structures', section: 'Lec 1' },
-      { code: 'ICS 321', name: 'Database Systems', section: 'Lec 1' },
-    ],
-    '242': [],
-  };
 
   // State for selected term and current page
   const [selectedTerm, setSelectedTerm] = useState('261');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Get courses for the selected term
-  const assignedCourses = assignedCoursesByTerm[selectedTerm] || [];
+  // state to store assigned courses from API
+  const [assignedCourses, setAssignedCourses] = useState([]);
+
+  // loading state while fetching data
+  const [isLoading, setIsLoading] = useState(true);
+
+  // temporary faculty name (until login is connected to backend)
+  const facultyName = 'Khadija Alsafwan';
+
+  // fetch assigned courses from backend
+  const fetchAssignedCourses = async () => {
+    try {
+      setIsLoading(true);
+
+      const res = await fetch(
+        `${API}/api/assignments/${selectedTerm}/${encodeURIComponent(facultyName)}`
+      );
+
+      if (!res.ok) throw new Error('Failed to fetch');
+
+      const data = await res.json();
+
+      setAssignedCourses(data);
+    } catch (error) {
+      console.error('Error fetching assigned courses:', error);
+      setAssignedCourses([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // call fetch when component loads or term changes
+  useEffect(() => {
+    fetchAssignedCourses();
+  }, [selectedTerm]);
 
   // Number of courses shown per page
   const coursesPerPage = 4;
@@ -83,7 +92,13 @@ function AssignedCourses() {
           </tr>
         </thead>
         <tbody>
-          {assignedCourses.length > 0 ? (
+          {isLoading ? (
+            <tr>
+              <td colSpan="3" className="textCenter">
+                Loading...
+              </td>
+            </tr>
+          ) : assignedCourses.length > 0 ? (
             currentCourses.map((course) => (
               <tr key={course.code + course.section}>
                 <td className="an-course-name">{course.code}</td>

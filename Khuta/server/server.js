@@ -8,12 +8,14 @@ import { Faculty } from "./models/Faculty.js";
 import { Course } from "./models/Course.js";
 import { Plan } from "./models/Plans.js";
 import { Term } from "./models/Term.js";
+import { Assignment } from "./models/Assignment.js";
 import courseRoutes from "./routes/courseRoutes.js";
 import termRoutes from "./routes/termRoutes.js";
 import planRoutes from "./routes/planRoutes.js";
 import sectionRoutes from "./routes/sectionRoutes.js";
 import preferenceRoutes from "./routes/preferenceRoutes.js";
 import teachingLoadRoutes from "./routes/loadRoute.js";
+import assignmentRoutes from "./routes/assignmentRoutes.js";
 
 
 
@@ -29,6 +31,7 @@ app.use("/api/plans", planRoutes);
 app.use("/api/sections", sectionRoutes);
 app.use("/api/preferences", preferenceRoutes);
 app.use("/api/assignments/load", teachingLoadRoutes);
+app.use("/api/assignments", assignmentRoutes);
 
 await connectDB(process.env.MONGO_URL);
 
@@ -118,6 +121,37 @@ app.patch("/api/faculty/:email", async (req, res) => {
     res.status(200).json(updatedMember);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Get assigned courses for a faculty member in a specific term
+app.get("/api/assignments/:term/:facultyName", async (req, res) => {
+  try {
+    const { term, facultyName } = req.params;
+
+    const assignments = await Assignment.find({
+      term,
+      instructorName: decodeURIComponent(facultyName),
+    });
+
+    const result = await Promise.all(
+      assignments.map(async (assignment) => {
+        const course = await Course.findOne({ code: assignment.courseId });
+
+        return {
+          code: assignment.courseId,
+          name: course ? course.name : assignment.courseId,
+          section: `${assignment.type} ${assignment.section}`,
+        };
+      })
+    );
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching assigned courses",
+      error: error.message,
+    });
   }
 });
 
