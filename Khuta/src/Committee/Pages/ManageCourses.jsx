@@ -26,16 +26,21 @@ export default function ManageCourses() {
   }, []);
 
   const handleDelete = async (code) => {
-  await fetch(`http://localhost:5174/api/courses/${encodeURIComponent(code)}`, {
-    method: "DELETE"
-  });
+    const res = await fetch(`${API_URL}/${encodeURIComponent(code)}`, {
+      method: "DELETE"
+    });
 
-  setCourses(courses.filter(c => c.code !== code));
+    if (!res.ok) {
+      console.error("Failed to delete course");
+      return;
+    }
+
+    setCourses(courses.filter(c => c.code !== code));
   };
 
   const handleAdd = async () => {
     const newCourse = {
-      code,
+      code: code.toUpperCase(),
       name,
       description,
       credit_hours: Number(hours),
@@ -43,7 +48,7 @@ export default function ManageCourses() {
       level: "undegraduate"
     };
 
-    const res = await fetch("http://localhost:5174/api/courses", {
+    const res = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -53,9 +58,20 @@ export default function ManageCourses() {
 
     const data = await res.json();
 
-    if (res.ok) {
-      setCourses([...courses, data]);
+    if (!res.ok) {
+      setAddError(data.message || "Failed to add course");
+      return;
     }
+
+    setCourses([...courses, data]);
+
+    setIsAdd(false);
+    setCode("");
+    setName("");
+    setHours("");
+    setDescription("");
+    setHasLab(null);
+    setAddError("");
   };
 
   // to handle pages 
@@ -192,13 +208,7 @@ return (
             return;
           }
 
-          handleAdd(code.toUpperCase(), name, hours,hasLab, description);
-          setIsAdd(false);
-          setCode("");
-          setName("");
-          setHours("");
-          setDescription("");
-          setHasLab(null);
+          handleAdd();
         }}
         onCancel={() => {
           setIsAdd(false);
