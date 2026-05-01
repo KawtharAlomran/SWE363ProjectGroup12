@@ -1,30 +1,13 @@
 /**
  * AssignCourses.jsx
  * 
- * This component allows the committee to assign instructors to course sections.
- * 
- * WHAT CHANGED FROM OLD VERSION:
- * - Removed all imports from data.js (getInstructorsPrefrences, getCoursePrefrences, etc.)
- * - Data is now fetched from the backend API instead of local static data
- * - Added section number selection (01, 02... for male / F01, F02... for female)
- *   instead of selecting a count of sections
- * - Existing assignments are loaded from the database when the page opens
- * - Assignments are saved to the Assignment collection in MongoDB on Submit
- * 
- * HOW IT WORKS:
- * 1. On mount → fetches all terms from /api/terms
- * 2. When a term is selected → fetches 4 things in parallel:
- *    - Preferences by instructor: /api/preferences/term/:termId/instructor
- *    - Preferences by course:     /api/preferences/term/:termId/course
- *    - Section numbers:           /api/assignments/:termId/sections
- *      (converts maleSections count → ["01","02"...] and femaleSections → ["F01","F02"...])
- *    - Existing assignments:      /api/assignments/:termId
- * 3. User selects sections for each instructor from dropdowns
- * 4. On Submit → saves all assignments to /api/assignments (POST)
- * 
- * PROPS PASSED DOWN:
- * - ByInstructor: instructors, sectionNumbers, assignments, onAdd, onRemove
- * - ByCourse:     courses, sectionNumbers, assignments, onAdd, onRemove
+ * WHAT CHANGED:
+ * - Separated existing assignments (from DB) from new assignments (added in current session)
+ * - existingAssignments: loaded from DB, used to pre-check instructors who were previously assigned
+ * - newAssignments: what user adds/removes in this session, used to filter available sections in dropdown
+ * - Available sections are filtered only from newAssignments (not existingAssignments)
+ *   so the full section list from Sections collection always shows correctly
+ * - On Submit: saves both existing + new assignments to DB
  */
 
 import { useState, useEffect } from 'react';
@@ -37,48 +20,31 @@ const API = 'http://localhost:5174';
 
 export default function AssignCourses() {
   const navigate = useNavigate();
-
-  // Controls which view is shown: 'instructor' or 'course'
   const [viewType, setViewType] = useState('instructor');
   const [showConfirm, setShowConfirm] = useState(false);
-
-  // Error shown when a section is already assigned to another instructor
   const [sectionError, setSectionError] = useState(null);
 
-  // All available terms fetched from /api/terms
   const [terms, setTerms] = useState([]);
-
-  // The currently selected term ID (e.g. "253")
   const [selectedTermId, setSelectedTermId] = useState('');
-
-  // Loading states
   const [loadingTerms, setLoadingTerms] = useState(true);
   const [loadingData, setLoadingData] = useState(false);
 
-  // Preferences grouped by instructor — used in ByInstructor view
-  // Format: [{ facultyName, preferences: [{ courseId, order }] }]
   const [byInstructor, setByInstructor] = useState([]);
-
-  // Preferences grouped by course — used in ByCourse view
-  // Format: [{ courseId, instructors: [{ facultyName, order }] }]
   const [byCourse, setByCourse] = useState([]);
-
-  // Generated section numbers from Sections collection
-  // Format: [{ courseId, type: "LEC"|"LAB", maleSections: ["01","02"...], femaleSections: ["F01","F02"...] }]
   const [sectionNumbers, setSectionNumbers] = useState([]);
 
-  // All current assignments (local state, saved to DB on Submit)
-  // Format: [{ courseId, type, section, instructorName }]
-  const [assignments, setAssignments] = useState([]);
+  // Assignments already saved in DB — used to pre-check instructors
+  const [existingAssignments, setExistingAssignments] = useState([]);
 
-  // Fetch all terms on component mount
+  // Assignments added/removed in current session — used to filter dropdown options
+  const [newAssignments, setNewAssignments] = useState([]);
+
   useEffect(() => {
     const fetchTerms = async () => {
       try {
         const res = await fetch(`${API}/api/terms`);
         const data = await res.json();
         setTerms(data);
-        // Auto-select the first term
         if (data.length > 0) setSelectedTermId(data[0].termId);
       } catch (err) {
         console.error("Error fetching terms:", err);
@@ -89,14 +55,12 @@ export default function AssignCourses() {
     fetchTerms();
   }, []);
 
-  // Fetch all data when selected term changes
   useEffect(() => {
     if (!selectedTermId) return;
 
     const fetchData = async () => {
       setLoadingData(true);
       try {
-        // Fetch all 4 sources at the same time for better performance
         const [prefInstRes, prefCourseRes, sectionsRes, assignmentsRes] = await Promise.all([
           fetch(`${API}/api/preferences/term/${selectedTermId}/instructor`),
           fetch(`${API}/api/preferences/term/${selectedTermId}/course`),
@@ -104,7 +68,7 @@ export default function AssignCourses() {
           fetch(`${API}/api/assignments/${selectedTermId}`),
         ]);
 
-        const [prefInst, prefCourse, sections, existingAssignments] = await Promise.all([
+        const [prefInst, prefCourse, sections, existing] = await Promise.all([
           prefInstRes.json(),
           prefCourseRes.json(),
           sectionsRes.json(),
@@ -112,7 +76,8 @@ export default function AssignCourses() {
         ]);
 
         setSectionNumbers(sections);
-        setAssignments(existingAssignments); // pre-load existing assignments from DB
+        setExistingAssignments(existing); // pre-check previously assigned instructors
+        setNewAssignments([]); // reset new assignments when term changes
         setByInstructor(prefInst);
         setByCourse(prefCourse);
       } catch (err) {
@@ -124,17 +89,9 @@ export default function AssignCourses() {
     fetchData();
   }, [selectedTermId]);
 
-  /**
-   * addAssignment — called when user picks a section from the dropdown
-   * Checks if section is already taken before adding
-   * @param {string} courseId - e.g. "ICS 104"
-   * @param {string} type - "LEC" or "LAB"
-   * @param {string} section - e.g. "01" or "F02"
-   * @param {string} instructorName - faculty name
-   */
+  // Add section — checks conflict only in newAssignments (current session)
   const addAssignment = (courseId, type, section, instructorName) => {
-    // Prevent assigning same section to two instructors
-    const conflict = assignments.find(a =>
+    const conflict = newAssignments.find(a =>
       a.courseId === courseId && a.type === type && a.section === section
     );
     if (conflict) {
@@ -142,28 +99,24 @@ export default function AssignCourses() {
       return;
     }
     setSectionError(null);
-    setAssignments(prev => [...prev, { courseId, type, section, instructorName }]);
+    setNewAssignments(prev => [...prev, { courseId, type, section, instructorName }]);
   };
 
-  /**
-   * removeAssignment — called when user clicks × on a section tag
-   */
+  // Remove section from newAssignments
   const removeAssignment = (courseId, type, section, instructorName) => {
-    setAssignments(prev => prev.filter(a =>
+    setNewAssignments(prev => prev.filter(a =>
       !(a.courseId === courseId && a.type === type && a.section === section && a.instructorName === instructorName)
     ));
   };
 
-  /**
-   * handleSubmit — saves all assignments to Assignment collection in MongoDB
-   * Replaces existing assignments for this term (delete + insert in backend)
-   */
+  // Submit — merges existing + new assignments and saves to DB
   const handleSubmit = async () => {
     try {
+      const allAssignments = [...existingAssignments, ...newAssignments];
       await fetch(`${API}/api/assignments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ termId: selectedTermId, assignments }),
+        body: JSON.stringify({ termId: selectedTermId, assignments: allAssignments }),
       });
       setShowConfirm(false);
       navigate(-1);
@@ -172,7 +125,6 @@ export default function AssignCourses() {
     }
   };
 
-  // Show loading screen while fetching terms
   if (loadingTerms) return <div className="container">Loading terms...</div>;
 
   return (
@@ -180,7 +132,6 @@ export default function AssignCourses() {
       <div className="container">
         <h3 className="header h2">Assign Courses</h3>
 
-        {/* Term selector — changing term re-fetches all data */}
         <div className="ac-view-toggle">
           <span className="ac-view-label">Term:</span>
           <select
@@ -192,7 +143,6 @@ export default function AssignCourses() {
           </select>
         </div>
 
-        {/* View type toggle */}
         <div className="ac-view-toggle">
           <span className="ac-view-label">View type:</span>
           <button
@@ -209,7 +159,6 @@ export default function AssignCourses() {
           </button>
         </div>
 
-        {/* Conflict error — shown when a section is already assigned */}
         {sectionError && (
           <div style={{ color: 'red', fontSize: 13, marginBottom: 8 }}>
             * {sectionError.message}
@@ -218,23 +167,23 @@ export default function AssignCourses() {
 
         {loadingData && <p>Loading preferences...</p>}
 
-        {/* By Instructor view */}
         {!loadingData && viewType === 'instructor' && (
           <ByInstructor
-            instructors={byInstructor}       // [{ facultyName, preferences }]
-            sectionNumbers={sectionNumbers}   // [{ courseId, type, maleSections, femaleSections }]
-            assignments={assignments}          // [{ courseId, type, section, instructorName }]
+            instructors={byInstructor}
+            sectionNumbers={sectionNumbers}
+            existingAssignments={existingAssignments}  // to pre-check instructors
+            newAssignments={newAssignments}             // to filter dropdown options
             onAdd={addAssignment}
             onRemove={removeAssignment}
           />
         )}
 
-        {/* By Course view */}
         {!loadingData && viewType === 'course' && (
           <ByCourse
-            courses={byCourse}               // [{ courseId, instructors }]
-            sectionNumbers={sectionNumbers}   // [{ courseId, type, maleSections, femaleSections }]
-            assignments={assignments}          // [{ courseId, type, section, instructorName }]
+            courses={byCourse}
+            sectionNumbers={sectionNumbers}
+            existingAssignments={existingAssignments}  // to pre-check instructors
+            newAssignments={newAssignments}             // to filter dropdown options
             onAdd={addAssignment}
             onRemove={removeAssignment}
           />

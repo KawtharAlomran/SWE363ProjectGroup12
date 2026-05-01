@@ -1,9 +1,16 @@
-// Updated: replaced local data.js with API props
-// Added: section number dropdown + tags UI
-// Fixed: optional chaining, checkbox, LEC/LAB labels, rank, layout alignment
+/**
+ * ByCourse.jsx
+ *
+ * PROPS:
+ * @param {Array} courses              - [{ courseId, instructors: [{ facultyName, order }] }]
+ * @param {Array} sectionNumbers       - [{ courseId, type, maleSections: [], femaleSections: [] }]
+ * @param {Array} existingAssignments  - assignments from DB, used to pre-check instructors
+ * @param {Array} newAssignments       - assignments added this session, used to filter dropdown
+ * @param {Function} onAdd             - (courseId, type, section, instructorName) => void
+ * @param {Function} onRemove          - (courseId, type, section, instructorName) => void
+ */
 import { useState } from "react";
-
-export default function ByCourse({ courses, sectionNumbers, assignments, onAdd, onRemove }) {
+export default function ByCourse({ courses, sectionNumbers, existingAssignments, newAssignments, onAdd, onRemove }) {
 
   const [selected, setSelected] = useState({});
 
@@ -14,16 +21,30 @@ export default function ByCourse({ courses, sectionNumbers, assignments, onAdd, 
 
   const isSelected = (courseId, instructorName) => !!selected[`${courseId}-${instructorName}`];
 
+  // Check if instructor was previously assigned to this course (from DB)
+  const wasAssigned = (instructorName, courseId) => {
+    return existingAssignments.some(a => a.instructorName === instructorName && a.courseId === courseId);
+  };
+
+  // Available sections filtered only from newAssignments (current session)
   const getAvailableSections = (courseId, type, gender) => {
     const sectionData = sectionNumbers.find(s => s.courseId === courseId && s.type === type);
     if (!sectionData) return [];
     const allSections = gender === 'male' ? sectionData.maleSections : sectionData.femaleSections;
-    const assigned = assignments.filter(a => a.courseId === courseId && a.type === type).map(a => a.section);
-    return allSections.filter(s => !assigned.includes(s));
+    const takenThisSession = newAssignments
+      .filter(a => a.courseId === courseId && a.type === type)
+      .map(a => a.section);
+    return allSections.filter(s => !takenThisSession.includes(s));
   };
 
-  const getAssignedSections = (courseId, type, instructorName) => {
-    return assignments.filter(a =>
+  const getNewSections = (courseId, type, instructorName) => {
+    return newAssignments.filter(a =>
+      a.courseId === courseId && a.type === type && a.instructorName === instructorName
+    ).map(a => a.section);
+  };
+
+  const getExistingSections = (courseId, type, instructorName) => {
+    return existingAssignments.filter(a =>
       a.courseId === courseId && a.type === type && a.instructorName === instructorName
     ).map(a => a.section);
   };
@@ -54,17 +75,27 @@ export default function ByCourse({ courses, sectionNumbers, assignments, onAdd, 
     return withEllipsis;
   };
 
-  // One row: label + tags + add dropdown
   const SectionRow = ({ courseId, type, gender, instructorName }) => {
-    const allAvailable = getAvailableSections(courseId, type, gender);
-    const allAssigned = getAssignedSections(courseId, type, instructorName)
+    const available = getAvailableSections(courseId, type, gender)
       .filter(s => gender === 'male' ? !s.startsWith('F') : s.startsWith('F'));
-    const available = allAvailable.filter(s => gender === 'male' ? !s.startsWith('F') : s.startsWith('F'));
+    const existingSecs = getExistingSections(courseId, type, instructorName)
+      .filter(s => gender === 'male' ? !s.startsWith('F') : s.startsWith('F'));
+    const newSecs = getNewSections(courseId, type, instructorName)
+      .filter(s => gender === 'male' ? !s.startsWith('F') : s.startsWith('F'));
 
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
         <span style={{ fontSize: 12, width: 16, flexShrink: 0 }}>{gender === 'male' ? 'M:' : 'F:'}</span>
-        {allAssigned.map(sec => (
+
+        {/* Previously assigned sections (from DB) — grey, not removable */}
+        {existingSecs.map(sec => (
+          <span key={sec} style={{
+            background: '#d0d0d0', borderRadius: 4, padding: '2px 6px', fontSize: 12
+          }}>{sec}</span>
+        ))}
+
+        {/* Newly assigned sections (this session) — blue, removable */}
+        {newSecs.map(sec => (
           <span key={sec} style={{
             background: '#e0f0ff', borderRadius: 4, padding: '2px 6px',
             fontSize: 12, display: 'flex', alignItems: 'center', gap: 4
@@ -74,6 +105,7 @@ export default function ByCourse({ courses, sectionNumbers, assignments, onAdd, 
               onClick={() => onRemove(courseId, type, sec, instructorName)}>×</span>
           </span>
         ))}
+
         {available.length > 0 && (
           <select className="an-select" value=""
             onChange={e => { if (e.target.value) onAdd(courseId, type, e.target.value, instructorName); }}>
@@ -102,27 +134,26 @@ export default function ByCourse({ courses, sectionNumbers, assignments, onAdd, 
                 <td>
                   <div className="ac-courses-grid">
                     {course.instructors?.map((inst) => (
-                      <div key={inst.facultyName} className={`ac-course-tag${isSelected(course.courseId, inst.facultyName) ? ' ac-course-tag--assigned' : ''}`}>
-
-                        {/* Header: rank + name + checkbox */}
+                      <div
+                        key={inst.facultyName}
+                        className={`ac-course-tag${isSelected(course.courseId, inst.facultyName) || wasAssigned(inst.facultyName, course.courseId) ? ' ac-course-tag--assigned' : ''}`}
+                      >
                         <div className="ac-tag-top">
                           <span className="ac-course-rank">{inst.order}</span>
                           <span className="ac-tag-code">{inst.facultyName}</span>
                           <div
-                            className={`an-checkbox${isSelected(course.courseId, inst.facultyName) ? ' an-checkbox-checked' : ''}`}
+                            className={`an-checkbox${isSelected(course.courseId, inst.facultyName) || wasAssigned(inst.facultyName, course.courseId) ? ' an-checkbox-checked' : ''}`}
                             onClick={() => toggleInstructor(course.courseId, inst.facultyName)}
                           >
-                            {isSelected(course.courseId, inst.facultyName) && '✓'}
+                            {(isSelected(course.courseId, inst.facultyName) || wasAssigned(inst.facultyName, course.courseId)) && '✓'}
                           </div>
                         </div>
 
-                        {/* Section pickers — shown only when instructor is selected */}
-                        {isSelected(course.courseId, inst.facultyName) && (
+                        {(isSelected(course.courseId, inst.facultyName) || wasAssigned(inst.facultyName, course.courseId)) && (
                           <div style={{ marginTop: 8 }}>
                             <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 4, color: '#555' }}>LEC</div>
                             <SectionRow courseId={course.courseId} type="LEC" gender="male" instructorName={inst.facultyName} />
                             <SectionRow courseId={course.courseId} type="LEC" gender="female" instructorName={inst.facultyName} />
-
                             {hasLab(course.courseId) && (
                               <>
                                 <div style={{ fontSize: 11, fontWeight: 600, marginTop: 8, marginBottom: 4, color: '#555' }}>LAB</div>
