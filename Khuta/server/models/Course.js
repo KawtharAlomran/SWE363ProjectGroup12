@@ -1,4 +1,3 @@
-
 import mongoose from "mongoose";
 
 const courseSchema = new mongoose.Schema({
@@ -12,10 +11,14 @@ const courseSchema = new mongoose.Schema({
     type: String, 
     required: [true, "Course name is required"] 
   },
+  description:{
+    type: String, 
+    required: [true, "Course description is required"]
+  },
   credit_hours: { 
     type: Number, 
     min: [0, "Credits cannot be negative"],
-    max: [10, "Credits seem too high"] 
+    max: [9, "Credits seem too high"] 
   },
   level: { 
     type: String, 
