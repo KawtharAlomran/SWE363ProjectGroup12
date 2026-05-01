@@ -6,6 +6,8 @@ import dotenv  from "dotenv";
 import { connectDB } from "./db.js";
 import { Faculty } from "./models/Faculty.js";
 import { Course } from "./models/Course.js";
+import { Plan } from "./models/Plans.js";
+import { Term } from "./models/Term.js";
 import courseRoutes from "./routes/courseRoutes.js";
 import termRoutes from "./routes/termRoutes.js";
 import planRoutes from "./routes/planRoutes.js";

@@ -1,13 +1,15 @@
-import { useState } from 'react';
+// Updated: replaced local data.js calls with API fetch calls
+import { useState, useEffect } from 'react';
 import AddNewTerm from './AddNewTerm';
 import TermDetails from './TermDetails';
-import { getTerms, addTerm, deleteTerm } from '../../data';
+
+const API = 'http://localhost:5174';
 
 export default function ManageTerms() {
   const TERMS_PER_PAGE = 5;
   
-  // Load terms from shared data
-  const [terms, setTerms] = useState(getTerms());
+  // Removed: const [terms, setTerms] = useState(getTerms());
+  const [terms, setTerms] = useState([]);
   const [showAddNew, setShowAddNew] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTerm, setSelectedTerm] = useState(null);
@@ -16,15 +18,38 @@ export default function ManageTerms() {
   const start = (currentPage - 1) * TERMS_PER_PAGE;
   const visibleTerms = terms.slice(start, start + TERMS_PER_PAGE);
 
+  // Fetch all terms from the database on component mount
+  const fetchTerms = async () => {
+    try {
+      const res = await fetch(`${API}/api/terms`);
+      const data = await res.json();
+      setTerms(data);
+    } catch (err) {
+      console.error("Error fetching terms:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchTerms();
+  }, []);
+
   if (showAddNew) {
     return (
       <AddNewTerm
         onBack={() => setShowAddNew(false)}
-        onSubmit={(newTerm) => {
-          // Save to shared data then update local state
-          addTerm(newTerm);
-          setTerms(getTerms());
-          setShowAddNew(false);
+        onSubmit={async (newTerm) => {
+          try {
+            // Save new term to the database then refresh the list
+            await fetch(`${API}/api/terms`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ termId: newTerm.termNum }),
+            });
+            await fetchTerms();
+            setShowAddNew(false);
+          } catch (err) {
+            console.error("Error adding term:", err);
+          }
         }}
       />
     );
@@ -35,10 +60,15 @@ export default function ManageTerms() {
       <TermDetails
         term={selectedTerm}
         onBack={() => setSelectedTerm(null)}
-        onDelete={(termId) => {
-          deleteTerm(termId);
-          setTerms(getTerms());
-          setSelectedTerm(null);
+        onDelete={async (termId) => {
+          try {
+            // Delete term from the database then refresh the list
+            await fetch(`${API}/api/terms/${termId}`, { method: 'DELETE' });
+            await fetchTerms();
+            setSelectedTerm(null);
+          } catch (err) {
+            console.error("Error deleting term:", err);
+          }
         }}
       />
     );
@@ -55,9 +85,10 @@ export default function ManageTerms() {
 
         <div className="mt-list">
           {visibleTerms.map((term) => (
-            <div key={term.id} className="mt-row" onClick={() => setSelectedTerm(term)}>
-              <span className="mt-name">{term.name}</span>
-              {currentYear === term.year
+            // Use _id from MongoDB instead of id
+            <div key={term._id} className="mt-row" onClick={() => setSelectedTerm(term)}>
+              <span className="mt-name">Academic Term {term.termId}</span>
+              {currentYear === new Date().getFullYear()
                 ? <button className="mt-modify" onClick={e => { e.stopPropagation(); setSelectedTerm(term); }}>Modify</button>
                 : <span className="mt-arrow">›</span>
               }
