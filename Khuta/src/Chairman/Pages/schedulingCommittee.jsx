@@ -1,14 +1,11 @@
-
-import { useState } from "react";
-import {getCommittee, deleteCommittee, addCommittee, getFaculty} from "../../data";
+import { useState, useEffect } from "react";
+// Remove local data imports
 import ConfirmModal from '../../shared/ConfirmModal';
 
-
-export default function SchedulingCommittee(){
-  // Load all nessesary information from shared data
-  let faculty=getFaculty();
-  const [committee, setcommittee] = useState(getCommittee());
-
+export default function SchedulingCommittee() {
+  const [committee, setcommittee] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
   // add/remove committee states
   const [isDelete, setIsDelete] = useState(false);
   const [isAdd, setIsAdd] = useState(false);
@@ -17,64 +14,118 @@ export default function SchedulingCommittee(){
   // Pagination logic
   const [currentPage, setCurrentPage] = useState(1);
   const committeePerPage = 8;
-  const startIndex = (currentPage - 1) * committeePerPage; // to find the start index 
+  const [newEmail, setNewEmail] = useState("");
+  const [addError, setAddError] = useState("");
+
+  // --- 1. Fetch Committee Members from Server ---
+  const fetchCommittee = async () => {
+    try {
+      // Using the role=committee query parameter as specified
+      const response = await fetch("http://localhost:5174/api/faculty?role=committee");
+      if (!response.ok) throw new Error("Failed to fetch committee");
+      const data = await response.json();
+      setcommittee(data);
+    } catch (error) {
+      console.error("Error loading committee:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCommittee();
+  }, []);
+
+  // Pagination calculations
+  const startIndex = (currentPage - 1) * committeePerPage;
   const endIndex = startIndex + committeePerPage;
-  const currentcommittee = committee.slice(startIndex, endIndex); // to display the committee in the specified page 
-  const totalPages = Math.ceil(committee.length / committeePerPage); // to find the total pages 
-  const [newEmail, setNewEmail] = useState(""); 
-  const [addError, setAddError] = useState("")
+  const currentcommittee = committee.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(committee.length / committeePerPage);
 
-  // adding a committee
-  const handleAdd = () => {
-    if (!faculty.find(f => f.email === newEmail)){
-      setAddError("Faculty member not found with that email.");
-    return;
-    } 
-    const updatedData = addCommittee(newEmail); 
-    setcommittee(updatedData); 
-    setNewEmail("");
-    setAddError("");
-    setIsAdd(false);
-    };
+  // --- 2. Adding a member to the committee ---
+  const handleAdd = async () => {
+    if (!newEmail) {
+      setAddError("Please enter an email.");
+      return;
+    }
 
-    // handle deleting a committee
-    const handleDelete = (email) => {
-      const updatedData = deleteCommittee(email);
-      setcommittee(updatedData);
-      };
-    return(
-      <>
-        <div className="container">
-          <div className="header">
-            <h2>Scheduling Committee members</h2>
-            <button className="addBtn" onClick={() => setIsAdd(true)}>Add new committee</button>
-          </div>
-          <table className="coursesTable">
-            <thead>
-              <tr>
-                <th>Committee Name</th>
-                <th>Committee Email</th>
-                <th></th>
+    try {
+      // We send a PATCH or POST to update the role of the existing faculty member
+      // Note: This assumes your backend handles assigning the 'committee' role to an existing email
+      const response = await fetch(`http://localhost:5174/api/faculty/${newEmail.toLowerCase()}`, {
+        method: "PATCH", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: "committee" }),
+      });
+
+      if (response.ok) {
+        await fetchCommittee(); // Refresh list
+        setNewEmail("");
+        setAddError("");
+        setIsAdd(false);
+      } else {
+        const err = await response.json();
+        setAddError(err.message || "Faculty member not found.");
+      }
+    } catch (error) {
+      setAddError("Server error. Please try again.");
+    }
+  };
+
+  // --- 3. Removing a member from the committee ---
+  const handleDelete = async (email) => {
+    try {
+      // Instead of deleting the user entirely, we usually just change their role back to 'faculty'
+      const response = await fetch(`http://localhost:5174/api/faculty/${email}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: "faculty" }),
+      });
+
+      if (response.ok) {
+        await fetchCommittee();
+      }
+    } catch (error) {
+      console.error("Removal failed:", error);
+    }
+  };
+
+  if (isLoading) return <div className="container">Loading Committee...</div>;
+
+  return (
+    <>
+      <div className="container">
+        <div className="header">
+          <h2>Scheduling Committee members</h2>
+          <button className="addBtn" onClick={() => setIsAdd(true)}>Add new committee</button>
+        </div>
+        <table className="coursesTable">
+          <thead>
+            <tr>
+              <th>Committee Name</th>
+              <th>Committee Email</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentcommittee.map((member) => (
+              <tr key={member.email}>
+                <td>{member.name}</td>
+                <td>{member.email}</td>
+                <td>
+                  <button className="deleteBtn" onClick={() => {
+                    setSelectedcommittee(member.email);
+                    setIsDelete(true);
+                  }}>Remove</button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {/* display committee information */}
-              {currentcommittee.map((member) => (
-                <tr key={member.email}>
-                  <td>{member.name}</td>
-                  <td>{member.email}</td>
-                  <td><button className="deleteBtn" onClick={() => {
-                  setSelectedcommittee(member.email);
-                  setIsDelete(true);
-                  }}>Remove</button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {/* display confirmation message when Remove button is clicked  */}
-          {isDelete && (
-            <ConfirmModal
-            message="Are you sure you want to delete the committee member?"
+            ))}
+          </tbody>
+        </table>
+
+        {isDelete && (
+          <ConfirmModal
+            message="Are you sure you want to remove this member from the committee?"
             onConfirm={() => {
               handleDelete(selectedcommittee);
               setIsDelete(false);
@@ -84,39 +135,42 @@ export default function SchedulingCommittee(){
               setIsDelete(false);
               setSelectedcommittee(null);
             }}
-            />
-          )}
+          />
+        )}
 
-          {/* display form when Add new committee button is clicked  */}
-          {isAdd && (
-            <ConfirmModal
-            onConfirm={() => {handleAdd()}}
+        {isAdd && (
+          <ConfirmModal
+            onConfirm={handleAdd}
             onCancel={() => {
               setIsAdd(false);
-              setAddError("");}}
+              setAddError("");
+            }}
             errorMessage={addError}
             fileds={[
               {
                 label: "KFUPM Email",
                 name: "email",
-                placeholder: "Enter Committee Email",
+                placeholder: "Enter Faculty Email to add",
                 onChange: (val) => setNewEmail(val)
               }
             ]}
-            confirmText = 'Add'
-            cancelText = 'Cancel'
-            />
-          )}
-          {/* showing the page numbering */}
-          <div className="pageNumbers">
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button className={currentPage === index + 1 ? "active" : ""} key={index + 1}
-                onClick={() => setCurrentPage(index + 1)}>
-                {index + 1}
-              </button>
-            ))}
-          </div>
+            confirmText='Add'
+            cancelText='Cancel'
+          />
+        )}
+
+        <div className="pageNumbers">
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button 
+              className={currentPage === index + 1 ? "active" : ""} 
+              key={index + 1}
+              onClick={() => setCurrentPage(index + 1)}
+            >
+              {index + 1}
+            </button>
+          ))}
         </div>
-      </>
-    )
+      </div>
+    </>
+  );
 }

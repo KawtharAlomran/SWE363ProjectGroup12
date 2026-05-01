@@ -42,7 +42,7 @@ app.get("/api/faculty", async (req, res) => {
       query.role = role;
     }
 
-    const facultyList = await Faculty.find(query);
+    const facultyList = await Faculty.find(query).select("-__v");
     
     res.status(200).json(facultyList);
   } catch (error) {
@@ -62,6 +62,46 @@ app.get("/api/faculty/:email", async (req, res) => {
     }
     
     res.status(200).json(member);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST a new faculty member
+app.post("/api/faculty", async (req, res) => {
+  try {
+    const newFaculty = new Faculty(req.body);
+    await newFaculty.save();
+    res.status(201).json(newFaculty);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// DELETE a faculty member
+app.delete("/api/faculty/:email", async (req, res) => {
+  try {
+    await Faculty.findOneAndDelete({ email: req.params.email });
+    res.status(200).json({ message: "Deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Remove committee
+app.patch("/api/faculty/:email", async (req, res) => {
+  try {
+    const updatedMember = await Faculty.findOneAndUpdate(
+      { email: req.params.email.toLowerCase() },
+      { $set: { role: req.body.role } }, // This changes "committee" to "faculty"
+      { new: true }
+    );
+
+    if (!updatedMember) {
+      return res.status(404).json({ message: "Member not found" });
+    }
+
+    res.status(200).json(updatedMember);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
