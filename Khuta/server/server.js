@@ -12,7 +12,7 @@ import courseRoutes from "./routes/courseRoutes.js";
 import termRoutes from "./routes/termRoutes.js";
 import planRoutes from "./routes/planRoutes.js";
 import sectionRoutes from "./routes/sectionRoutes.js";
-
+import preferenceRoutes from "./routes/preferenceRoutes.js";
 
 dotenv.config();
 const app = express();
