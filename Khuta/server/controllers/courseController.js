@@ -23,7 +23,9 @@ export const addCourse = async (req, res) => {
 // delete course by code
 export const deleteCourse = async (req, res) => {
   try {
-    const course = await Course.findOneAndDelete({ code: req.params.code.toUpperCase() });
+    const code = decodeURIComponent(req.params.code).toUpperCase();
+
+    const course = await Course.findOneAndDelete({ code });
 
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
