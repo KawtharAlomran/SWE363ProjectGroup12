@@ -7,6 +7,7 @@ import { connectDB } from "./db.js";
 import { Faculty } from "./models/Faculty.js";
 import { Course } from "./models/Course.js";
 import courseRoutes from "./routes/courseRoutes.js";
+import { Term } from "./models/Term.js";
 
 dotenv.config();
 const app = express();
@@ -106,5 +107,16 @@ app.patch("/api/faculty/:email", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// get all terms
+app.get("/api/terms", async (req, res) => {
+  try {
+    const terms = await Term.find();
+    res.status(200).json(terms);
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving terms", error: error.message });
+  }
+});
+
 
 app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));
