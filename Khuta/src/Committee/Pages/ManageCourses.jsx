@@ -16,13 +16,21 @@ export default function ManageCourses() {
   const [addError, setAddError] = useState("")
   const [courses, setCourses] = useState([]);
   
+  // Loading state to inform the user of the state of the website 
+  const [loadingCourses, setLoadingCourses] = useState(true);
+
   const API_URL = "http://localhost:5174/api/courses";
   
   // fetch courses when component loads (runs once)
   useEffect(() => {
     fetch(API_URL)
       .then(res => res.json()) // convert response to JSON
-      .then(data => setCourses(data)) // store courses in state
+      .then(data => {
+        // store courses in state
+        setCourses(data)
+        // Stop loading
+        setLoadingCourses(false);
+      }) 
       .catch(err => console.error(err)); // handle errors
   }, []);
 
@@ -112,6 +120,10 @@ export default function ManageCourses() {
       prev = page;
     }
     return withEllipsis;
+  }
+  // Show loading message while fetching terms
+  if (loadingCourses) {
+    return <div className="container">Loading courses...</div>;
   }
 
 return (

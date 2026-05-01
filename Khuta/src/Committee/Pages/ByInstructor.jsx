@@ -17,11 +17,32 @@ function SectionSelect({ value, onChange, hasError }) {
 export default function ByInstructor({ instructors, onToggle, onUpdateSection, termNum, sectionError }) {
   const termSections = getTermSections(termNum);
 
+  // pages logic 
   const [currentPage, setCurrentPage] = useState(1);
   const instructorsPerPage = 4;
   const startIndex = (currentPage - 1) * instructorsPerPage;
   const currentInstructors = instructors.slice(startIndex, startIndex + instructorsPerPage);
   const totalPages = Math.ceil(instructors.length / instructorsPerPage);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const delta = 1;
+    const left = currentPage - delta;
+    const right = currentPage + delta;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= left && i <= right)) {
+        pages.push(i);
+      }
+    }
+     const withEllipsis = [];
+    let prev = null;
+    for (const page of pages) {
+      if (prev && page - prev > 1) withEllipsis.push('...');
+      withEllipsis.push(page);
+      prev = page;
+    }
+    return withEllipsis;
+  }
 
   return (
     <>
@@ -107,13 +128,18 @@ export default function ByInstructor({ instructors, onToggle, onUpdateSection, t
         </table>
       </div>
 
-      <div className="pageNumbers">
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button key={i+1} className={currentPage === i+1 ? 'active' : ''} onClick={() => setCurrentPage(i+1)}>
-            {i+1}
-          </button>
-        ))}
-      </div>
+      {/* Smart pagination */}
+        {totalPages > 1 && (
+          <div className="pageNumbers">
+            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
+            {getPageNumbers().map((page, i) =>
+              page === '...'
+                ? <span key={`ellipsis-${i}`} style={{ margin: '0 4px' }}>...</span>
+                : <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+            )}
+            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
+          </div>
+        )}
     </>
   );
 }

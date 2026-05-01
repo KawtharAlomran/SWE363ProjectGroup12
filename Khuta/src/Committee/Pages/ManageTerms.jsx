@@ -14,6 +14,9 @@ export default function ManageTerms() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTerm, setSelectedTerm] = useState(null);
 
+  // Loading state to inform the user of the state of the website 
+  const [loadingTerms, setLoadingTerms] = useState(true);
+
   // Get current year's 2-digit prefix e.g. 2026 → "26"
   const currentYearPrefix = String(new Date().getFullYear()).slice(-2);
   // Last year's 2-digit prefix e.g. 2025 → "25"
@@ -33,8 +36,12 @@ export default function ManageTerms() {
       const res = await fetch(`${API}/api/terms`);
       const data = await res.json();
       setTerms(data);
+      // Stop loading
+      setLoadingTerms(false);
     } catch (err) {
       console.error("Error fetching terms:", err);
+      // Stop loading
+      setLoadingTerms(false);
     }
   };
 
@@ -78,6 +85,10 @@ export default function ManageTerms() {
         }}
       />
     );
+  }
+  // Show loading message while fetching terms
+  if (loadingTerms) {
+    return <div className="container">Loading terms...</div>;
   }
 
   return (
