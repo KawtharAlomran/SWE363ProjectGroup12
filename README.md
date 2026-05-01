@@ -57,13 +57,37 @@ Khuta/
 
 ## Getting Started
 
-### 1. Open the Termanal
+### Running backend
+
+#### 1. Open the Termanal
 
 Go to Termanal
 
 New Termanal
 
-### 2. Install dependencies
+#### 2. Install dependencies
+You have to run them one by one on the termenat
+```bash
+cd Khuta
+cd server 
+npm i 
+npm install express cors mongoose dotenv
+```
+
+#### 3. Run the server
+```bash
+node server.js 
+```
+
+### Running backend
+
+#### 1. Open the Termanal
+
+Go to Termanal
+
+Open New Termanal
+
+#### 2. Install dependencies
 
 You have to run them one by one on the termenat
 ```bash
@@ -72,13 +96,13 @@ npm install
 npm install react-router-dom
 ```
 
-### 3. Run the development server
+#### 3. Run the development server
 
 ```bash
 npm run dev
 ```
 
-### 4. Open in browser
+#### 4. Open in browser
 
 ```
 http://localhost:5173
