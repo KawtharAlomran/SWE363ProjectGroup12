@@ -12,6 +12,9 @@ function AssignedCourses() {
   // state to store assigned courses from API
   const [assignedCourses, setAssignedCourses] = useState([]);
 
+  //state to store available terms for dropdown
+  const [terms, setTerms] = useState([]);
+
   // loading state while fetching data
   const [isLoading, setIsLoading] = useState(true);
 
@@ -44,6 +47,25 @@ function AssignedCourses() {
     fetchAssignedCourses();
   }, [selectedTerm]);
 
+// fetch available terms for dropdown on component mount
+  useEffect(() => {
+    const fetchTerms = async () => {
+      try {
+        const res = await fetch(`${API}/api/terms`);
+        const data = await res.json();
+        setTerms(data);
+
+        if (data.length > 0) {
+          setSelectedTerm(data[0].termId);
+        }
+      } catch (err) {
+        console.error("Error fetching terms:", err);
+      }
+    };
+
+    fetchTerms();
+  }, []);
+
   // Number of courses shown per page
   const coursesPerPage = 4;
 
@@ -75,10 +97,11 @@ function AssignedCourses() {
             setCurrentPage(1); // reset page when term changes
           }}
         >
-          <option value="261">261</option>
-          <option value="252">252</option>
-          <option value="251">251</option>
-          <option value="242">242</option>
+          {terms.map(term => (
+            <option key={term.termId} value={term.termId}>
+              {term.termId}
+            </option>
+          ))}
         </select>
       </div>
 
