@@ -77,8 +77,9 @@ function OfferedCourses() {
   // Find the currently selected term
   const currentTerm = terms.find(term => term.termId === selectedTerm);
 
-  // temporary variable to hold courses for the current term (since all courses are fetched at once)
-  const offeredCourses = courses;
+  const offeredCourses = courses.filter(course =>
+  offeredCourseCodes.includes(course.code)
+  );
 
   // Pagination logic
   const startIndex = (currentPage - 1) * coursesPerPage;
