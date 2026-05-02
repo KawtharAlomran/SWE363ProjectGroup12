@@ -124,19 +124,19 @@ export const getUniqueCoursesByTerm = async (req, res) => {
       }
     });
 
-    // --- ADD SORTING LOGIC HERE ---
+    // --- add sorting logic  ---
     uniqueList.sort((a, b) => {
-      // Split "ICS 353" into ["ICS", "353"]
+      // split course code, "ICS 353" into ["ICS", "353"]
       const [prefixA, numA] = a.courseId.split(" ");
       const [prefixB, numB] = b.courseId.split(" ");
 
-      // 1. Sort by Prefix
+      // sort by prefix
       if (prefixA !== prefixB) {
         // If prefixA is ICS, it should come first (-1)
         return prefixA === "ICS" ? -1 : 1;
       }
 
-      // 2. Sort by Number (Smallest to Largest)
+      // sort by number (Smallest to Largest)
       return parseInt(numA) - parseInt(numB);
     });
 

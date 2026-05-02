@@ -1,4 +1,3 @@
-// models/Faculty.js
 import mongoose from "mongoose";
 
 const facultySchema = new mongoose.Schema({
