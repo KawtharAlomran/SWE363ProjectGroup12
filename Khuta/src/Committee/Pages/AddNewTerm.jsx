@@ -18,9 +18,13 @@ export default function AddNewTerm({ onBack, onSubmit }) {
   const [courses, setCourses] = useState([]);
   const [termDemand, setTermDemand] = useState([]);
 
+  const [loadingCourses, setLoadingCourses] = useState(true);
+
   // Fetch all ICS courses from ICS-courses collection
   useEffect(() => {
     const fetchCourses = async () => {
+        setLoadingCourses(true);
+
       try {
         const res = await fetch(`${API}/api/courses`);
         const data = await res.json();
@@ -33,6 +37,8 @@ export default function AddNewTerm({ onBack, onSubmit }) {
         })));
       } catch (err) {
         console.error("Error fetching courses:", err);
+      } finally {
+        setLoadingCourses(false);
       }
     };
     fetchCourses();
@@ -208,7 +214,9 @@ export default function AddNewTerm({ onBack, onSubmit }) {
             )}
           </div>
         </div>
-
+        {loadingCourses && <p style={{ marginTop: 10 }}>Loading courses...</p>}
+      {!loadingCourses && (
+        <>
         {/* Search bar — case insensitive, ignores spaces e.g. "ics104" matches "ICS 104" */}
         <div className="an-term-row">
           <label className="an-term-label">Search course:</label>
@@ -290,6 +298,8 @@ export default function AddNewTerm({ onBack, onSubmit }) {
             <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
           </div>
         )}
+        </>
+      )}
 
       </div>
 

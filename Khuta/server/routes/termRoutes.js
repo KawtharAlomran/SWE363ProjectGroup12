@@ -6,7 +6,7 @@ const router = express.Router();
 // GET all terms
 router.get("/", async (req, res) => {
   try {
-    const terms = await Term.find();
+    const terms = await Term.find().sort({ termId: -1 });
     res.status(200).json(terms);
   } catch (error) {
     res.status(500).json({ message: "Error retrieving terms", error: error.message });

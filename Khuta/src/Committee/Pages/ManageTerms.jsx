@@ -1,5 +1,3 @@
-// Updated: replaced local data.js calls with API fetch calls
-// Added: Modify button logic based on term year and semester number
 import { useState, useEffect } from 'react';
 import AddNewTerm from './AddNewTerm';
 import TermDetails from './TermDetails';
@@ -23,13 +21,15 @@ export default function ManageTerms() {
   const lastYearPrefix = String(new Date().getFullYear() - 1).slice(-2);
 
   // A term is editable if:
-  // - it belongs to the current year (e.g. 26X), OR
-  // - it belongs to last year AND is semester 3 (e.g. 253)
+  // - it belongs to last year AND is semester 3 
   const canEdit = (termId) => {
-    const prefix = termId.slice(0, 2);
-    const semester = termId.slice(2);
-    return prefix === currentYearPrefix || (prefix === lastYearPrefix && semester === '3');
-  };
+  const prefix = termId.slice(0, 2);
+  const semester = termId.slice(2);
+  return (
+    Number(prefix) >= Number(currentYearPrefix) || // current year and future
+    (prefix === lastYearPrefix && semester === '3')  // last year semester 3
+  );
+};
 
   const fetchTerms = async () => {
     try {

@@ -23,7 +23,7 @@ const lastYearPrefix = String(new Date().getFullYear() - 1).slice(-2);
 const canEdit = (termId) => {
   const prefix = termId.slice(0, 2);
   const semester = termId.slice(2);
-  return prefix === currentYearPrefix || (prefix === lastYearPrefix && semester === '3');
+  return Number(prefix) >= Number(currentYearPrefix) || (prefix === lastYearPrefix && semester === '3');
 };
 
 export default function AssignCourses() {
