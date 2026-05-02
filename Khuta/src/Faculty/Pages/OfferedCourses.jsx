@@ -36,6 +36,30 @@ function OfferedCourses() {
     fetchTerms();
   }, []);
 
+  // fetch offered courses for the selected term
+useEffect(() => {
+  if (!selectedTerm) return;
+
+  const fetchOfferedCourses = async () => {
+    try {
+      setIsLoading(true);
+
+      const res = await fetch(`${API}/api/sections/unique/${selectedTerm}`);
+      const data = await res.json();
+
+      setOfferedCourses(data);
+      setCurrentPage(1); // reset pagination
+    } catch (error) {
+      console.error("E  rror fetching offered courses:", error);
+      setOfferedCourses([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchOfferedCourses();
+}, [selectedTerm]);
+
 
 
 
