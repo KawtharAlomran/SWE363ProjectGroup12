@@ -44,7 +44,8 @@ export default function AssignCourses() {
       try {
         const res = await fetch(`${API}/api/terms`);
         const data = await res.json();
-        setTerms(data);
+        const filteredTerms = data.filter(t => t.assigned === false);
+        setTerms(filteredTerms);
         if (data.length > 0) setSelectedTermId(data[0].termId);
       } catch (err) {
         console.error("Error fetching terms:", err);
