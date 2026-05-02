@@ -188,17 +188,31 @@ function OfferedCourses() {
             </tr>
           </thead>
           <tbody>
-            {currentCourses.map(course => (
+          {isLoading ? (
+            <tr>
+              <td colSpan="2" className="textCenter">
+                Loading courses...
+              </td>
+            </tr>
+          ) : currentCourses.length > 0 ? (
+            currentCourses.map(course => (
               <tr
                 key={course.code}
                 onClick={() => openCourseDetails(course)}
-                style={{ cursor: 'pointer' }} // Make rows clickable
+                style={{ cursor: 'pointer' }}
               >
                 <td className="an-course-name">{course.code}</td>
                 <td>{course.name}</td>
               </tr>
-            ))}
-          </tbody>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="2" className="textCenter">
+                No courses available for this term.
+              </td>
+            </tr>
+          )}
+        </tbody>
         </table>
 
         {/* Page numbering */}
