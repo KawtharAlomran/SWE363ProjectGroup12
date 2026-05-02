@@ -48,7 +48,6 @@ function SetPreferences() {
 
 // fetch offered courses for the selected term from Sections collection
 useEffect(() => {
-  if (!currentTerm) return;
 
   const fetchOfferedCourses = async () => {
     try {
