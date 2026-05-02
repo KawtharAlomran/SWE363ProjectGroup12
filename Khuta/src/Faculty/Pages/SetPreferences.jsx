@@ -233,8 +233,34 @@ useEffect(() => {
       <div className="fp-page">
         <div className="container">
           <h3 className="mt-title">Set preferences</h3>
-          <div className="td-term-badge">Upcoming Term {currentTerm}</div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              marginTop: '12px',
+              marginBottom: '20px',
+            }}
+          >
+            <label className="td-term-badge">Select Term:</label>
 
+            <select
+              className="an-select"
+              value={currentTerm}
+              onChange={(e) => {
+                setCurrentTerm(e.target.value);
+                setRankedCourses([]);
+                setSavedPreferences([]);
+                setError('');
+              }}
+            >
+              {allowedTerms.map(term => (
+                <option key={term} value={term}>
+                  {term}
+                </option>
+              ))}
+            </select>
+          </div>
           {isLoading ? (
             <p>Loading offered courses...</p>
           ) : (
