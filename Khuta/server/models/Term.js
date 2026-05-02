@@ -9,6 +9,7 @@ const termSchema = new mongoose.Schema({
   
   assigned: {
       type: Boolean,
+      default: false
     }
   }, { collection: 'Terms' });
  
