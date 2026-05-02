@@ -15,29 +15,33 @@ function PreviousPreferences() {
   // Loading state while fetching data
   const [isLoading, setIsLoading] = useState(true);
 
-  // State for selected term and current page
+  // State for selected term and current page and courses
   const [selectedTerm, setSelectedTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [courses, setCourses] = useState([]);
 
-  // fetch terms from backend
+  // fetch terms + courses
   useEffect(() => {
-    const fetchTerms = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`${API}/api/terms`);
-        const data = await res.json();
+        const termsRes = await fetch(`${API}/api/terms`);
+        const termsData = await termsRes.json();
 
-        setTerms(data);
+        const coursesRes = await fetch(`${API}/api/courses`);
+        const coursesData = await coursesRes.json();
 
-        // set default term
-        if (data.length > 0) {
-          setSelectedTerm(data[0].termId);
+        setTerms(termsData);
+        setCourses(coursesData);
+
+        if (termsData.length > 0) {
+          setSelectedTerm(termsData[0].termId);
         }
       } catch (error) {
-        console.error("Error fetching terms:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
-    fetchTerms();
+    fetchData();
   }, []);
 
   // fetch preferences for the selected term
@@ -83,6 +87,12 @@ function PreviousPreferences() {
   const endIndex = startIndex + preferencesPerPage;
   const currentPreferences = preferences.slice(startIndex, endIndex);
   const totalPages = Math.ceil(preferences.length / preferencesPerPage) || 1;
+
+  // helper function to get course name from code
+  const getCourseName = (code) => {
+    const course = courses.find(c => c.code === code);
+    return course ? course.name : code;
+  };
 
   return (
     <div className="container">
@@ -156,7 +166,7 @@ function PreviousPreferences() {
                 <tr key={course._id || course.courseId + course.order}>
                   <td>{course.order}</td>
                   <td className="an-course-name">{course.courseId}</td>
-                  <td>{course.courseId}</td>
+                  <td>{getCourseName(course.courseId)}</td>
                 </tr>
               ))
             ) : (
