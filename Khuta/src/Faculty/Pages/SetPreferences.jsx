@@ -4,6 +4,7 @@ import ConfirmModal from '../../shared/ConfirmModal';
 const API = 'http://localhost:5174';
 
 function SetPreferences() {
+  const [allowedTerms, setAllowedTerms] = useState([]);
   const [currentTerm, setCurrentTerm] = useState('');
   const [availableCourses, setAvailableCourses] = useState([]);
   const [savedPreferences, setSavedPreferences] = useState([]);
@@ -13,56 +14,65 @@ function SetPreferences() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Determine the upcoming term based on the academic calendar
-  const getUpcomingTerm = () => {
-    const now = new Date();
-    const year = now.getFullYear().toString().slice(-2);
-    const prevYear = (now.getFullYear() - 1).toString().slice(-2);
-    const month = now.getMonth() + 1;
+  // determine the terms that faculty can submit/modify preferences for
+  const getAllowedPreferenceTerms = () => {
+  const now = new Date();
+  const year = Number(now.getFullYear().toString().slice(-2));
+  const month = now.getMonth() + 1;
 
-    // Jan - May → Summer term
-    if (month >= 1 && month <= 5) {
-      return `${prevYear}3`;
+  // Jan - May → allowed terms: Summer of previous academic year + next First semester
+  // Example: May 2026 → 253 and 261
+  if (month >= 1 && month <= 5) {
+    return [`${year - 1}3`, `${year}1`];
+  }
+
+  // Jun - Aug → allowed terms: First semester + Second semester
+  // Example: July 2025 → 251 and 252
+  if (month >= 6 && month <= 8) {
+    return [`${year}1`, `${year}2`];
+  }
+
+  // Sep - Dec → allowed terms: Second semester + Summer
+  // Example: October 2025 → 252 and 253
+  return [`${year}2`, `${year}3`];
+};
+
+  // Set allowed terms and choose the first one as default
+  useEffect(() => {
+    const allowed = getAllowedPreferenceTerms();
+    setAllowedTerms(allowed);
+    if (allowed.length > 0) {
+      setCurrentTerm(allowed[0]);
     }
+  }, []);
 
-    // Jun - Aug → First semester
-    if (month >= 6 && month <= 8) {
-      return `${year}1`;
+// fetch offered courses for the selected term from Sections collection
+useEffect(() => {
+
+  const fetchOfferedCourses = async () => {
+    try {
+      setIsLoading(true);
+
+      const res = await fetch(`${API}/api/sections/unique/${currentTerm}`);
+      const data = await res.json();
+
+      // convert backend data to the same format used by drag and drop
+      const formattedCourses = data.map(course => ({
+        code: course.courseId,
+        name: course.name,
+      }));
+
+      setAvailableCourses(formattedCourses);
+    } catch (error) {
+      console.error('Error fetching offered courses:', error);
+      setAvailableCourses([]);
+    } finally {
+      setIsLoading(false);
     }
-
-    // Sep - Dec → Second semester
-    return `${year}2`;
   };
 
-  // Fetch offered courses for the upcoming term from Sections collection
-  useEffect(() => {
-    const fetchOfferedCourses = async () => {
-      try {
-        setIsLoading(true);
-
-        const upcomingTerm = getUpcomingTerm();
-        setCurrentTerm(upcomingTerm);
-
-        const res = await fetch(`${API}/api/sections/unique/${upcomingTerm}`);
-        const data = await res.json();
-
-        // Convert backend data into the same format used by drag and drop
-        const formattedCourses = data.map(course => ({
-          code: course.courseId,
-          name: course.name,
-        }));
-
-        setAvailableCourses(formattedCourses);
-      } catch (error) {
-        console.error('Error fetching offered courses:', error);
-        setAvailableCourses([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchOfferedCourses();
-  }, []);
+  fetchOfferedCourses();
+}, [currentTerm]);
 
   // Fetch previously submitted preferences for the logged-in faculty
   useEffect(() => {
@@ -223,8 +233,34 @@ function SetPreferences() {
       <div className="fp-page">
         <div className="container">
           <h3 className="mt-title">Set preferences</h3>
-          <div className="td-term-badge">Upcoming Term {currentTerm}</div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              marginTop: '12px',
+              marginBottom: '20px',
+            }}
+          >
+            <label className="td-term-badge">Select Term:</label>
 
+            <select
+              className="an-select"
+              value={currentTerm}
+              onChange={(e) => {
+                setCurrentTerm(e.target.value);
+                setRankedCourses([]);
+                setSavedPreferences([]);
+                setError('');
+              }}
+            >
+              {allowedTerms.map(term => (
+                <option key={term} value={term}>
+                  {term}
+                </option>
+              ))}
+            </select>
+          </div>
           {isLoading ? (
             <p>Loading offered courses...</p>
           ) : (
