@@ -167,7 +167,11 @@ http://localhost:5173
 | http://localhost:5174/api/faculty                                  |  POST  | 
 | http://localhost:5174/api/faculty/:email                           |  DELETE  | 
 | http://localhost:5174/api/faculty/:email                           |  PATCH  | 
-| http://localhost:5174/api//assignments/:term/:facultyName          | GET    |
+| http://localhost:5174/api/assignments/:term/:facultyName          | GET    |
+| http://localhost:5174/api/terms/check/:term          | GET    |
+| http://localhost:5174/api/plans/:term          | GET    |
+| http://localhost:5174/api/sections          | POST    |
+
 
 
 
