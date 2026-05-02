@@ -13,6 +13,39 @@ function OfferedCourses() {
   const [selectedTerm, setSelectedTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  
+  // fetch courses and terms from backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+
+        // get all courses
+        const coursesRes = await fetch(`${API}/api/courses`);
+        const coursesData = await coursesRes.json();
+
+        // get all terms
+        const termsRes = await fetch(`${API}/api/terms`);
+        const termsData = await termsRes.json();
+
+        setCourses(coursesData);
+        setTerms(termsData);
+
+        // set default term after loading
+        if (termsData.length > 0) {
+          setSelectedTerm(termsData[0].termId);
+        }
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
 
   // Number of courses shown per page
   const coursesPerPage = 5;
