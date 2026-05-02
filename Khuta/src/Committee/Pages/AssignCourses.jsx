@@ -1,10 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ByInstructor from './ByInstructor';
 import ByCourse from './ByCourse';
 import ConfirmModal from '../../shared/ConfirmModal';
 
 const API = 'http://localhost:5174';
+
+const facultyHours = {
+  "Professor": 6,
+  "Associate Professor": 9,
+  "Assistant Professor": 9,
+  "Chair Professor": 9,
+  "Instructor": 12,
+  "Senior Lecturer": 12,
+  "Lecturer": 12
+};
 
 export default function AssignCourses() {
   const navigate = useNavigate();
@@ -19,6 +29,7 @@ export default function AssignCourses() {
   const [loadingData, setLoadingData] = useState(false);
 
   const [facultyList, setFacultyList] = useState([]);
+  const [coursesList, setCoursesList] = useState([]);
   const [termCourses, setTermCourses] = useState([]);
   const [prefByInstructor, setPrefByInstructor] = useState([]);
   const [prefByCourse, setPrefByCourse] = useState([]);
@@ -29,16 +40,19 @@ export default function AssignCourses() {
   useEffect(() => {
     const fetchInitial = async () => {
       try {
-        const [termsRes, facultyRes] = await Promise.all([
+        const [termsRes, facultyRes, coursesRes] = await Promise.all([
           fetch(`${API}/api/terms`),
           fetch(`${API}/api/faculty`),
+          fetch(`${API}/api/courses`),
         ]);
-        const [termsData, facultyData] = await Promise.all([
+        const [termsData, facultyData, coursesData] = await Promise.all([
           termsRes.json(),
           facultyRes.json(),
+          coursesRes.json(),
         ]);
         setTerms(termsData);
         setFacultyList(facultyData);
+        setCoursesList(Array.isArray(coursesData) ? coursesData : coursesData.courses ?? []);
         if (termsData.length > 0) setSelectedTermId(termsData[0].termId);
       } catch (err) {
         console.error("Error fetching initial data:", err);
@@ -84,7 +98,42 @@ export default function AssignCourses() {
     fetchData();
   }, [selectedTermId]);
 
-  // Add new section assignment
+  // Calculate hours for an instructor from a list of assignments
+  const calcHours = (assignments, instructorName) => {
+    let total = 0;
+    assignments
+      .filter(a => a.instructorName === instructorName)
+      .forEach(asm => {
+        const courseInfo = coursesList.find(c => c.code === asm.courseId);
+        total += courseInfo?.credit_hours ?? 0;
+      });
+    return total;
+  };
+
+  // Warnings — only when NEW assignments cause an instructor to exceed max
+  // Existing assignments are the baseline, we warn only when newAssignments push them over
+  const loadWarnings = useMemo(() => {
+    if (newAssignments.length === 0) return [];
+    const warnings = [];
+
+    facultyList.forEach(member => {
+      const maxHours = facultyHours[member.rank] ?? 12;
+      const existingHours = calcHours(existingAssignments, member.name);
+      const totalHours = existingHours + calcHours(newAssignments, member.name);
+
+      // Only warn if new assignments pushed them over (not already over from before)
+      if (totalHours > maxHours && existingHours <= maxHours) {
+        warnings.push({ name: member.name, teachingHours: totalHours, maxHours });
+      }
+      // Also warn if already over AND new assignments added more
+      else if (existingHours > maxHours && calcHours(newAssignments, member.name) > 0) {
+        warnings.push({ name: member.name, teachingHours: totalHours, maxHours });
+      }
+    });
+
+    return warnings;
+  }, [existingAssignments, newAssignments, facultyList, coursesList]);
+
   const addAssignment = (courseId, type, section, instructorName) => {
     const conflict = newAssignments.find(a =>
       a.courseId === courseId && a.type === type && a.section === section
@@ -98,7 +147,6 @@ export default function AssignCourses() {
     setNewAssignments(prev => [...prev, { courseId, type, section, instructorName }]);
   };
 
-  // Remove from new assignments
   const removeAssignment = (courseId, type, section, instructorName) => {
     setSaveSuccess(false);
     setNewAssignments(prev => prev.filter(a =>
@@ -106,7 +154,6 @@ export default function AssignCourses() {
     ));
   };
 
-  // Remove from existing assignments (previously saved in DB)
   const removeExistingAssignment = (courseId, type, section, instructorName) => {
     setSaveSuccess(false);
     setExistingAssignments(prev => prev.filter(a =>
@@ -204,6 +251,7 @@ export default function AssignCourses() {
             newAssignments={newAssignments}
             instructorsWithNoPreference={instructorsWithNoPreference}
             termCourses={termCourses}
+            loadWarnings={loadWarnings}
             onAdd={addAssignment}
             onRemove={removeAssignment}
             onRemoveExisting={removeExistingAssignment}
