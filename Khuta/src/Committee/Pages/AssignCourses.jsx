@@ -7,16 +7,15 @@ import ConfirmModal from '../../shared/ConfirmModal';
 const API = 'http://localhost:5174';
 
 const facultyHours = {
-  "Professor": 9,
+  "Professor": 6,
   "Associate Professor": 9,
-  "Assistant Professor": 12,
-  "Chair Professor": 12,
+  "Assistant Professor": 9,
+  "Chair Professor": 9,
   "Instructor": 12,
   "Senior Lecturer": 12,
   "Lecturer": 12
 };
 
-// Same logic as ManageTerms — only current year and last year semester 3 are editable
 const currentYearPrefix = String(new Date().getFullYear()).slice(-2);
 const lastYearPrefix = String(new Date().getFullYear() - 1).slice(-2);
 
@@ -60,10 +59,7 @@ export default function AssignCourses() {
           facultyRes.json(),
           coursesRes.json(),
         ]);
-
-        // Only show editable terms (same logic as ManageTerms)
         const editableTerms = termsData.filter(t => canEdit(t.termId));
-
         setTerms(editableTerms);
         setFacultyList(facultyData);
         setCoursesList(Array.isArray(coursesData) ? coursesData : coursesData.courses ?? []);
@@ -114,12 +110,10 @@ export default function AssignCourses() {
 
   const calcHours = (assignments, instructorName) => {
     let total = 0;
-    assignments
-      .filter(a => a.instructorName === instructorName)
-      .forEach(asm => {
-        const courseInfo = coursesList.find(c => c.code === asm.courseId);
-        total += courseInfo?.credit_hours ?? 0;
-      });
+    assignments.filter(a => a.instructorName === instructorName).forEach(asm => {
+      const courseInfo = coursesList.find(c => c.code === asm.courseId);
+      total += courseInfo?.credit_hours ?? 0;
+    });
     return total;
   };
 
@@ -201,13 +195,14 @@ export default function AssignCourses() {
     !prefByCourse.some(p => p.courseId === courseId)
   );
 
+  // Red only if no preferences AND no existing assignments for this term
   const instructorsWithNoPreference = facultyList.filter(f =>
-    !prefByInstructor.some(p => p.facultyName === f.name)
+    !prefByInstructor.some(p => p.facultyName === f.name) &&
+    !existingAssignments.some(a => a.instructorName === f.name)
   );
 
   if (loadingTerms) return <div className="container">Loading terms...</div>;
 
-  // No editable terms available
   if (terms.length === 0) return (
     <div className="container">
       <h3 className="header h2">Assign Courses</h3>
@@ -265,6 +260,7 @@ export default function AssignCourses() {
             instructorsWithNoPreference={instructorsWithNoPreference}
             termCourses={termCourses}
             loadWarnings={loadWarnings}
+            termId={selectedTermId}
             onAdd={addAssignment}
             onRemove={removeAssignment}
             onRemoveExisting={removeExistingAssignment}
@@ -280,6 +276,7 @@ export default function AssignCourses() {
             newAssignments={newAssignments}
             coursesWithNoPreference={coursesWithNoPreference}
             facultyList={facultyList}
+            termId={selectedTermId}
             onAdd={addAssignment}
             onRemove={removeAssignment}
             onRemoveExisting={removeExistingAssignment}

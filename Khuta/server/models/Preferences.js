@@ -17,7 +17,7 @@ const preferenceSchema = new mongoose.Schema({
   order: {
     type: Number,
     required: [true, "Order is required"],
-    min: [1, "Order must be at least 1"]
+    min: [0, "Order must be at least 0"]
   }
 }, { collection: 'Preferences' });
 
