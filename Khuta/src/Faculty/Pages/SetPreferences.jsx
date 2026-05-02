@@ -168,6 +168,39 @@ useEffect(() => {
     setError('');
   };
 
+  // On small screens/mobile: click course to add it to the first empty slot
+  const handleCourseClick = (course) => {
+  setRankedCourses(prev => {
+    const updated = [...prev];
+    const emptyIndex = updated.findIndex(slot => slot === null);
+
+    if (emptyIndex === -1) {
+      setError('You can select up to 5 preferences only.');
+      return prev;
+    }
+
+    updated[emptyIndex] = {
+      code: course.code,
+      name: course.name,
+    };
+
+    return updated;
+  });
+
+  setError('');
+};
+
+// On small screens/mobile: click selected preference to remove it
+const handleRemovePreference = (index) => {
+  setRankedCourses(prev => {
+    const updated = [...prev];
+    updated[index] = null;
+    return updated;
+  });
+
+  setError('');
+};
+
   // Drop a course back to the left side to remove it from preferences
   const handleDropBackToLeft = () => {
     if (!draggedCourse || draggedCourse.fromIndex === undefined) return;
@@ -304,8 +337,8 @@ useEffect(() => {
                       key={course.code}
                       className="fp-course-card"
                       draggable
+                      onClick={() => handleCourseClick(course)}
                       onDragStart={() => handleDragStartFromLeft(course)}
-                      ondrag={handleDragScroll}
                     >
                       <div className="fp-dots">⋮⋮</div>
                       <div>
@@ -334,8 +367,8 @@ useEffect(() => {
                           <div
                             className="fp-selected-card"
                             draggable
+                            onClick={() => handleRemovePreference(index)}
                             onDragStart={() => handleDragStartFromRight(course, index)}
-                            ondrag={handleDragScroll}
                           >
                             <div className="fp-rank-badge">{index + 1}</div>
                             <div>
