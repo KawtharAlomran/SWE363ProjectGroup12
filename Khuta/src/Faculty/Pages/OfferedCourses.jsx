@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 const API = 'http://localhost:5174';
 
 function OfferedCourses() {
-  // Get all courses and offered terms from the data file
-  const courses = getAllIcsCourses();
-  const terms = getAllOfferedCourses();
+  // State for courses and terms fetched from the backend
+  const [courses, setCourses] = useState([]);
+  const [terms, setTerms] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // State for selected term, current page, and selected course details
-  const [selectedTerm, setSelectedTerm] = useState(terms[0].termNum);
+  const [selectedTerm, setSelectedTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
