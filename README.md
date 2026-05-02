@@ -11,46 +11,73 @@ The Khuta project aims to replace the manual, repetitive process of collecting i
 
 ```
 Khuta/
-└── src/
-    ├── Chairman/
-    │   ├── layout/
-    │   │   └── ChairmanLayout.jsx   ← Layout wrapper with sidebar/nav for Chairman role
-    │   └── Pages/
-    │       ├── ChairmanHomePage.jsx      ← View offered courses
-    │       ├── icsFaculty.jsx            ← View/manage ICS faculty members
-    │       ├── schedulingCommittee.jsx   ← View/manage scheduling committee members
-    │       └── teachingLoad.jsx          ← View faculty teaching loads
-    ├── Committee/
-    │   ├── layout/
-    │   │   └── CommitteeLayout.jsx       ← Layout wrapper for Scheduling Committee role
-    │   └── Pages/
-    │       ├── AddNewTerm.jsx        ← Form to create a new academic term
-    │       ├── AssignCourses.jsx     ← Assign courses to faculty for a term
-    │       ├── ByCourse.jsx          ← View faculty preferences grouped by course
-    │       ├── ByInstructor.jsx      ← View faculty preferences grouped by instructor
-    │       ├── ManageCourses.jsx     ← View/manage all ICS courses
-    │       ├── ManageTerms.jsx       ← List and manage all academic terms
-    │       └── TermDetails.jsx       ← View details of a specific term
-    ├── CSS/
-    │   ├── componentsDesign.css    ← Styled component definitions
-    │   ├── layoutDesign.css       ← Layout styling (sidebar, header, etc.)
-    │   └── Variables.css           ← CSS variables (colors, fonts, breakpoints)
-    ├── Faculty/
-    │   ├── layout/
-    │   │   └── FacultyLayout.jsx         ← Layout wrapper for Faculty role
-    │   └── Pages/
-    │       ├── AssignedCourses.jsx        ← View courses assigned to faculty member
-    │       ├── OfferedCourses.jsx         ← Browse courses offered in current term
-    │       ├── PreviousPreferences.jsx    ← View past term preference history
-    │       └── SetPreferences.jsx         ← Form to submit course teaching preferences
-    ├── shared/
-    │   ├── ConfirmModal.jsx    ← confirmation message before submitting information
-    │   └── Layout.jsx          ← Shared layout component (sidebar + topbar)
-    ├── App.jsx                 ← Routes definition
-    ├── data.jsx                ← data definition
-    ├── login.jsx               ← login interface
-    ├── main.jsx                ← App entry point
-    └── index.html              ← Base HTML template
+├── src/
+│   ├── Chairman/
+│   │   ├── layout/
+│   │   │   └── ChairmanLayout.jsx   ← Layout wrapper with sidebar/nav for Chairman role
+│   │   └── Pages/
+│   │       ├── ChairmanHomePage.jsx      ← View offered courses
+│   │       ├── icsFaculty.jsx            ← View/manage ICS faculty members
+│   │       ├── schedulingCommittee.jsx   ← View/manage scheduling committee members
+│   │       └── teachingLoad.jsx          ← View faculty teaching loads
+│   ├── Committee/
+│   │   ├── layout/
+│   │   │   └── CommitteeLayout.jsx       ← Layout wrapper for Scheduling Committee role
+│   │   └── Pages/
+│   │       ├── AddNewTerm.jsx        ← Form to create a new academic term
+│   │       ├── AssignCourses.jsx     ← Assign courses to faculty for a term
+│   │       ├── ByCourse.jsx          ← View faculty preferences grouped by course
+│   │       ├── ByInstructor.jsx      ← View faculty preferences grouped by instructor
+│   │       ├── ManageCourses.jsx     ← View/manage all ICS courses
+│   │       ├── ManageTerms.jsx       ← List and manage all academic terms
+│   │       └── TermDetails.jsx       ← View details of a specific term
+│   ├── CSS/
+│   │   ├── componentsDesign.css    ← Styled component definitions
+│   │   ├── layoutDesign.css       ← Layout styling (sidebar, header, etc.)
+│   │   └── Variables.css           ← CSS variables (colors, fonts, breakpoints)
+│   ├── Faculty/
+│   │   ├── layout/
+│   │   │   └── FacultyLayout.jsx         ← Layout wrapper for Faculty role
+│   │   └── Pages/
+│   │       ├── AssignedCourses.jsx        ← View courses assigned to faculty member
+│   │       ├── OfferedCourses.jsx         ← Browse courses offered in current term
+│   │       ├── PreviousPreferences.jsx    ← View past term preference history
+│   │       └── SetPreferences.jsx         ← Form to submit course teaching preferences
+│   ├── shared/
+│   │   ├── ConfirmModal.jsx    ← confirmation message before submitting information
+│   │   └── Layout.jsx          ← Shared layout component (sidebar + topbar)
+│   ├── App.jsx                 ← Routes definition
+│   ├── data.jsx                ← data definition
+│   ├── login.jsx               ← login interface
+│   ├── main.jsx                ← App entry point
+│   └── index.html              ← Base HTML template
+└── server/
+      ├── controllers/
+      │       ├── courseController.js              ← functions to access and modify courses collection
+      │       ├── preferenceController.js          ← functions to access and modify preference collection
+      │       ├── teachingLoad.js                  ← functions to access teaching load for each faculty
+      │       ├── termAssignmentController.js      ← functions to access and modify term assignment collection
+      │       └── termSectionController.js         ← functions to access and modify offered courses and sections collection
+      │
+      ├── models/
+      │       ├── Assignment.js     ← Collection schema
+      │       ├── Course.js         ← Collection schema
+      │       ├── Faculty.js        ← Collection schema
+      │       ├── Plans.js          ← Collection schema
+      │       ├── Preferences.js    ← Collection schema
+      │       ├── Sections.js       ← Collection schema
+      │       └── Term.js           ← Collection schema
+      ├── routes/
+      │       ├── assignmentRoutes.js     ← route for the endpoint URL to reach the data
+      │       ├── courseRoutes.js         ← route for the endpoint URL to reach the data
+      │       ├── loadRoute.js            ← route for the endpoint URL to reach the data
+      │       ├── planRoutes.js           ← route for the endpoint URL to reach the data
+      │       ├── preferenceRoutes.js     ← route for the endpoint URL to reach the data
+      │       ├── sectionRoutes.js        ← route for the endpoint URL to reach the data
+      │       └── termRoutes.js           ← route for the endpoint URL to reach the data
+      │
+      ├──db.js       ← Creating the database connection
+      └──server.js   ← Backend config
 ```
 
 ---
@@ -122,9 +149,9 @@ http://localhost:5173
 
 | Role      | Username  | Password |
 |-----------|-----------|----------|
-| Chairman  | Malak     | 11       |
-| Faculty   | Nuha      | 22       |
-| Committee | Hamdi     | 12       |
+| Chairman  | malak.baslyman@kfupm.edu.sa     | 1      |
+| Faculty   | amir.hussain@kfupm.edu.sa      | 1       |
+| Committee | aljamimi@kfupm.edu.sa     | 1       |
 
 
 ---
@@ -152,7 +179,7 @@ http://localhost:5173
 
 ### Chairman
 
-1. Login into the system using your KFUPM account
+1. Login into the system using your KFUPM email
 
 2. View All offered courses:
     - Click on ICS Courses button.
