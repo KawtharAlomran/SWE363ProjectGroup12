@@ -181,10 +181,26 @@ useEffect(() => {
     setDraggedCourse(null);
   };
 
-  // Allow dropping
+  // allow drop + auto scroll when dragging near edges
   const handleDragOver = (e) => {
-    e.preventDefault();
-  };
+  e.preventDefault();
+
+  const scrollThreshold = 100; // distance from top/bottom
+  const scrollSpeed = 10;
+
+  const y = e.clientY;
+  const height = window.innerHeight;
+
+  // scroll up
+  if (y < scrollThreshold) {
+    window.scrollBy(0, -scrollSpeed);
+  }
+
+  // scroll down
+  if (y > height - scrollThreshold) {
+    window.scrollBy(0, scrollSpeed);
+  }
+};
 
   // Validate before showing confirmation modal
   const handleSubmit = () => {
