@@ -1,5 +1,5 @@
 import express from "express";
-import { addSections, getSectionsByTerm, updateSections, getUniqueCoursesByTerm } from "../controllers/termSectionController.js";
+import { addSections, getSectionsByTerm, updateSections, getUniqueCoursesByTerm, deleteSectionsByTerm } from "../controllers/termSectionController.js";
 
 const router = express.Router();
 
@@ -12,5 +12,8 @@ router.get("/:termId", getSectionsByTerm);
 
 // PUT — update sections for existing term
 router.put("/:termId", updateSections);
+
+// DELETE — delete all sections for a term
+router.delete("/:termId", deleteSectionsByTerm);
 
 export default router;

@@ -75,6 +75,10 @@ export default function ManageTerms() {
         onBack={() => setSelectedTerm(null)}
         onDelete={async (termId) => {
           try {
+            // Delete all sections for this term
+            await fetch(`${API}/api/sections/${termId}`, {
+              method: 'DELETE'
+            });
             // Delete term from the database then refresh the list
             await fetch(`${API}/api/terms/${termId}`, { method: 'DELETE' });
             await fetchTerms();

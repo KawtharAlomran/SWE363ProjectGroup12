@@ -145,3 +145,19 @@ export const getUniqueCoursesByTerm = async (req, res) => {
     res.status(500).json({ message: "Error fetching unique courses", error: error.message });
   }
 };
+
+// DELETE — delete all sections for a specific term
+export const deleteSectionsByTerm = async (req, res) => {
+  try {
+    const { termId } = req.params;
+
+    await Section.deleteMany({ term: termId });
+
+    res.status(200).json({ message: `All sections for term ${termId} deleted` });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to delete sections",
+      error: error.message
+    });
+  }
+};
