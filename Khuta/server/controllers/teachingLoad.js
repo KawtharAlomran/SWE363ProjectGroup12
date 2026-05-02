@@ -19,10 +19,8 @@ export const getTeachingLoadByTerm = async (req, res) => {
       let totalHours = 0;
 
       instructorAsm.forEach(asm => {
-        // MATCH: Assignment.courseId -> Course.code
         const courseInfo = allCourses.find(c => c.code === asm.courseId);
         
-        // CORRECTED NAME: credit_hours from your Course schema
         const creditHours = courseInfo ? courseInfo.credit_hours : 0; 
         totalHours += creditHours;
 

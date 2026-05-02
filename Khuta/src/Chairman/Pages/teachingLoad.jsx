@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 
 // Matching each faculty rank with the max teaching hours
 const facultyHours = {
-  "Professor": 6,
+  "Professor": 9,
   "Associate Professor": 9,
-  "Assistant Professor": 9,
-  "Chair Professor":9,
+  "Assistant Professor": 12,
+  "Chair Professor":12,
   "Instructor": 12,
   "Senior Lecturer": 12,
   "Lecturer": 12
@@ -69,7 +69,12 @@ export default function Load() {
   // Color logic based on rank hours
   const getHoursColor = (hours, rank) => {
     const maxHours = facultyHours[rank] || 12; 
-    return hours >= maxHours ? "#e53e3e" : "#00b894";
+    if(hours < maxHours)
+      return "#00b894";
+    else if (hours == maxHours)
+      return "#e4cd4a";
+    else
+      return  "#e53e3e";
   };
 
   if (terms.length === 0 && !isLoading) {
