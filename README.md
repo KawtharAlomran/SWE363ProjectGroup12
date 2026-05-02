@@ -245,23 +245,56 @@ http://localhost:5173
 
 ### Committee
 
-1. Login into the system using your KFUPM account
+1. Login into the system using your KFUPM email.
 
-2. You can view and manage terms by clicking on Manage Terms button.
-    - You can view all terms and see offered coursese and number of sections by clicking on the term.
-    - you can modify current term by clicking on modify button
-    - You can add a new term by clicking on Add new Term button
-        - You must rnter the term number to view the courses demand and then select the number of sections.
-        - If you submit the form a notification email will be send to faculty to set their preferences. However you can still modify the offered courses and number of sections.
+2. View and Manage Terms:
+   - Click on the **Manage Terms** button in the sidebar.
+   - All academic terms will be displayed.
+   - Click on a term to view:
+     - Offered courses
+     - Number of sections for that term
+   - You can modify **upcoming terms only** by clicking on the **Modify** button.
+   - You can add a new term by clicking on **Add New Term**:
+     - Enter a valid 3-digit term number.
+     - The system will automatically display course demand.
+     - Select courses and specify the number of sections.
+     - Click **Submit** to save.
+     - A notification email will be sent to faculty to submit their preferences.
+     - You can still modify the term later if needed.
+
 3. View and Manage Courses:
-    - You can brows all ICS courses by clicking on Manage Courses button
-    - You can delet a course by clicking on Delet button
-    - You can add a new course by clicking on Add new Course and filling the course information form.
-4. View faculty preferences
-    - You can brows all faculty preferences by clicking on Assign Courses button
-    - You can select the term from the drop-down menue
-    - you have the chance to view the preferences by instructors or by courses by changing the view type.
-    - To assign instructior, You have to click on the check box and select the number of sections
+   - Click on **Manage Courses** in the sidebar.
+   - All ICS department courses will be displayed.
+   - Use pagination to browse courses.
+   - To delete a course:
+     - Click the **Delete** button next to the course.
+     - A confirmation message will appear.
+     - Click **Yes** to proceed or **No** to cancel.
+   - To add a new course:
+     - Click **Add New Course**
+     - Fill in the required fields:
+       - Course code (e.g., ICS104 or SWE201, without spaces)
+       - Course name
+       - Credit hours (1–6)
+       - Select whether the course has a lab
+       - Course description
+     - Click **Add** to save the course
+     - If input is invalid, an error message will be shown
+     - Click **Cancel** to discard changes
+
+4. View Faculty Preferences and Assign Courses:
+   - Click on **Assign Courses** in the sidebar.
+   - Select a term from the dropdown menu.
+   - Choose view mode:
+     - By Instructor
+     - By Course
+   - To assign instructors:
+     - Click the checkbox next to the instructor
+     - Select the sections to assign
+   - To save changes:
+     - Click **Save**
+   - To finalize assignments:
+     - Click **Submit**
 
 ### Faculty
 
