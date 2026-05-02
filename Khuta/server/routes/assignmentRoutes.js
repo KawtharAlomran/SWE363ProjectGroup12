@@ -1,14 +1,27 @@
 import express from "express";
-import { getAssignmentsByTerm, getSectionNumbers, saveAssignments } from "../controllers/termAssignmentController.js";
+import {
+  addSections,
+  getSectionsByTerm,
+  updateSections,
+  getAssignmentsByTerm,
+  getSectionNumbers,
+  saveAssignments,
+  getRecommendations,
+  getTeachingLoad,
+} from "../controllers/termAssignmentController.js";
+
 const router = express.Router();
 
-// GET — fetch existing assignments for a term
+// Section routes
+router.post("/sections", addSections);
+router.get("/sections/:termId", getSectionsByTerm);
+router.put("/sections/:termId", updateSections);
+
+// Assignment routes
 router.get("/:termId", getAssignmentsByTerm);
-
-// GET — fetch generated section numbers for a term
 router.get("/:termId/sections", getSectionNumbers);
-
-// POST — save assignments
+router.get("/:termId/recommendations", getRecommendations);
+router.get("/:termId/load", getTeachingLoad);
 router.post("/", saveAssignments);
 
 export default router;
