@@ -7,6 +7,7 @@ function OfferedCourses() {
   // State for courses and terms fetched from the backend
   const [courses, setCourses] = useState([]);
   const [terms, setTerms] = useState([]);
+  const [offeredCourses, setOfferedCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   
   // State for selected term, current page, and selected course details
@@ -14,36 +15,25 @@ function OfferedCourses() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
-  // fetch courses and terms from backend
+  // fetch terms from backend
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchTerms = async () => {
       try {
-        setIsLoading(true);
-
-        // get all courses
-        const coursesRes = await fetch(`${API}/api/courses`);
-        const coursesData = await coursesRes.json();
-
-        // get all terms
         const termsRes = await fetch(`${API}/api/terms`);
         const termsData = await termsRes.json();
 
-        setCourses(coursesData);
         setTerms(termsData);
 
         // set default term after loading
         if (termsData.length > 0) {
           setSelectedTerm(termsData[0].termId);
         }
-
       } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setIsLoading(false);
+        console.error("Error fetching terms:", error);
       }
     };
 
-    fetchData();
+    fetchTerms();
   }, []);
 
 
