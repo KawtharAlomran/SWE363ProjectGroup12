@@ -8,9 +8,7 @@ function OfferedCourses() {
   const [courses, setCourses] = useState([]);
   const [terms, setTerms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  // State for course codes offered in the selected term
-  const [offeredCourseCodes, setOfferedCourseCodes] = useState([]);
-
+  
   // State for selected term, current page, and selected course details
   const [selectedTerm, setSelectedTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,27 +46,7 @@ function OfferedCourses() {
     fetchData();
   }, []);
 
-  // fetch offered course codes for the selected term
-  useEffect(() => {
-    const fetchOfferedCourses = async () => {
-      if (!selectedTerm) return;
 
-      try {
-        const res = await fetch(`${API}/api/sections/${selectedTerm}`);
-        const data = await res.json();
-
-        // Sections can have both LEC and LAB, so remove duplicate course codes
-        const codes = [...new Set(data.map(section => section.courseId))];
-
-        setOfferedCourseCodes(codes);
-      } catch (error) {
-        console.error("Error fetching offered courses:", error);
-        setOfferedCourseCodes([]);
-      }
-    };
-
-    fetchOfferedCourses();
-  }, [selectedTerm]);
 
 
   // Number of courses shown per page
