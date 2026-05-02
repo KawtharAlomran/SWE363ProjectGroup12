@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { getAllIcsCourses, getAllOfferedCourses } from '../../data';
+import { useEffect, useState } from 'react';
+
+// API base URL for backend requests
+const API = 'http://localhost:5174';
 
 function OfferedCourses() {
   // Get all courses and offered terms from the data file
