@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import ConfirmModal from '../../shared/ConfirmModal';
+import { useLocation } from 'react-router-dom';
 
 const API = 'http://localhost:5174';
 
 function SetPreferences() {
+  const location = useLocation();
+  const selectedTermFromPreviousPage = location.state?.selectedTerm;
   const [allowedTerms, setAllowedTerms] = useState([]);
   const [currentTerm, setCurrentTerm] = useState('');
   const [availableCourses, setAvailableCourses] = useState([]);
@@ -39,12 +42,17 @@ function SetPreferences() {
 
   // Set allowed terms and choose the first one as default
   useEffect(() => {
-    const allowed = getAllowedPreferenceTerms();
-    setAllowedTerms(allowed);
-    if (allowed.length > 0) {
-      setCurrentTerm(allowed[0]);
-    }
-  }, []);
+  const terms = getAllowedPreferenceTerms();
+
+  setAllowedTerms(terms);
+
+  // If user came from Submitted Preferences, open the same selected term
+  if (selectedTermFromPreviousPage && terms.includes(selectedTermFromPreviousPage)) {
+    setCurrentTerm(selectedTermFromPreviousPage);
+  } else {
+    setCurrentTerm(terms[0]);
+  }
+}, []);
 
 // fetch offered courses for the selected term from Sections collection
 useEffect(() => {

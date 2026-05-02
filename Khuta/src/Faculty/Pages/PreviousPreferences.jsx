@@ -155,7 +155,7 @@ function PreviousPreferences() {
         {canModify && preferences.length > 0 && (
           <button
             className="addBtn"
-            onClick={() => navigate('/faculty/set-preferences')}
+            onClick={() => navigate('/faculty/set-preferences', { state: { selectedTerm } })}
           >
             Modify Submitted Preferences
           </button>
