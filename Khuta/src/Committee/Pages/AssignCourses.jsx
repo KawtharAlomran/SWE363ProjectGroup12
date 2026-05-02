@@ -1,15 +1,3 @@
-/**
- * AssignCourses.jsx
- * 
- * WHAT CHANGED:
- * - Separated existing assignments (from DB) from new assignments (added in current session)
- * - existingAssignments: loaded from DB, used to pre-check instructors who were previously assigned
- * - newAssignments: what user adds/removes in this session, used to filter available sections in dropdown
- * - Available sections are filtered only from newAssignments (not existingAssignments)
- *   so the full section list from Sections collection always shows correctly
- * - On Submit: saves both existing + new assignments to DB
- */
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ByInstructor from './ByInstructor';
@@ -23,64 +11,70 @@ export default function AssignCourses() {
   const [viewType, setViewType] = useState('instructor');
   const [showConfirm, setShowConfirm] = useState(false);
   const [sectionError, setSectionError] = useState(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const [terms, setTerms] = useState([]);
   const [selectedTermId, setSelectedTermId] = useState('');
   const [loadingTerms, setLoadingTerms] = useState(true);
   const [loadingData, setLoadingData] = useState(false);
 
-  const [byInstructor, setByInstructor] = useState([]);
-  const [byCourse, setByCourse] = useState([]);
+  const [facultyList, setFacultyList] = useState([]);
+  const [termCourses, setTermCourses] = useState([]);
+  const [prefByInstructor, setPrefByInstructor] = useState([]);
+  const [prefByCourse, setPrefByCourse] = useState([]);
   const [sectionNumbers, setSectionNumbers] = useState([]);
-
-  // Assignments already saved in DB — used to pre-check instructors
   const [existingAssignments, setExistingAssignments] = useState([]);
-
-  // Assignments added/removed in current session — used to filter dropdown options
   const [newAssignments, setNewAssignments] = useState([]);
 
   useEffect(() => {
-    const fetchTerms = async () => {
+    const fetchInitial = async () => {
       try {
-        const res = await fetch(`${API}/api/terms`);
-        const data = await res.json();
-        const filteredTerms = data.filter(t => t.assigned === false);
-        setTerms(filteredTerms);
-        if (data.length > 0) setSelectedTermId(data[0].termId);
+        const [termsRes, facultyRes] = await Promise.all([
+          fetch(`${API}/api/terms`),
+          fetch(`${API}/api/faculty`),
+        ]);
+        const [termsData, facultyData] = await Promise.all([
+          termsRes.json(),
+          facultyRes.json(),
+        ]);
+        setTerms(termsData);
+        setFacultyList(facultyData);
+        if (termsData.length > 0) setSelectedTermId(termsData[0].termId);
       } catch (err) {
-        console.error("Error fetching terms:", err);
+        console.error("Error fetching initial data:", err);
       } finally {
         setLoadingTerms(false);
       }
     };
-    fetchTerms();
+    fetchInitial();
   }, []);
 
   useEffect(() => {
     if (!selectedTermId) return;
-
     const fetchData = async () => {
       setLoadingData(true);
       try {
-        const [prefInstRes, prefCourseRes, sectionsRes, assignmentsRes] = await Promise.all([
+        const [prefInstRes, prefCourseRes, sectionsRes, sectionNumsRes, assignmentsRes] = await Promise.all([
           fetch(`${API}/api/preferences/term/${selectedTermId}/instructor`),
           fetch(`${API}/api/preferences/term/${selectedTermId}/course`),
+          fetch(`${API}/api/sections/${selectedTermId}`),
           fetch(`${API}/api/assignments/${selectedTermId}/sections`),
           fetch(`${API}/api/assignments/${selectedTermId}`),
         ]);
-
-        const [prefInst, prefCourse, sections, existing] = await Promise.all([
+        const [prefInst, prefCourse, sections, sectionNums, existing] = await Promise.all([
           prefInstRes.json(),
           prefCourseRes.json(),
           sectionsRes.json(),
+          sectionNumsRes.json(),
           assignmentsRes.json(),
         ]);
-
-        setSectionNumbers(sections);
-        setExistingAssignments(existing); // pre-check previously assigned instructors
-        setNewAssignments([]); // reset new assignments when term changes
-        setByInstructor(prefInst);
-        setByCourse(prefCourse);
+        const uniqueCourseIds = [...new Set(sections.map(s => s.courseId))];
+        setTermCourses(uniqueCourseIds);
+        setPrefByInstructor(prefInst);
+        setPrefByCourse(prefCourse);
+        setSectionNumbers(sectionNums);
+        setExistingAssignments(existing);
+        setNewAssignments([]);
       } catch (err) {
         console.error("Error fetching data:", err);
       } finally {
@@ -90,7 +84,7 @@ export default function AssignCourses() {
     fetchData();
   }, [selectedTermId]);
 
-  // Add section — checks conflict only in newAssignments (current session)
+  // Add new section assignment
   const addAssignment = (courseId, type, section, instructorName) => {
     const conflict = newAssignments.find(a =>
       a.courseId === courseId && a.type === type && a.section === section
@@ -100,17 +94,42 @@ export default function AssignCourses() {
       return;
     }
     setSectionError(null);
+    setSaveSuccess(false);
     setNewAssignments(prev => [...prev, { courseId, type, section, instructorName }]);
   };
 
-  // Remove section from newAssignments
+  // Remove from new assignments
   const removeAssignment = (courseId, type, section, instructorName) => {
+    setSaveSuccess(false);
     setNewAssignments(prev => prev.filter(a =>
       !(a.courseId === courseId && a.type === type && a.section === section && a.instructorName === instructorName)
     ));
   };
 
-  // Submit — merges existing + new assignments and saves to DB
+  // Remove from existing assignments (previously saved in DB)
+  const removeExistingAssignment = (courseId, type, section, instructorName) => {
+    setSaveSuccess(false);
+    setExistingAssignments(prev => prev.filter(a =>
+      !(a.courseId === courseId && a.type === type && a.section === section && a.instructorName === instructorName)
+    ));
+  };
+
+  const handleSave = async () => {
+    try {
+      const allAssignments = [...existingAssignments, ...newAssignments];
+      await fetch(`${API}/api/assignments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ termId: selectedTermId, assignments: allAssignments }),
+      });
+      setExistingAssignments(allAssignments);
+      setNewAssignments([]);
+      setSaveSuccess(true);
+    } catch (err) {
+      console.error("Error saving:", err);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       const allAssignments = [...existingAssignments, ...newAssignments];
@@ -122,9 +141,17 @@ export default function AssignCourses() {
       setShowConfirm(false);
       navigate(-1);
     } catch (err) {
-      console.error("Error saving assignments:", err);
+      console.error("Error submitting:", err);
     }
   };
+
+  const coursesWithNoPreference = termCourses.filter(courseId =>
+    !prefByCourse.some(p => p.courseId === courseId)
+  );
+
+  const instructorsWithNoPreference = facultyList.filter(f =>
+    !prefByInstructor.some(p => p.facultyName === f.name)
+  );
 
   if (loadingTerms) return <div className="container">Loading terms...</div>;
 
@@ -138,7 +165,7 @@ export default function AssignCourses() {
           <select
             className="an-select"
             value={selectedTermId}
-            onChange={e => { setSelectedTermId(e.target.value); setSectionError(null); }}
+            onChange={e => { setSelectedTermId(e.target.value); setSectionError(null); setSaveSuccess(false); }}
           >
             {terms.map(t => <option key={t._id} value={t.termId}>{t.termId}</option>)}
           </select>
@@ -166,31 +193,44 @@ export default function AssignCourses() {
           </div>
         )}
 
-        {loadingData && <p>Loading preferences...</p>}
+        {loadingData && <p>Loading...</p>}
 
         {!loadingData && viewType === 'instructor' && (
           <ByInstructor
-            instructors={byInstructor}
+            facultyList={facultyList}
+            prefByInstructor={prefByInstructor}
             sectionNumbers={sectionNumbers}
-            existingAssignments={existingAssignments}  // to pre-check instructors
-            newAssignments={newAssignments}             // to filter dropdown options
+            existingAssignments={existingAssignments}
+            newAssignments={newAssignments}
+            instructorsWithNoPreference={instructorsWithNoPreference}
+            termCourses={termCourses}
             onAdd={addAssignment}
             onRemove={removeAssignment}
+            onRemoveExisting={removeExistingAssignment}
           />
         )}
 
         {!loadingData && viewType === 'course' && (
           <ByCourse
-            courses={byCourse}
+            termCourses={termCourses}
+            prefByCourse={prefByCourse}
             sectionNumbers={sectionNumbers}
-            existingAssignments={existingAssignments}  // to pre-check instructors
-            newAssignments={newAssignments}             // to filter dropdown options
+            existingAssignments={existingAssignments}
+            newAssignments={newAssignments}
+            coursesWithNoPreference={coursesWithNoPreference}
+            facultyList={facultyList}
             onAdd={addAssignment}
             onRemove={removeAssignment}
+            onRemoveExisting={removeExistingAssignment}
           />
         )}
 
+        {saveSuccess && (
+          <div style={{ color: 'green', fontSize: 13, marginTop: 8 }}>✓ Saved successfully</div>
+        )}
+
         <div className="an-actions" style={{ marginTop: 24 }}>
+          <button className="ac-toggle-btn" onClick={handleSave} style={{ marginRight: 8 }}>Save</button>
           <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
           <span className="an-note">*Note: Submitting will publish the assignments and notify all assigned faculty via email.</span>
         </div>
