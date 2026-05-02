@@ -75,7 +75,7 @@ function PreviousPreferences() {
 
 
   // Check if selected term is the current term
-  const isCurrentTerm = selectedTerm === '261';
+  const isCurrentTerm = selectedTerm === terms[0]?.termId; // assuming terms are sorted with current term first
 
   // Pagination logic
   const preferencesPerPage = 4;
