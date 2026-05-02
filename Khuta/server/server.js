@@ -1,3 +1,4 @@
+dotenv.config();
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -19,12 +20,12 @@ import teachingLoadRoutes from "./routes/loadRoute.js";
 import assignmentRoutes from "./routes/assignmentRoutes.js";
 
 const corsOptions = {
-  origin: 'http://localhost:5173',
+  origin: process.env.Client_URL || 'http://localhost:5174',
   methods: 'GET,POST,PATCH,DELETE,PUT',
   credentials: true, 
 };
 
-dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 5174;
 
