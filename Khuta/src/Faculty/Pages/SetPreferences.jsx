@@ -56,6 +56,30 @@ useEffect(() => {
   fetchOfferedCourses();
 }, []);
 
+  // fetch previously submitted preferences for the current user
+  useEffect(() => {
+    if (!currentTerm) return;
+
+    const fetchPreferences = async () => {
+      try {
+        const facultyName = sessionStorage.getItem('UserName');
+
+        const res = await fetch(`${API}/api/preferences/term/${currentTerm}`);
+        const data = await res.json();
+
+        // filter only this user's preferences
+        const filtered = data.filter(p => p.facultyName === facultyName);
+
+        setSavedPreferences(filtered);
+      } catch (error) {
+        console.error("Error fetching saved preferences:", error);
+        setSavedPreferences([]);
+      }
+    };
+
+    fetchPreferences();
+  }, [currentTerm]);
+
 
   // Number of preference slots
   const maxSlots = availableCourses.length;
