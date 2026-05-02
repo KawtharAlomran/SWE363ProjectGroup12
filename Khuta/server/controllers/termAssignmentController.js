@@ -15,6 +15,37 @@ const facultyHours = {
   "Lecturer": 12
 };
 
+// GET — assigned courses for a faculty member in a specific term
+export const getAssignedCoursesByFaculty = async (req, res) => {
+  try {
+    const { termId, facultyName } = req.params;
+
+    const assignments = await Assignment.find({
+      term: termId,
+      instructorName: decodeURIComponent(facultyName),
+    });
+
+    const result = await Promise.all(
+      assignments.map(async (assignment) => {
+        const course = await Course.findOne({ code: assignment.courseId });
+
+        return {
+          code: assignment.courseId,
+          name: course ? course.name : assignment.courseId,
+          section: `${assignment.type} ${assignment.section}`,
+        };
+      })
+    );
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching assigned courses",
+      error: error.message,
+    });
+  }
+};
+
 // POST — save sections for a new term (also saves term to Terms collection)
 export const addSections = async (req, res) => {
   try {
