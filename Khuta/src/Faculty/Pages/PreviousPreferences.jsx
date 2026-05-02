@@ -19,6 +19,60 @@ function PreviousPreferences() {
   const [selectedTerm, setSelectedTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
+  // fetch terms from backend
+  useEffect(() => {
+    const fetchTerms = async () => {
+      try {
+        const res = await fetch(`${API}/api/terms`);
+        const data = await res.json();
+
+        setTerms(data);
+
+        // set default term
+        if (data.length > 0) {
+          setSelectedTerm(data[0].termId);
+        }
+      } catch (error) {
+        console.error("Error fetching terms:", error);
+      }
+    };
+
+    fetchTerms();
+  }, []);
+
+  // fetch preferences for the selected term
+  useEffect(() => {
+    if (!selectedTerm) return;
+
+    const fetchPreferences = async () => {
+      try {
+        setIsLoading(true);
+
+        // get logged-in faculty name
+        const facultyName = sessionStorage.getItem('UserName');
+
+        const res = await fetch(
+          `${API}/api/preferences/term/${selectedTerm}`
+        );
+
+        const data = await res.json();
+
+        // filter only current user's preferences
+        const filtered = data.filter(p => p.facultyName === facultyName);
+
+        setPreferences(filtered);
+        setCurrentPage(1);
+      } catch (error) {
+        console.error("Error fetching preferences:", error);
+        setPreferences([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPreferences();
+  }, [selectedTerm]);
+
 
   // Check if selected term is the current term
   const isCurrentTerm = selectedTerm === '261';
