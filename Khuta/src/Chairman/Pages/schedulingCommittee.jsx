@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-// Remove local data imports
 import ConfirmModal from '../../shared/ConfirmModal';
 
 export default function SchedulingCommittee() {
@@ -11,16 +10,16 @@ export default function SchedulingCommittee() {
   const [isAdd, setIsAdd] = useState(false);
   const [selectedcommittee, setSelectedcommittee] = useState(null);
 
-  // Pagination logic
+  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const committeePerPage = 8;
   const [newEmail, setNewEmail] = useState("");
   const [addError, setAddError] = useState("");
 
-  // --- 1. Fetch Committee Members from Server ---
+  // --- fetch committee members from server ---
   const fetchCommittee = async () => {
     try {
-      // Using the role=committee query parameter as specified
+      // Using the role=committee query parameter
       const response = await fetch("http://localhost:5174/api/faculty?role=committee");
       if (!response.ok) throw new Error("Failed to fetch committee");
       const data = await response.json();
@@ -36,13 +35,7 @@ export default function SchedulingCommittee() {
     fetchCommittee();
   }, []);
 
-  // Pagination calculations
-  const startIndex = (currentPage - 1) * committeePerPage;
-  const endIndex = startIndex + committeePerPage;
-  const currentcommittee = committee.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(committee.length / committeePerPage);
-
-  // --- 2. Adding a member to the committee ---
+  // --- adding a member to the committee ---
   const handleAdd = async () => {
     if (!newEmail) {
       setAddError("Please enter an email.");
@@ -50,8 +43,7 @@ export default function SchedulingCommittee() {
     }
 
     try {
-      // We send a PATCH or POST to update the role of the existing faculty member
-      // Note: This assumes your backend handles assigning the 'committee' role to an existing email
+      // We send a PATCH to update the role of the existing faculty member
       const response = await fetch(`http://localhost:5174/api/faculty/${newEmail.toLowerCase()}`, {
         method: "PATCH", 
         headers: { "Content-Type": "application/json" },
@@ -72,10 +64,10 @@ export default function SchedulingCommittee() {
     }
   };
 
-  // --- 3. Removing a member from the committee ---
+  // --- removing a member from the committee ---
   const handleDelete = async (email) => {
     try {
-      // Instead of deleting the user entirely, we usually just change their role back to 'faculty'
+      // change the role to faculty
       const response = await fetch(`http://localhost:5174/api/faculty/${email}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -89,6 +81,37 @@ export default function SchedulingCommittee() {
       console.error("Removal failed:", error);
     }
   };
+
+  // Pagination logic
+  const startIndex = (currentPage - 1) * committeePerPage;
+  const endIndex = startIndex + committeePerPage;
+  const currentcommittee = committee.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(committee.length / committeePerPage);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const delta = 1;
+    const left = currentPage - delta;
+    const right = currentPage + delta;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= left && i <= right)) pages.push(i);
+    }
+    const withEllipsis = [];
+    let prev = null;
+    for (const page of pages) {
+      if (prev && page - prev > 1) withEllipsis.push('...');
+      withEllipsis.push(page);
+      prev = page;
+    }
+    return withEllipsis;
+  };
+
+  // Reusable section select
+  const SectionSelect = ({ value, courseCode, field }) => (
+    <select className="an-select" value={value} onChange={e => updateSection(courseCode, field, e.target.value)}>
+      {[...Array(30)].map((_, i) => <option key={i} value={i}>{i}</option>)}
+    </select>
+  );
 
   if (isLoading) return <div className="container">Loading Committee...</div>;
 
@@ -123,6 +146,7 @@ export default function SchedulingCommittee() {
           </tbody>
         </table>
 
+        {/* remove committee from the list */}
         {isDelete && (
           <ConfirmModal
             message="Are you sure you want to remove this member from the committee?"
@@ -137,7 +161,7 @@ export default function SchedulingCommittee() {
             }}
           />
         )}
-
+        {/* Add committee Form */}
         {isAdd && (
           <ConfirmModal
             onConfirm={handleAdd}
@@ -159,17 +183,18 @@ export default function SchedulingCommittee() {
           />
         )}
 
-        <div className="pageNumbers">
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button 
-              className={currentPage === index + 1 ? "active" : ""} 
-              key={index + 1}
-              onClick={() => setCurrentPage(index + 1)}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
+        {/* Smart pagination — 1 ... 4 5 6 ... */}
+        {totalPages > 1 && (
+          <div className="pageNumbers">
+            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
+            {getPageNumbers().map((page, i) =>
+              page === '...'
+                ? <span key={`ellipsis-${i}`} style={{ margin: '0 4px' }}>...</span>
+                : <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+            )}
+            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
+          </div>
+        )}
       </div>
     </>
   );
