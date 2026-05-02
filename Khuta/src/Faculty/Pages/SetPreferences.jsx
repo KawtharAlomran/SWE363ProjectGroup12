@@ -1,27 +1,16 @@
-import { useMemo, useState } from 'react';
-import {
-  getAllIcsCourses,
-  getAllOfferedCourses,
-  getFacultySubmittedPreferences,
-  setFacultySubmittedPreferences
-} from '../../data';
+import { useEffect, useState } from 'react';
 import ConfirmModal from '../../shared/ConfirmModal';
+
+const API = 'http://localhost:5174';
 
 function SetPreferences() {
   // Get all courses and current term
-  const allCourses = getAllIcsCourses();
-  const terms = getAllOfferedCourses();
-  const currentTerm = terms[0];
+const [currentTerm, setCurrentTerm] = useState('');
+const [availableCourses, setAvailableCourses] = useState([]);
+// Get saved submitted preferences from data file
+const [savedPreferences, setSavedPreferences] = useState([]);
+const [isLoading, setIsLoading] = useState(true);
 
-  // Get saved submitted preferences from data file
-  const submittedPreferences = getFacultySubmittedPreferences();
-
-  // Filter only courses offered in the current term
-  const availableCourses = useMemo(() => {
-    return allCourses.filter((course) =>
-      currentTerm.courses.includes(course.code)
-    );
-  }, [allCourses, currentTerm]);
 
   // Number of preference slots
   const maxSlots = availableCourses.length;
