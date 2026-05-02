@@ -11,25 +11,100 @@ const [availableCourses, setAvailableCourses] = useState([]);
 const [savedPreferences, setSavedPreferences] = useState([]);
 const [isLoading, setIsLoading] = useState(true);
 
+// determine upcoming term based on the academic calendar
+const getUpcomingTerm = () => {
+  const now = new Date();
+  const year = now.getFullYear().toString().slice(-2);
+  const prevYear = (now.getFullYear() - 1).toString().slice(-2);
+  const month = now.getMonth() + 1;
 
-  // Number of preference slots
-  const maxSlots = availableCourses.length;
+  // Jan - May → Summer
+  if (month >= 1 && month <= 5) {
+    return `${prevYear}3`;
+  }
 
-  // Load saved preferences for current term if they exist
-  const savedPreferences = submittedPreferences[currentTerm.termNum] || [];
-  const initialRankedCourses = Array(maxSlots).fill(null);
+  // Jun - Aug → Fall
+  if (month >= 6 && month <= 8) {
+    return `${year}1`;
+  }
 
-  savedPreferences.forEach((course, index) => {
-    if (index < maxSlots) {
-      initialRankedCourses[index] = {
-        code: course.code,
-        name: course.name,
-      };
-    }
-  });
+  // Sep - Dec → Spring
+  return `${year}2`;
+};
+
+  // fetch offered courses for the upcoming term
+  useEffect(() => {
+    const fetchOfferedCourses = async () => {
+      try {
+        setIsLoading(true);
+
+        const upcomingTerm = getUpcomingTerm();
+        setCurrentTerm(upcomingTerm);
+
+        const res = await fetch(`${API}/api/sections/unique/${upcomingTerm}`);
+        const data = await res.json();
+
+        setAvailableCourses(data);
+      } catch (error) {
+        console.error("Error fetching offered courses:", error);
+        setAvailableCourses([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOfferedCourses();
+  }, []);
+
+  // fetch previously submitted preferences for the current user
+  useEffect(() => {
+    if (!currentTerm) return;
+
+    const fetchPreferences = async () => {
+      try {
+        const facultyName = sessionStorage.getItem('UserName');
+
+        const res = await fetch(`${API}/api/preferences/term/${currentTerm}`);
+        const data = await res.json();
+
+        // filter only this user's preferences
+        const filtered = data.filter(p => p.facultyName === facultyName);
+
+        setSavedPreferences(filtered);
+      } catch (error) {
+        console.error("Error fetching saved preferences:", error);
+        setSavedPreferences([]);
+      }
+    };
+
+    fetchPreferences();
+  }, [currentTerm]);
+
+  // map saved preferences into ranked courses UI
+  useEffect(() => {
+    if (!availableCourses.length) return;
+
+    const maxSlots = availableCourses.length;
+    const initial = Array(maxSlots).fill(null);
+
+    savedPreferences.forEach((pref, index) => {
+      const course = availableCourses.find(c => c.courseId === pref.courseId);
+
+      if (course && index < maxSlots) {
+        initial[index] = {
+          code: course.courseId,
+          name: course.name,
+        };
+      }
+    });
+
+    setRankedCourses(initial);
+  }, [savedPreferences, availableCourses]);
+
+
 
   // State for ranked courses, dragged course, confirmation modal, and error message
-  const [rankedCourses, setRankedCourses] = useState(initialRankedCourses);
+  const [rankedCourses, setRankedCourses] = useState([]);
   const [draggedCourse, setDraggedCourse] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState('');
@@ -109,23 +184,34 @@ const [isLoading, setIsLoading] = useState(true);
     setShowConfirm(true);
   };
 
-  // Save submitted preferences into data file
-  const confirmSubmit = () => {
+  // save submitted preferences into MongoDB
+  const confirmSubmit = async () => {
     const selected = rankedCourses.filter(Boolean);
+    const facultyName = sessionStorage.getItem('UserName');
 
-    const formattedPreferences = selected.map((course, index) => ({
-      rank: index + 1,
-      code: course.code,
-      name: course.name,
+    const formattedPreferences = selected.map((course) => ({
+      courseId: course.code,
     }));
 
-    const updatedPreferences = {
-      ...submittedPreferences,
-      [currentTerm.termNum]: formattedPreferences,
-    };
+    try {
+      const res = await fetch(`${API}/api/preferences`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          termId: currentTerm,
+          facultyName,
+          preferences: formattedPreferences,
+        }),
+      });
 
-    setFacultySubmittedPreferences(updatedPreferences);
-    setShowConfirm(false);
+      if (!res.ok) throw new Error('Failed to submit preferences');
+
+      setShowConfirm(false);
+    } catch (error) {
+      console.error('Error submitting preferences:', error);
+      setError('Failed to submit preferences. Please try again.');
+      setShowConfirm(false);
+    }
   };
 
   return (
