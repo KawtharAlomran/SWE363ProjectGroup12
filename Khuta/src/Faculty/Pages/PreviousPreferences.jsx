@@ -78,8 +78,27 @@ function PreviousPreferences() {
   }, [selectedTerm]);
 
 
-  // Check if selected term is the current term
-  const isCurrentTerm = selectedTerm === terms[0]?.termId; // assuming terms are sorted with current term first
+  // determine upcoming term based on academic calendar
+  const getUpcomingTerm = () => {
+  const now = new Date();
+  const year = now.getFullYear().toString().slice(-2);
+  const month = now.getMonth() + 1;
+
+  // Jan - May → Summer
+  if (month >= 1 && month <= 5) {
+    return `${year}3`;
+  }
+
+  // Jun - Aug → Fall
+  if (month >= 6 && month <= 8) {
+    return `${year}1`;
+  }
+
+  // Sep - Dec → Spring
+  return `${year}2`;
+};
+
+  const upcomingTerm = getUpcomingTerm();
 
   // Pagination logic
   const preferencesPerPage = 4;
@@ -108,8 +127,8 @@ function PreviousPreferences() {
       >
         <h3 className="mt-title">Submitted Preferences</h3>
 
-        {/* Show modify button only for current term */}
-        {isCurrentTerm && preferences.length > 0 && (
+        {/* Show modify button only for upcoming term */}
+        {selectedTerm === upcomingTerm && preferences.length > 0 && (
           <button
             className="addBtn"
             onClick={() => navigate('/faculty/set-preferences')}
