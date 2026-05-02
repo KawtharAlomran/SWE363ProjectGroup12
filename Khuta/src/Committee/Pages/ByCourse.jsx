@@ -1,16 +1,14 @@
 /**
  * ByCourse.jsx
- *
- * PROPS:
- * @param {Array} courses              - [{ courseId, instructors: [{ facultyName, order }] }]
- * @param {Array} sectionNumbers       - [{ courseId, type, maleSections: [], femaleSections: [] }]
- * @param {Array} existingAssignments  - assignments from DB, used to pre-check instructors
- * @param {Array} newAssignments       - assignments added this session, used to filter dropdown
- * @param {Function} onAdd             - (courseId, type, section, instructorName) => void
- * @param {Function} onRemove          - (courseId, type, section, instructorName) => void
+ * WHAT CHANGED:
+ * - Added unassignedCourses prop — highlights courses with no instructor in red
+ * - Existing sections shown as grey tags (not removable)
+ * - New sections shown as blue tags (removable)
+ * - Available sections filtered only from newAssignments
  */
 import { useState } from "react";
-export default function ByCourse({ courses, sectionNumbers, existingAssignments, newAssignments, onAdd, onRemove }) {
+
+export default function ByCourse({ courses, sectionNumbers, existingAssignments, newAssignments, unassignedCourses, onAdd, onRemove }) {
 
   const [selected, setSelected] = useState({});
 
@@ -20,34 +18,27 @@ export default function ByCourse({ courses, sectionNumbers, existingAssignments,
   };
 
   const isSelected = (courseId, instructorName) => !!selected[`${courseId}-${instructorName}`];
+  const wasAssigned = (instructorName, courseId) =>
+    existingAssignments.some(a => a.instructorName === instructorName && a.courseId === courseId);
 
-  // Check if instructor was previously assigned to this course (from DB)
-  const wasAssigned = (instructorName, courseId) => {
-    return existingAssignments.some(a => a.instructorName === instructorName && a.courseId === courseId);
-  };
-
-  // Available sections filtered only from newAssignments (current session)
   const getAvailableSections = (courseId, type, gender) => {
     const sectionData = sectionNumbers.find(s => s.courseId === courseId && s.type === type);
     if (!sectionData) return [];
     const allSections = gender === 'male' ? sectionData.maleSections : sectionData.femaleSections;
     const takenThisSession = newAssignments
-      .filter(a => a.courseId === courseId && a.type === type)
-      .map(a => a.section);
+      .filter(a => a.courseId === courseId && a.type === type).map(a => a.section);
     return allSections.filter(s => !takenThisSession.includes(s));
   };
 
-  const getNewSections = (courseId, type, instructorName) => {
-    return newAssignments.filter(a =>
+  const getNewSections = (courseId, type, instructorName) =>
+    newAssignments.filter(a =>
       a.courseId === courseId && a.type === type && a.instructorName === instructorName
     ).map(a => a.section);
-  };
 
-  const getExistingSections = (courseId, type, instructorName) => {
-    return existingAssignments.filter(a =>
+  const getExistingSections = (courseId, type, instructorName) =>
+    existingAssignments.filter(a =>
       a.courseId === courseId && a.type === type && a.instructorName === instructorName
     ).map(a => a.section);
-  };
 
   const hasLab = (courseId) => sectionNumbers.some(s => s.courseId === courseId && s.type === 'LAB');
 
@@ -86,26 +77,16 @@ export default function ByCourse({ courses, sectionNumbers, existingAssignments,
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
         <span style={{ fontSize: 12, width: 16, flexShrink: 0 }}>{gender === 'male' ? 'M:' : 'F:'}</span>
-
-        {/* Previously assigned sections (from DB) — grey, not removable */}
         {existingSecs.map(sec => (
-          <span key={sec} style={{
-            background: '#d0d0d0', borderRadius: 4, padding: '2px 6px', fontSize: 12
-          }}>{sec}</span>
+          <span key={sec} style={{ background: '#d0d0d0', borderRadius: 4, padding: '2px 6px', fontSize: 12 }}>{sec}</span>
         ))}
-
-        {/* Newly assigned sections (this session) — blue, removable */}
         {newSecs.map(sec => (
-          <span key={sec} style={{
-            background: '#e0f0ff', borderRadius: 4, padding: '2px 6px',
-            fontSize: 12, display: 'flex', alignItems: 'center', gap: 4
-          }}>
+          <span key={sec} style={{ background: '#e0f0ff', borderRadius: 4, padding: '2px 6px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
             {sec}
             <span style={{ cursor: 'pointer', color: 'red', fontWeight: 'bold' }}
               onClick={() => onRemove(courseId, type, sec, instructorName)}>×</span>
           </span>
         ))}
-
         {available.length > 0 && (
           <select className="an-select" value=""
             onChange={e => { if (e.target.value) onAdd(courseId, type, e.target.value, instructorName); }}>
@@ -128,51 +109,58 @@ export default function ByCourse({ courses, sectionNumbers, existingAssignments,
             </tr>
           </thead>
           <tbody>
-            {currentCourses.map(course => (
-              <tr key={course.courseId}>
-                <td><span className="an-course-name">{course.courseId}</span></td>
-                <td>
-                  <div className="ac-courses-grid">
-                    {course.instructors?.map((inst) => (
-                      <div
-                        key={inst.facultyName}
-                        className={`ac-course-tag${isSelected(course.courseId, inst.facultyName) || wasAssigned(inst.facultyName, course.courseId) ? ' ac-course-tag--assigned' : ''}`}
-                      >
-                        <div className="ac-tag-top">
-                          <span className="ac-course-rank">{inst.order}</span>
-                          <span className="ac-tag-code">{inst.facultyName}</span>
-                          <div
-                            className={`an-checkbox${isSelected(course.courseId, inst.facultyName) || wasAssigned(inst.facultyName, course.courseId) ? ' an-checkbox-checked' : ''}`}
-                            onClick={() => toggleInstructor(course.courseId, inst.facultyName)}
-                          >
-                            {(isSelected(course.courseId, inst.facultyName) || wasAssigned(inst.facultyName, course.courseId)) && '✓'}
+            {currentCourses.map(course => {
+              // Highlight course row in red if no instructor assigned
+              const isUnassigned = unassignedCourses?.includes(course.courseId);
+              return (
+                <tr key={course.courseId} style={isUnassigned ? { background: '#fff0f0' } : {}}>
+                  <td>
+                    <span className="an-course-name" style={isUnassigned ? { color: 'red' } : {}}>
+                      {course.courseId}
+                      {isUnassigned && <span style={{ fontSize: 11, marginLeft: 6 }}>⚠ unassigned</span>}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="ac-courses-grid">
+                      {course.instructors?.map((inst) => (
+                        <div
+                          key={inst.facultyName}
+                          className={`ac-course-tag${isSelected(course.courseId, inst.facultyName) || wasAssigned(inst.facultyName, course.courseId) ? ' ac-course-tag--assigned' : ''}`}
+                        >
+                          <div className="ac-tag-top">
+                            <span className="ac-course-rank">{inst.order}</span>
+                            <span className="ac-tag-code">{inst.facultyName}</span>
+                            <div
+                              className={`an-checkbox${isSelected(course.courseId, inst.facultyName) || wasAssigned(inst.facultyName, course.courseId) ? ' an-checkbox-checked' : ''}`}
+                              onClick={() => toggleInstructor(course.courseId, inst.facultyName)}
+                            >
+                              {(isSelected(course.courseId, inst.facultyName) || wasAssigned(inst.facultyName, course.courseId)) && '✓'}
+                            </div>
                           </div>
+                          {(isSelected(course.courseId, inst.facultyName) || wasAssigned(inst.facultyName, course.courseId)) && (
+                            <div style={{ marginTop: 8 }}>
+                              <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 4, color: '#555' }}>LEC</div>
+                              <SectionRow courseId={course.courseId} type="LEC" gender="male" instructorName={inst.facultyName} />
+                              <SectionRow courseId={course.courseId} type="LEC" gender="female" instructorName={inst.facultyName} />
+                              {hasLab(course.courseId) && (
+                                <>
+                                  <div style={{ fontSize: 11, fontWeight: 600, marginTop: 8, marginBottom: 4, color: '#555' }}>LAB</div>
+                                  <SectionRow courseId={course.courseId} type="LAB" gender="male" instructorName={inst.facultyName} />
+                                  <SectionRow courseId={course.courseId} type="LAB" gender="female" instructorName={inst.facultyName} />
+                                </>
+                              )}
+                            </div>
+                          )}
                         </div>
-
-                        {(isSelected(course.courseId, inst.facultyName) || wasAssigned(inst.facultyName, course.courseId)) && (
-                          <div style={{ marginTop: 8 }}>
-                            <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 4, color: '#555' }}>LEC</div>
-                            <SectionRow courseId={course.courseId} type="LEC" gender="male" instructorName={inst.facultyName} />
-                            <SectionRow courseId={course.courseId} type="LEC" gender="female" instructorName={inst.facultyName} />
-                            {hasLab(course.courseId) && (
-                              <>
-                                <div style={{ fontSize: 11, fontWeight: 600, marginTop: 8, marginBottom: 4, color: '#555' }}>LAB</div>
-                                <SectionRow courseId={course.courseId} type="LAB" gender="male" instructorName={inst.facultyName} />
-                                <SectionRow courseId={course.courseId} type="LAB" gender="female" instructorName={inst.facultyName} />
-                              </>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
-
       {totalPages > 1 && (
         <div className="pageNumbers">
           <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
