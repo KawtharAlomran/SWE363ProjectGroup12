@@ -8,6 +8,8 @@ function OfferedCourses() {
   const [courses, setCourses] = useState([]);
   const [terms, setTerms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  // State for course codes offered in the selected term
+  const [offeredCourseCodes, setOfferedCourseCodes] = useState([]);
 
   // State for selected term, current page, and selected course details
   const [selectedTerm, setSelectedTerm] = useState('');
