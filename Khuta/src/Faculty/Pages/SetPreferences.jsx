@@ -181,26 +181,27 @@ useEffect(() => {
     setDraggedCourse(null);
   };
 
-  // allow drop + auto scroll when dragging near edges
-  const handleDragOver = (e) => {
-  e.preventDefault();
-
-  const scrollThreshold = 100; // distance from top/bottom
-  const scrollSpeed = 10;
+  // auto scroll page while dragging on small screens
+  const handleDragScroll = (e) => {
+  const scrollThreshold = 120;
+  const scrollSpeed = 18;
 
   const y = e.clientY;
   const height = window.innerHeight;
 
-  // scroll up
   if (y < scrollThreshold) {
-    window.scrollBy(0, -scrollSpeed);
+    document.scrollingElement.scrollBy(0, -scrollSpeed);
   }
 
-  // scroll down
   if (y > height - scrollThreshold) {
-    window.scrollBy(0, scrollSpeed);
+    document.scrollingElement.scrollBy(0, scrollSpeed);
   }
 };
+
+  // Allow dropping
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
 
   // Validate before showing confirmation modal
   const handleSubmit = () => {
@@ -304,6 +305,7 @@ useEffect(() => {
                       className="fp-course-card"
                       draggable
                       onDragStart={() => handleDragStartFromLeft(course)}
+                      ondrag={handleDragScroll}
                     >
                       <div className="fp-dots">⋮⋮</div>
                       <div>
@@ -333,6 +335,7 @@ useEffect(() => {
                             className="fp-selected-card"
                             draggable
                             onDragStart={() => handleDragStartFromRight(course, index)}
+                            ondrag={handleDragScroll}
                           >
                             <div className="fp-rank-badge">{index + 1}</div>
                             <div>
