@@ -95,11 +95,12 @@ function SetPreferences() {
     const maxSlots = availableCourses.length;
     const initialSlots = Array(maxSlots).fill(null);
 
-    savedPreferences.forEach((pref, index) => {
+    savedPreferences.forEach((pref) => {
       const course = availableCourses.find(c => c.code === pref.courseId);
+      const slotIndex = pref.order - 1;
 
-      if (course && index < maxSlots) {
-        initialSlots[index] = course;
+      if (course && slotIndex >= 0 && slotIndex < maxSlots) {
+        initialSlots[slotIndex] = course;
       }
     });
 
@@ -185,9 +186,16 @@ function SetPreferences() {
     const selected = rankedCourses.filter(Boolean);
     const facultyName = sessionStorage.getItem('UserName');
 
-    const formattedPreferences = selected.map(course => ({
-      courseId: course.code,
-    }));
+    const formattedPreferences = rankedCourses
+      .map((course, index) =>
+        course
+          ? {
+              courseId: course.code,
+              order: index + 1,
+            }
+          : null
+      )
+      .filter(Boolean);
 
     try {
       const res = await fetch(`${API}/api/preferences`, {
