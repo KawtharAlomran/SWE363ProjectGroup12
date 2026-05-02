@@ -13,7 +13,7 @@ function OfferedCourses() {
   const [selectedTerm, setSelectedTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCourse, setSelectedCourse] = useState(null);
-  
+
   // fetch courses and terms from backend
   useEffect(() => {
     const fetchData = async () => {
@@ -51,12 +51,10 @@ function OfferedCourses() {
   const coursesPerPage = 5;
 
   // Find the currently selected term
-  const currentTerm = terms.find(term => term.termNum === selectedTerm);
+  const currentTerm = terms.find(term => term.termId === selectedTerm);
 
-  // Filter only the courses offered in the selected term
-  const offeredCourses = courses.filter(course =>
-    currentTerm.courses.includes(course.code)
-  );
+  // temporary variable to hold courses for the current term (since all courses are fetched at once)
+  const offeredCourses = courses;
 
   // Pagination logic
   const startIndex = (currentPage - 1) * coursesPerPage;
@@ -150,8 +148,8 @@ function OfferedCourses() {
             }}
           >
             {terms.map(term => (
-              <option key={term.termNum} value={term.termNum}>
-                {term.termNum}
+              <option key={term.termId} value={term.termId}>
+                {term.termId}
               </option>
             ))}
           </select>
