@@ -171,6 +171,13 @@ http://localhost:5173
 | http://localhost:5174/api/terms/check/:term          | GET    |
 | http://localhost:5174/api/plans/:term          | GET    |
 | http://localhost:5174/api/sections          | POST    |
+| http://localhost:5174/api/terms          | GET    |
+| http://localhost:5174/api/preferences/term/:term/instructor          | GET    |
+| http://localhost:5174/api/preferences/term/:term/course            | GET    |
+| http://localhost:5174/api/sections/:term          | GET    |
+| http://localhost:5174/api/assignments/:term/sections          | GET    |
+| http://localhost:5174/api/assignments/:term          | GET    |
+| http://localhost:5174/api/assignments          | POST    |
 
 
 
