@@ -81,7 +81,13 @@ Khuta/
 ```
 
 ---
+## Environment configurations
 
+To connect with the database a .env file is created in each member device. However the file is not pushed to the repasatory because it has a sensitive data including the username and password.
+The file contains these two variables:
+MONGO_URL="Connection URL from mongo and add the database name to it"
+PORT= our port number
+---
 ## Getting Started
 
 1. open github link
@@ -187,6 +193,10 @@ http://localhost:5173
 | http://localhost:5174/api/terms/:term          | DELETE    |
 | http://localhost:5174/api/sections/:term          | PUT    |
 | http://localhost:5174/api/sections/unique/:term          | GET    |
+| http://localhost:5174/api/assignments/load/:term          | GET    |
+| http://localhost:5174/api/preferences/term/:term         | GET    |
+| http://localhost:5174/api/preferences         | POST    |
+| http://localhost:5174/api/assignments/:termId/:facultyName          | GET    |
 
 
 
@@ -300,27 +310,38 @@ http://localhost:5173
 
 1. Login into the system using your KFUPM account
 
-2. View All offered courses:
+2. View Offered Courses:
     - Click on Offered Courses button.
-    - You can view current offered courses.
-    - You can view courses offered in previous terms by change the selected term.
-    - You can view each course information by clicking on the course name or course number
+    - You can view courses offered in different terms by changing the selected term.
+    - Courses are fetched dynamically from the database.
+    - You can view course details by clicking on the course.
 
-2. Set courses preferences:
+3. Set Courses Preferences:
     - Click on Set Preferences button.
-    - Drag and drop the courses that you are interested to each in preferences area. you must rank them based on your interest.
-    - Submit your preferences by clicking Submit buttom
+    - The system automatically shows the upcoming terms.
+    - You can select an upcoming term from the drop-down menu.
+    - You can drag and drop courses to rank your preferences.
+    - On small screens or mobile devices, you can click on courses instead of dragging.
+    - The maximum number of preferences is 5 or less depending on available courses.
+    - Clicked courses will automatically move to the preferences area in the order in which you click them.
+    - Click Submit to save your preferences.
 
-3. View Assigned Courses:
+4. View Assigned Courses:
     - Click on Assigned Courses button.
-    - You can view all assigned courses with the number of sections in all terms
+    - You can select a term from the drop-down menu.
+    - The system displays assigned courses and the sections.
 
-3. View Submitted Preferences:
+5. View Submitted Preferences:
     - Click on Submitted Preferences button.
-    - You can view all preferences that you submit in current or previous terms
-    - You can modify your preferences in the current term by clicking on Modify Submitted Preferences button.
-    - You are unable to modify your preferences unless you set and submit your preferences.
-
+    - You can view all previously submitted preferences.
+    - You can switch between terms using the drop-down menu.
+    - Modify Submitted Preferences button appears only for:
+        - The upcoming term
+        - The next term after it
+    - When clicking Modify:
+        - You will be redirected to Set Preferences page.
+        - The selected term will be loaded automatically.
+        - Your previous preferences will be loaded for editing.
 ---
 
 ## Interfaces Design
