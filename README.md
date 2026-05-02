@@ -113,6 +113,7 @@ cd Khuta
 cd server 
 npm i 
 npm install express cors mongoose dotenv
+npm install helmet 
 ```
 
 #### 3. Run the server

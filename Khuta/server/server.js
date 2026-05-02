@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 
 import dotenv from "dotenv";
 import { connectDB } from "./db.js";
@@ -27,8 +28,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5174;
 
+app.use(helmet());
 app.use(cors(corsOptions));
 app.use(express.json());
+
 app.use("/api/courses", courseRoutes);
 app.use("/api/terms", termRoutes);
 app.use("/api/plans", planRoutes);
