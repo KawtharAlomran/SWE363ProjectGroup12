@@ -9,19 +9,17 @@
  * @param {Array} newAssignments            - added this session, filter dropdown
  * @param {Array} instructorsWithNoPreference - highlight red if no preferences
  * @param {Array} termCourses               - all course IDs in this term (for search/add)
+ * @param {Array} loadWarnings              - overloaded faculty [{ name, teachingHours, maxHours }]
  * @param {Function} onAdd
  * @param {Function} onRemove
  * @param {Function} onRemoveExisting       - remove from existing assignments
  */
 import { useState } from "react";
 
-export default function ByInstructor({ facultyList, prefByInstructor, sectionNumbers, existingAssignments, newAssignments, instructorsWithNoPreference, termCourses, onAdd, onRemove, onRemoveExisting }) {
+export default function ByInstructor({ facultyList, prefByInstructor, sectionNumbers, existingAssignments, newAssignments, instructorsWithNoPreference, termCourses, loadWarnings, onAdd, onRemove, onRemoveExisting }) {
 
   const [selected, setSelected] = useState({});
-
-  // Search state per instructor — to add courses manually
   const [searchQuery, setSearchQuery] = useState({});
-  // Manually added cards (outside preferences) per instructor
   const [manualCards, setManualCards] = useState({});
 
   const toggleCourse = (instructorName, courseId) => {
@@ -34,7 +32,6 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
   const wasAssigned = (instructorName, courseId) =>
     existingAssignments.some(a => a.instructorName === instructorName && a.courseId === courseId);
 
-  // Add a course card manually to an instructor
   const addManualCard = (instructorName, courseId) => {
     setManualCards(prev => {
       const existing = prev[instructorName] || [];
@@ -42,12 +39,10 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
       return { ...prev, [instructorName]: [...existing, courseId] };
     });
     setSearchQuery(prev => ({ ...prev, [instructorName]: '' }));
-    // Auto-expand the card
     const key = `${instructorName}-${courseId}`;
     setSelected(prev => ({ ...prev, [key]: true }));
   };
 
-  // Get search results for a specific instructor
   const getSearchResults = (instructorName) => {
     const query = searchQuery[instructorName] || '';
     if (!query) return [];
@@ -55,7 +50,6 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
     const instPref = prefByInstructor.find(p => p.facultyName === instructorName);
     const prefCourseIds = instPref?.preferences?.map(p => p.courseId) || [];
     const manuals = manualCards[instructorName] || [];
-    // Show courses in term not already in preferences or manually added
     return termCourses.filter(courseId =>
       normalize(courseId).includes(normalize(query)) &&
       !prefCourseIds.includes(courseId) &&
@@ -119,7 +113,6 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
         <span style={{ fontSize: 12, width: 16, flexShrink: 0 }}>{gender === 'male' ? 'M:' : 'F:'}</span>
-        {/* Existing sections — now removable */}
         {existingSecs.map(sec => (
           <span key={sec} style={{ background: '#d0d0d0', borderRadius: 4, padding: '2px 6px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
             {sec}
@@ -127,7 +120,6 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
               onClick={() => onRemoveExisting(courseId, type, sec, instructorName)}>×</span>
           </span>
         ))}
-        {/* New sections */}
         {newSecs.map(sec => (
           <span key={sec} style={{ background: '#e0f0ff', borderRadius: 4, padding: '2px 6px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
             {sec}
@@ -146,7 +138,6 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
     );
   };
 
-  // Reusable course card
   const CourseCard = ({ courseId, instructorName, rank }) => {
     const expanded = isSelected(instructorName, courseId) || wasAssigned(instructorName, courseId);
     return (
@@ -192,6 +183,8 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
           <tbody>
             {currentFaculty.map(member => {
               const hasNoPreference = instructorsWithNoPreference.some(f => f.name === member.name);
+              // Check if this instructor is overloaded
+              const loadWarning = loadWarnings?.find(w => w.name === member.name);
               const instPref = prefByInstructor.find(p => p.facultyName === member.name);
               const manuals = manualCards[member.name] || [];
               const searchResults = getSearchResults(member.name);
@@ -199,24 +192,37 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
               return (
                 <tr key={member.name} style={hasNoPreference ? { background: '#fff0f0' } : {}}>
                   <td>
-                    <span className="an-course-name" style={hasNoPreference ? { color: 'red' } : {}}>
-                      {member.name}
-                      {hasNoPreference && <span style={{ fontSize: 11, marginLeft: 6 }}>⚠ no preferences</span>}
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <span className="an-course-name" style={hasNoPreference ? { color: 'red' } : {}}>
+                        {member.name}
+                        {hasNoPreference && <span style={{ fontSize: 11, marginLeft: 6 }}>⚠ no preferences</span>}
+                      </span>
+                      {/* Teaching load warning shown under instructor name */}
+                      {loadWarning && (
+                        <span style={{
+                          fontSize: 11,
+                          color: '#856404',
+                          background: '#fff8e0',
+                          border: '1px solid #ffcc00',
+                          borderRadius: 4,
+                          padding: '2px 6px',
+                          width: 'fit-content'
+                        }}>
+                          ⚠ {loadWarning.teachingHours}h / {loadWarning.maxHours}h max
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td>
                     <div className="ac-courses-grid">
-                      {/* Preference cards */}
                       {instPref?.preferences?.map((pref) => (
                         <CourseCard key={pref.courseId} courseId={pref.courseId} instructorName={member.name} rank={pref.order} />
                       ))}
-                      {/* Manually added cards */}
                       {manuals.map(courseId => (
                         <CourseCard key={courseId} courseId={courseId} instructorName={member.name} />
                       ))}
                     </div>
 
-                    {/* Search to add course manually */}
                     <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <input
                         className="an-term-input"
