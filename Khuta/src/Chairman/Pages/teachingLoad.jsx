@@ -17,11 +17,11 @@ export default function Load() {
   const [teachingLoad, setTeachingLoad] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Pagination logic
+  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const facultyPerPage = 8;
 
-  // 1. Fetch Terms on Mount
+  // fetch Terms from the database
   useEffect(() => {
     const fetchTerms = async () => {
       try {
@@ -39,14 +39,13 @@ export default function Load() {
     fetchTerms();
   }, []);
 
-  // 2. Fetch Teaching Load when selectedTerm changes
+  // fetch teaching load when selectedTerm changes
   useEffect(() => {
     if (!selectedTerm) return;
 
     const fetchLoad = async () => {
       setIsLoading(true);
       try {
-        // This hits your new route: router.get("/:termId", getTeachingLoadByTerm)
         const res = await fetch(`http://localhost:5174/api/assignments/load/${selectedTerm}`);
         const data = await res.json();
         setTeachingLoad(data);
@@ -65,6 +64,31 @@ export default function Load() {
   const startIndex = (currentPage - 1) * facultyPerPage;
   const currentFaculty = teachingLoad.slice(startIndex, startIndex + facultyPerPage);
   const totalPages = Math.ceil(teachingLoad.length / facultyPerPage);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const delta = 1;
+    const left = currentPage - delta;
+    const right = currentPage + delta;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= left && i <= right)) pages.push(i);
+    }
+    const withEllipsis = [];
+    let prev = null;
+    for (const page of pages) {
+      if (prev && page - prev > 1) withEllipsis.push('...');
+      withEllipsis.push(page);
+      prev = page;
+    }
+    return withEllipsis;
+  };
+
+  // Reusable section select
+  const SectionSelect = ({ value, courseCode, field }) => (
+    <select className="an-select" value={value} onChange={e => updateSection(courseCode, field, e.target.value)}>
+      {[...Array(30)].map((_, i) => <option key={i} value={i}>{i}</option>)}
+    </select>
+  );
 
   // Color logic based on rank hours
   const getHoursColor = (hours, rank) => {
@@ -86,7 +110,7 @@ export default function Load() {
       <div className="header">
         <h2>Faculty Teaching Load</h2>
       </div>
-
+      {/* select term from the Dropdown menu */}
       <div className="td-term-badge">
         <p>Select Term </p>
         <select 
@@ -112,6 +136,7 @@ export default function Load() {
         </thead>
 
         <tbody>
+          {/* view all ICS faculty with their teaching courses and total hours */}
           {isLoading ? (
             <tr><td colSpan="3">Loading data...</td></tr>
           ) : (
@@ -147,17 +172,18 @@ export default function Load() {
         </tbody>
       </table>
 
-      <div className="pageNumbers">
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button 
-            className={currentPage === index + 1 ? "active" : ""} 
-            key={index + 1}
-            onClick={() => setCurrentPage(index + 1)}
-          >
-            {index + 1}
-          </button>
-        ))}
-      </div>
+      {/* Smart pagination — 1 ... 4 5 6 ... */}
+        {totalPages > 1 && (
+          <div className="pageNumbers">
+            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
+            {getPageNumbers().map((page, i) =>
+              page === '...'
+                ? <span key={`ellipsis-${i}`} style={{ margin: '0 4px' }}>...</span>
+                : <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+            )}
+            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
+          </div>
+        )}
     </div>
   );
 }

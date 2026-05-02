@@ -9,7 +9,7 @@ export default function ChairmanHomePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const coursesPerPage = 8;
 
-  // --- 1. Fetch Terms and Fix Initialization ---
+  // --- Fetch Terms ---
   useEffect(() => {
     const fetchTerms = async () => {
       try {
@@ -17,7 +17,6 @@ export default function ChairmanHomePage() {
         const data = await res.json();
         setTerms(data);
         
-        // FIX: Access data[0] to initialize with the first term ID
         if (data && data.length > 0) {
           setSelectedTerm(data[0].termId); 
         }
@@ -28,14 +27,13 @@ export default function ChairmanHomePage() {
     fetchTerms();
   }, []);
 
-  // --- 2. Call the NEW Unique Endpoint ---
+  // --- getting offered courses in the selected term ---
   useEffect(() => {
     if (!selectedTerm) return;
 
     const fetchOfferedCourses = async () => {
       setIsLoading(true);
       try {
-        // Updated URL to use the specialized 'unique' route
         const res = await fetch(`http://localhost:5174/api/sections/unique/${selectedTerm}`);
         const data = await res.json();
         
@@ -51,18 +49,45 @@ export default function ChairmanHomePage() {
     fetchOfferedCourses();
   }, [selectedTerm]);
 
-  // Pagination Logic
+    // ---  Pagination Logic  --- 
   const startIndex = (currentPage - 1) * coursesPerPage;
   const endIndex = startIndex + coursesPerPage;
   const currentCourses = offeredCourses.slice(startIndex, endIndex);
   const totalPages = Math.ceil(offeredCourses.length / coursesPerPage);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const delta = 1;
+    const left = currentPage - delta;
+    const right = currentPage + delta;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= left && i <= right)) pages.push(i);
+    }
+    const withEllipsis = [];
+    let prev = null;
+    for (const page of pages) {
+      if (prev && page - prev > 1) withEllipsis.push('...');
+      withEllipsis.push(page);
+      prev = page;
+    }
+    return withEllipsis;
+  };
+
+  // Reusable section select
+  const SectionSelect = ({ value, courseCode, field }) => (
+    <select className="an-select" value={value} onChange={e => updateSection(courseCode, field, e.target.value)}>
+      {[...Array(30)].map((_, i) => <option key={i} value={i}>{i}</option>)}
+    </select>
+  );
+
+
 
   return (
     <div className="container">
       <div className="header">
         <h2>All Offered Courses</h2>
       </div>
-      
+      {/* select term from the Dropdown menu */}
       <div className="td-term-badge">
         <p>Select Term </p>
         <select 
@@ -82,6 +107,7 @@ export default function ChairmanHomePage() {
         <p>Loading courses...</p>
       ) : (
         <>
+        {/* view the offered courses in the selected term */}
           <table className="coursesTable">
             <thead>
               <tr>
@@ -99,17 +125,19 @@ export default function ChairmanHomePage() {
             </tbody>
           </table>
 
+          {/* Smart pagination — 1 ... 4 5 6 ... */}
+        {totalPages > 1 && (
           <div className="pageNumbers">
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button 
-                className={currentPage === index + 1 ? "active" : ""} 
-                key={index + 1}
-                onClick={() => setCurrentPage(index + 1)}
-              >
-                {index + 1}
-              </button>
-            ))}
+            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
+            {getPageNumbers().map((page, i) =>
+              page === '...'
+                ? <span key={`ellipsis-${i}`} style={{ margin: '0 4px' }}>...</span>
+                : <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+            )}
+            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
           </div>
+        )}
+
         </>
       )}
     </div>

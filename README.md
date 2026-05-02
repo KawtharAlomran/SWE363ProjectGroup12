@@ -57,6 +57,14 @@ Khuta/
 
 ## Getting Started
 
+1. open github link
+2. Go to "Code" green botton below the repasatory name
+3. Copy the http link 
+4. Open VS code or any other IDE
+5. clone the repasatory
+
+Then follow the below instructions. Run the backend first in one terminal and then the frontend in different terminal.
+
 ### Running backend
 
 #### 1. Open the Termanal
@@ -79,7 +87,7 @@ npm install express cors mongoose dotenv
 node server.js 
 ```
 
-### Running backend
+### Running Frontend
 
 #### 1. Open the Termanal
 
@@ -165,7 +173,9 @@ http://localhost:5173
     - Click on Teaching Load button.
     - You can view the teaching load for each faculty by showing the teached courses and number of sections with the total teaching hours.
     - You can view the teaching load in previous terms by change the selected term.
-    - the red box in the teaching hours means that the teaching hours reached the maximum hours for the faculty rank
+    - the red box in the teaching hours means that the teaching hours exceed the maximum hours for the faculty rank.
+    - the yellow box in the teaching hours means that the teaching hours equal to the maximum hours for the faculty rank.
+    - the green box in the teaching hours means that the teaching hours below the maximum hours for the faculty rank.
 
 ### Committee
 

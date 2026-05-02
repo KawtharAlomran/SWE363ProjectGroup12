@@ -92,3 +92,44 @@ export const getPreferencesByCourse = async (req, res) => {
     });
   }
 };
+
+// POST — save submitted preferences for a faculty member
+export const submitPreferences = async (req, res) => {
+  try {
+    const { termId, facultyName, preferences } = req.body;
+
+    if (!termId || !facultyName) {
+      return res.status(400).json({
+        message: "Term ID and faculty name are required",
+      });
+    }
+
+    if (!preferences || preferences.length === 0) {
+      return res.status(400).json({
+        message: "At least one course must be selected",
+      });
+    }
+
+    // remove old preferences for the same faculty and term
+    await Preferences.deleteMany({ termId, facultyName });
+
+    // create new ranked preferences
+    const docs = preferences.map((pref, index) => ({
+      termId,
+      facultyName,
+      courseId: pref.courseId,
+      order: index + 1,
+    }));
+
+    await Preferences.insertMany(docs);
+
+    res.status(201).json({
+      message: "Preferences submitted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to submit preferences",
+      error: error.message,
+    });
+  }
+};

@@ -18,7 +18,7 @@ export default function IcsFaculty() {
   const [newLevel, setNewLevel] = useState("");
   const [addError, setAddError] = useState("");
 
-  // --- 1. Fetch Faculty from Server ---
+  // --- fetch Faculty from Server ---
   const fetchFaculty = async () => {
     try {
       const response = await fetch("http://localhost:5174/api/faculty");
@@ -36,7 +36,7 @@ export default function IcsFaculty() {
     fetchFaculty();
   }, []);
 
-  // --- 2. Handle Adding via API ---
+  // --- handle Adding via API ---
   const handleAdd = async () => {
     if (!newEmail || !newName || !newLevel) {
       setAddError("All fields must be filled");
@@ -72,7 +72,7 @@ export default function IcsFaculty() {
     }
   };
 
-  // --- 3. Handle Deleting via API ---
+  // --- hndle Deleting via API ---
   const handleDelete = async (email) => {
     try {
       const response = await fetch(`http://localhost:5174/api/faculty/${email}`, {
@@ -92,11 +92,37 @@ export default function IcsFaculty() {
   const endIndex = startIndex + facultyPerPage;
   const currentfaculty = faculty.slice(startIndex, endIndex);
   const totalPages = Math.ceil(faculty.length / facultyPerPage);
+  
+  const getPageNumbers = () => {
+    const pages = [];
+    const delta = 1;
+    const left = currentPage - delta;
+    const right = currentPage + delta;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= left && i <= right)) pages.push(i);
+    }
+    const withEllipsis = [];
+    let prev = null;
+    for (const page of pages) {
+      if (prev && page - prev > 1) withEllipsis.push('...');
+      withEllipsis.push(page);
+      prev = page;
+    }
+    return withEllipsis;
+  };
+
+  // Reusable section select
+  const SectionSelect = ({ value, courseCode, field }) => (
+    <select className="an-select" value={value} onChange={e => updateSection(courseCode, field, e.target.value)}>
+      {[...Array(30)].map((_, i) => <option key={i} value={i}>{i}</option>)}
+    </select>
+  );
 
   if (isLoading) return <div className="container">Loading Faculty Data...</div>;
 
   return (
     <>
+    {/* view all ICS faculty with their information */}
       <div className="container">
         <div className="header">
           <h2>All ICS Faculty</h2>
@@ -178,18 +204,18 @@ export default function IcsFaculty() {
           />
         )}
 
-        {/* Pagination Controls */}
-        <div className="pageNumbers">
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button
-              className={currentPage === index + 1 ? "active" : ""}
-              key={index + 1}
-              onClick={() => setCurrentPage(index + 1)}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
+        {/* Smart pagination — 1 ... 4 5 6 ... */}
+        {totalPages > 1 && (
+          <div className="pageNumbers">
+            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
+            {getPageNumbers().map((page, i) =>
+              page === '...'
+                ? <span key={`ellipsis-${i}`} style={{ margin: '0 4px' }}>...</span>
+                : <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+            )}
+            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
+          </div>
+        )}
       </div>
     </>
   );
