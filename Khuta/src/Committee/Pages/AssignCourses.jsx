@@ -1,3 +1,33 @@
+/**
+ * AssignCourses.jsx
+ *
+ * DATA SOURCES:
+ * - Faculty list:            /api/faculty                              — all instructors (rows in By Instructor view)
+ * - Term courses:            /api/sections/:termId                     — courses offered this term (rows in By Course view)
+ * - Preferences by inst:    /api/preferences/term/:termId/instructor   — preference cards in By Instructor view
+ * - Preferences by course:  /api/preferences/term/:termId/course       — preference cards in By Course view
+ * - Section numbers:        /api/assignments/:termId/sections          — generated section numbers (01,02... F01,F02...)
+ * - Existing assignments:   /api/assignments/:termId                   — pre-check previously assigned instructors
+ *
+ * KEY LOGIC:
+ * - existingAssignments: loaded from DB on mount, used to pre-check instructors and show existing sections
+ * - newAssignments: added/removed in current session, used to filter dropdown options
+ * - On Save: merges existing + new → saves to DB, resets newAssignments
+ * - On Submit: closes modal first, then saves and navigates away
+ *
+ * RED HIGHLIGHT:
+ * - Instructor: red if no preferences AND no existing assignments for this term
+ * - Course: red if no instructor selected it in preferences
+ *
+ * TEACHING LOAD WARNING:
+ * - Computed locally with useMemo — updates instantly when assignments change
+ * - Only shows when new assignments push an instructor over their max hours
+ *
+ * EDITABLE TERMS:
+ * - Current year terms (e.g. 26X) and future years
+ * - Last year semester 3 (e.g. 253)
+ */
+
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ByInstructor from './ByInstructor';
@@ -6,6 +36,7 @@ import ConfirmModal from '../../shared/ConfirmModal';
 
 const API = 'http://localhost:5174';
 
+// Max teaching hours per faculty rank — same as backend
 const facultyHours = {
   "Professor": 6,
   "Associate Professor": 9,
@@ -16,9 +47,11 @@ const facultyHours = {
   "Lecturer": 12
 };
 
+// Current and last year 2-digit prefix (e.g. 2026 → "26")
 const currentYearPrefix = String(new Date().getFullYear()).slice(-2);
 const lastYearPrefix = String(new Date().getFullYear() - 1).slice(-2);
 
+// A term is editable if it belongs to current/future year or last year semester 3
 const canEdit = (termId) => {
   const prefix = termId.slice(0, 2);
   const semester = termId.slice(2);
@@ -37,15 +70,31 @@ export default function AssignCourses() {
   const [loadingTerms, setLoadingTerms] = useState(true);
   const [loadingData, setLoadingData] = useState(false);
 
+  // All faculty from Faculty collection — rows in By Instructor view
   const [facultyList, setFacultyList] = useState([]);
+
+  // All courses with credit_hours — used for local teaching load calculation
   const [coursesList, setCoursesList] = useState([]);
+
+  // Unique course IDs from Sections collection for selected term — rows in By Course view
   const [termCourses, setTermCourses] = useState([]);
+
+  // Preferences grouped by instructor — cards in By Instructor view
   const [prefByInstructor, setPrefByInstructor] = useState([]);
+
+  // Preferences grouped by course — cards in By Course view
   const [prefByCourse, setPrefByCourse] = useState([]);
+
+  // Generated section numbers from Sections collection (01,02... and F01,F02...)
   const [sectionNumbers, setSectionNumbers] = useState([]);
+
+  // Assignments already saved in DB — used to pre-check instructors and show existing sections
   const [existingAssignments, setExistingAssignments] = useState([]);
+
+  // Assignments added/removed in current session — used to filter dropdown options
   const [newAssignments, setNewAssignments] = useState([]);
 
+  // Fetch terms, faculty, and courses on mount
   useEffect(() => {
     const fetchInitial = async () => {
       try {
@@ -59,10 +108,16 @@ export default function AssignCourses() {
           facultyRes.json(),
           coursesRes.json(),
         ]);
+
+        // Only show editable terms in the dropdown
         const editableTerms = termsData.filter(t => canEdit(t.termId));
         setTerms(editableTerms);
         setFacultyList(facultyData);
+
+        // Handle both paginated and non-paginated course response
         setCoursesList(Array.isArray(coursesData) ? coursesData : coursesData.courses ?? []);
+
+        // Auto-select first editable term
         if (editableTerms.length > 0) setSelectedTermId(editableTerms[0].termId);
       } catch (err) {
         console.error("Error fetching initial data:", err);
@@ -73,11 +128,13 @@ export default function AssignCourses() {
     fetchInitial();
   }, []);
 
+  // Fetch term-specific data whenever selected term changes
   useEffect(() => {
     if (!selectedTermId) return;
     const fetchData = async () => {
       setLoadingData(true);
       try {
+        // Fetch all 5 sources in parallel for performance
         const [prefInstRes, prefCourseRes, sectionsRes, sectionNumsRes, assignmentsRes] = await Promise.all([
           fetch(`${API}/api/preferences/term/${selectedTermId}/instructor`),
           fetch(`${API}/api/preferences/term/${selectedTermId}/course`),
@@ -92,13 +149,15 @@ export default function AssignCourses() {
           sectionNumsRes.json(),
           assignmentsRes.json(),
         ]);
+
+        // Extract unique course IDs from Sections collection
         const uniqueCourseIds = [...new Set(sections.map(s => s.courseId))];
         setTermCourses(uniqueCourseIds);
         setPrefByInstructor(prefInst);
         setPrefByCourse(prefCourse);
         setSectionNumbers(sectionNums);
         setExistingAssignments(existing);
-        setNewAssignments([]);
+        setNewAssignments([]); // reset new assignments on term change
       } catch (err) {
         console.error("Error fetching data:", err);
       } finally {
@@ -108,6 +167,7 @@ export default function AssignCourses() {
     fetchData();
   }, [selectedTermId]);
 
+  // Helper — calculate total teaching hours for one instructor from a list of assignments
   const calcHours = (assignments, instructorName) => {
     let total = 0;
     assignments.filter(a => a.instructorName === instructorName).forEach(asm => {
@@ -117,6 +177,8 @@ export default function AssignCourses() {
     return total;
   };
 
+  // Teaching load warnings — computed locally, updates instantly
+  // Only warns when new assignments push an instructor over their max hours
   const loadWarnings = useMemo(() => {
     if (newAssignments.length === 0) return [];
     const warnings = [];
@@ -124,15 +186,20 @@ export default function AssignCourses() {
       const maxHours = facultyHours[member.rank] ?? 12;
       const existingHours = calcHours(existingAssignments, member.name);
       const totalHours = existingHours + calcHours(newAssignments, member.name);
+
+      // Warn if new assignments pushed them over the limit
       if (totalHours > maxHours && existingHours <= maxHours) {
         warnings.push({ name: member.name, teachingHours: totalHours, maxHours });
-      } else if (existingHours > maxHours && calcHours(newAssignments, member.name) > 0) {
+      }
+      // Also warn if already over limit and new assignments added more
+      else if (existingHours > maxHours && calcHours(newAssignments, member.name) > 0) {
         warnings.push({ name: member.name, teachingHours: totalHours, maxHours });
       }
     });
     return warnings;
   }, [existingAssignments, newAssignments, facultyList, coursesList]);
 
+  // Add a section assignment — conflict check in newAssignments only
   const addAssignment = (courseId, type, section, instructorName) => {
     const conflict = newAssignments.find(a =>
       a.courseId === courseId && a.type === type && a.section === section
@@ -146,6 +213,7 @@ export default function AssignCourses() {
     setNewAssignments(prev => [...prev, { courseId, type, section, instructorName }]);
   };
 
+  // Remove from new assignments (current session only)
   const removeAssignment = (courseId, type, section, instructorName) => {
     setSaveSuccess(false);
     setNewAssignments(prev => prev.filter(a =>
@@ -153,6 +221,7 @@ export default function AssignCourses() {
     ));
   };
 
+  // Remove from existing assignments (previously saved in DB)
   const removeExistingAssignment = (courseId, type, section, instructorName) => {
     setSaveSuccess(false);
     setExistingAssignments(prev => prev.filter(a =>
@@ -160,6 +229,7 @@ export default function AssignCourses() {
     ));
   };
 
+  // Save — merges existing + new assignments and saves to DB without navigating
   const handleSave = async () => {
     try {
       const allAssignments = [...existingAssignments, ...newAssignments];
@@ -168,6 +238,7 @@ export default function AssignCourses() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ termId: selectedTermId, assignments: allAssignments }),
       });
+      // After save: existing = all saved, new = empty
       setExistingAssignments(allAssignments);
       setNewAssignments([]);
       setSaveSuccess(true);
@@ -176,7 +247,9 @@ export default function AssignCourses() {
     }
   };
 
+  // Submit — closes modal FIRST to prevent UI flicker, then saves and navigates
   const handleSubmit = async () => {
+    setShowConfirm(false); // close modal before any async operation
     try {
       const allAssignments = [...existingAssignments, ...newAssignments];
       await fetch(`${API}/api/assignments`, {
@@ -184,18 +257,18 @@ export default function AssignCourses() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ termId: selectedTermId, assignments: allAssignments }),
       });
-      setShowConfirm(false);
       navigate(-1);
     } catch (err) {
       console.error("Error submitting:", err);
     }
   };
 
+  // Courses in Sections with no preferences — highlighted red in By Course view
   const coursesWithNoPreference = termCourses.filter(courseId =>
     !prefByCourse.some(p => p.courseId === courseId)
   );
 
-  // Red only if no preferences AND no existing assignments for this term
+  // Instructors with no preferences AND no existing assignments — highlighted red in By Instructor view
   const instructorsWithNoPreference = facultyList.filter(f =>
     !prefByInstructor.some(p => p.facultyName === f.name) &&
     !existingAssignments.some(a => a.instructorName === f.name)
@@ -203,6 +276,7 @@ export default function AssignCourses() {
 
   if (loadingTerms) return <div className="container">Loading terms...</div>;
 
+  // No editable terms available
   if (terms.length === 0) return (
     <div className="container">
       <h3 className="header h2">Assign Courses</h3>
@@ -215,6 +289,7 @@ export default function AssignCourses() {
       <div className="container">
         <h3 className="header h2">Assign Courses</h3>
 
+        {/* Term selector — only editable terms shown */}
         <div className="ac-view-toggle">
           <span className="ac-view-label">Term:</span>
           <select
@@ -226,6 +301,7 @@ export default function AssignCourses() {
           </select>
         </div>
 
+        {/* View toggle */}
         <div className="ac-view-toggle">
           <span className="ac-view-label">View type:</span>
           <button
@@ -242,6 +318,7 @@ export default function AssignCourses() {
           </button>
         </div>
 
+        {/* Section conflict error — shown when same section assigned to two instructors */}
         {sectionError && (
           <div style={{ color: 'red', fontSize: 13, marginBottom: 8 }}>
             * {sectionError.message}
@@ -250,6 +327,7 @@ export default function AssignCourses() {
 
         {loadingData && <p>Loading...</p>}
 
+        {/* By Instructor view — rows from Faculty, cards from Preferences */}
         {!loadingData && viewType === 'instructor' && (
           <ByInstructor
             facultyList={facultyList}
@@ -267,6 +345,7 @@ export default function AssignCourses() {
           />
         )}
 
+        {/* By Course view — rows from Sections, cards from Preferences */}
         {!loadingData && viewType === 'course' && (
           <ByCourse
             termCourses={termCourses}
@@ -283,12 +362,15 @@ export default function AssignCourses() {
           />
         )}
 
+        {/* Save success message */}
         {saveSuccess && (
           <div style={{ color: 'green', fontSize: 13, marginTop: 8 }}>✓ Saved successfully</div>
         )}
 
         <div className="an-actions" style={{ marginTop: 24 }}>
+          {/* Save — saves without navigating away */}
           <button className="ac-toggle-btn" onClick={handleSave} style={{ marginRight: 8 }}>Save</button>
+          {/* Submit — opens confirm modal, then saves and navigates */}
           <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
           <span className="an-note">*Note: Submitting will publish the assignments and notify all assigned faculty via email.</span>
         </div>
