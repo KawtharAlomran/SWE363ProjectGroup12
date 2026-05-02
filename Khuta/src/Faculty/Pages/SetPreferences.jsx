@@ -32,29 +32,29 @@ const getUpcomingTerm = () => {
   return `${year}2`;
 };
 
-// fetch offered courses for the upcoming term
-useEffect(() => {
-  const fetchOfferedCourses = async () => {
-    try {
-      setIsLoading(true);
+  // fetch offered courses for the upcoming term
+  useEffect(() => {
+    const fetchOfferedCourses = async () => {
+      try {
+        setIsLoading(true);
 
-      const upcomingTerm = getUpcomingTerm();
-      setCurrentTerm(upcomingTerm);
+        const upcomingTerm = getUpcomingTerm();
+        setCurrentTerm(upcomingTerm);
 
-      const res = await fetch(`${API}/api/sections/unique/${upcomingTerm}`);
-      const data = await res.json();
+        const res = await fetch(`${API}/api/sections/unique/${upcomingTerm}`);
+        const data = await res.json();
 
-      setAvailableCourses(data);
-    } catch (error) {
-      console.error("Error fetching offered courses:", error);
-      setAvailableCourses([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        setAvailableCourses(data);
+      } catch (error) {
+        console.error("Error fetching offered courses:", error);
+        setAvailableCourses([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  fetchOfferedCourses();
-}, []);
+    fetchOfferedCourses();
+  }, []);
 
   // fetch previously submitted preferences for the current user
   useEffect(() => {
@@ -80,25 +80,31 @@ useEffect(() => {
     fetchPreferences();
   }, [currentTerm]);
 
+  // map saved preferences into ranked courses UI
+  useEffect(() => {
+    if (!availableCourses.length) return;
 
-  // Number of preference slots
-  const maxSlots = availableCourses.length;
+    const maxSlots = availableCourses.length;
+    const initial = Array(maxSlots).fill(null);
 
-  // Load saved preferences for current term if they exist
-  const savedPreferences = submittedPreferences[currentTerm.termNum] || [];
-  const initialRankedCourses = Array(maxSlots).fill(null);
+    savedPreferences.forEach((pref, index) => {
+      const course = availableCourses.find(c => c.courseId === pref.courseId);
 
-  savedPreferences.forEach((course, index) => {
-    if (index < maxSlots) {
-      initialRankedCourses[index] = {
-        code: course.code,
-        name: course.name,
-      };
-    }
-  });
+      if (course && index < maxSlots) {
+        initial[index] = {
+          code: course.courseId,
+          name: course.name,
+        };
+      }
+    });
+
+    setRankedCourses(initial);
+  }, [savedPreferences, availableCourses]);
+
+
 
   // State for ranked courses, dragged course, confirmation modal, and error message
-  const [rankedCourses, setRankedCourses] = useState(initialRankedCourses);
+  const [rankedCourses, setRankedCourses] = useState([]);
   const [draggedCourse, setDraggedCourse] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState('');
