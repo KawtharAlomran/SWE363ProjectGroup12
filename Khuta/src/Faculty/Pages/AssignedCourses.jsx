@@ -6,7 +6,7 @@ const API = 'http://localhost:5174';
 function AssignedCourses() {
 
   // State for selected term and current page
-  const [selectedTerm, setSelectedTerm] = useState('261');
+  const [selectedTerm, setSelectedTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
   // state to store assigned courses from API
@@ -22,6 +22,7 @@ function AssignedCourses() {
 
   // fetch assigned courses from backend
   const fetchAssignedCourses = async () => {
+    if (!selectedTerm || !facultyName) return;
     try {
       setIsLoading(true);
 
@@ -45,7 +46,7 @@ function AssignedCourses() {
   // call fetch when component loads or term changes
   useEffect(() => {
     fetchAssignedCourses();
-  }, [selectedTerm]);
+  }, [selectedTerm, facultyName]);
 
 // fetch available terms for dropdown on component mount
   useEffect(() => {
