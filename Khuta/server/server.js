@@ -1,14 +1,14 @@
 import express from "express";
 import cors from "cors";
 
-
-import dotenv  from "dotenv";
+import dotenv from "dotenv";
 import { connectDB } from "./db.js";
 import { Faculty } from "./models/Faculty.js";
 import { Course } from "./models/Course.js";
 import { Plan } from "./models/Plans.js";
 import { Term } from "./models/Term.js";
 import { Assignment } from "./models/Assignment.js";
+import { Preferences } from "./models/Preferences.js";
 import courseRoutes from "./routes/courseRoutes.js";
 import termRoutes from "./routes/termRoutes.js";
 import planRoutes from "./routes/planRoutes.js";
@@ -17,13 +17,11 @@ import preferenceRoutes from "./routes/preferenceRoutes.js";
 import teachingLoadRoutes from "./routes/loadRoute.js";
 import assignmentRoutes from "./routes/assignmentRoutes.js";
 
-
-
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5174;
 
-app.use(cors());              
+app.use(cors());
 app.use(express.json());
 app.use("/api/courses", courseRoutes);
 app.use("/api/terms", termRoutes);
@@ -39,13 +37,9 @@ await connectDB(process.env.MONGO_URL);
 app.get("/api/courses", async (req, res) => {
   try {
     const courses = await Course.find();
-    
     res.status(200).json(courses);
   } catch (error) {
-    res.status(500).json({ 
-      message: "Error retrieving courses", 
-      error: error.message 
-    });
+    res.status(500).json({ message: "Error retrieving courses", error: error.message });
   }
 });
 
@@ -54,30 +48,18 @@ app.get("/api/faculty", async (req, res) => {
   try {
     const { role } = req.query;
     let query = {};
-    
-    if (role) {
-      query.role = role;
-    }
-
+    if (role) query.role = role;
     const facultyList = await Faculty.find(query).select("-__v");
-    
     res.status(200).json(facultyList);
   } catch (error) {
-    res.status(500).json({ 
-      message: "Error fetching faculty data", 
-      error: error.message 
-    });
+    res.status(500).json({ message: "Error fetching faculty data", error: error.message });
   }
 });
 
 app.get("/api/faculty/:email", async (req, res) => {
   try {
     const member = await Faculty.findOne({ email: req.params.email.toLowerCase() });
-    
-    if (!member) {
-      return res.status(404).json({ message: "Faculty member not found" });
-    }
-    
+    if (!member) return res.status(404).json({ message: "Faculty member not found" });
     res.status(200).json(member);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -95,29 +77,39 @@ app.post("/api/faculty", async (req, res) => {
   }
 });
 
-// DELETE a faculty member
+// DELETE a faculty member — also deletes their Preferences and Assignments
 app.delete("/api/faculty/:email", async (req, res) => {
   try {
-    await Faculty.findOneAndDelete({ email: req.params.email });
-    res.status(200).json({ message: "Deleted successfully" });
+    const email = req.params.email;
+
+    // Find faculty first to get their name (needed for Preferences and Assignment)
+    const member = await Faculty.findOne({ email });
+    if (!member) return res.status(404).json({ message: "Faculty member not found" });
+
+    const facultyName = member.name;
+
+    // Delete from all related collections in parallel
+    await Promise.all([
+      Faculty.findOneAndDelete({ email }),
+      Preferences.deleteMany({ facultyName }),
+      Assignment.deleteMany({ instructorName: facultyName }),
+    ]);
+
+    res.status(200).json({ message: "Faculty and all related data deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Remove committee
+// Remove committee role
 app.patch("/api/faculty/:email", async (req, res) => {
   try {
     const updatedMember = await Faculty.findOneAndUpdate(
       { email: req.params.email.toLowerCase() },
-      { $set: { role: req.body.role } }, // This changes "committee" to "faculty"
+      { $set: { role: req.body.role } },
       { new: true }
     );
-
-    if (!updatedMember) {
-      return res.status(404).json({ message: "Member not found" });
-    }
-
+    if (!updatedMember) return res.status(404).json({ message: "Member not found" });
     res.status(200).json(updatedMember);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -128,16 +120,13 @@ app.patch("/api/faculty/:email", async (req, res) => {
 app.get("/api/assignments/:term/:facultyName", async (req, res) => {
   try {
     const { term, facultyName } = req.params;
-
     const assignments = await Assignment.find({
       term,
       instructorName: decodeURIComponent(facultyName),
     });
-
     const result = await Promise.all(
       assignments.map(async (assignment) => {
         const course = await Course.findOne({ code: assignment.courseId });
-
         return {
           code: assignment.courseId,
           name: course ? course.name : assignment.courseId,
@@ -145,15 +134,10 @@ app.get("/api/assignments/:term/:facultyName", async (req, res) => {
         };
       })
     );
-
     res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({
-      message: "Error fetching assigned courses",
-      error: error.message,
-    });
+    res.status(500).json({ message: "Error fetching assigned courses", error: error.message });
   }
 });
-
 
 app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));
