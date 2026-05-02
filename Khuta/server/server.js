@@ -132,11 +132,35 @@ app.patch("/api/faculty/:email", async (req, res) => {
   }
 });
 
+// Get assigned courses for a faculty member in a specific term
+app.get("/api/assignments/:term/:facultyName", async (req, res) => {
+  try {
+    const { term, facultyName } = req.params;
+    const assignments = await Assignment.find({
+      term,
+      instructorName: decodeURIComponent(facultyName),
+    });
+    const result = await Promise.all(
+      assignments.map(async (assignment) => {
+        const course = await Course.findOne({ code: assignment.courseId });
+        return {
+          code: assignment.courseId,
+          name: course ? course.name : assignment.courseId,
+          section: `${assignment.type} ${assignment.section}`,
+        };
+      })
+    );
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching assigned courses", error: error.message });
+  }
+});
+
 // Serve frontend build files
 app.use(express.static(path.join(__dirname, '../dist')));
 
-// Handle all non-API routes — send to React app
-app.get('/:path*', (req, res) => {
+// Handle all non-API routes — send to React app (Express 5 compatible)
+app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
 
