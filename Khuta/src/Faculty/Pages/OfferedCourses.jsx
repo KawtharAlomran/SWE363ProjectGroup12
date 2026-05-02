@@ -48,6 +48,28 @@ function OfferedCourses() {
     fetchData();
   }, []);
 
+  // fetch offered course codes for the selected term
+  useEffect(() => {
+    const fetchOfferedCourses = async () => {
+      if (!selectedTerm) return;
+
+      try {
+        const res = await fetch(`${API}/api/sections/${selectedTerm}`);
+        const data = await res.json();
+
+        // Sections can have both LEC and LAB, so remove duplicate course codes
+        const codes = [...new Set(data.map(section => section.courseId))];
+
+        setOfferedCourseCodes(codes);
+      } catch (error) {
+        console.error("Error fetching offered courses:", error);
+        setOfferedCourseCodes([]);
+      }
+    };
+
+    fetchOfferedCourses();
+  }, [selectedTerm]);
+
 
   // Number of courses shown per page
   const coursesPerPage = 5;
