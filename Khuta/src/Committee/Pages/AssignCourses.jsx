@@ -1,18 +1,3 @@
-/**
- * AssignCourses.jsx
- *
- * DATA SOURCES:
- * - Faculty list: /api/faculty — all instructors (rows in By Instructor view)
- * - Sections: /api/assignments/:termId/sections — courses offered this term (rows in By Course view)
- * - Preferences by instructor: /api/preferences/term/:termId/instructor — small cards inside each instructor row
- * - Preferences by course: /api/preferences/term/:termId/course — small cards inside each course row
- * - Existing assignments: /api/assignments/:termId — pre-check previously assigned instructors
- *
- * RED HIGHLIGHT LOGIC:
- * - By Instructor: instructor row is red if they have NO preferences for this term
- * - By Course: course row is red if NO instructor selected it in preferences
- */
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ByInstructor from './ByInstructor';
@@ -33,28 +18,14 @@ export default function AssignCourses() {
   const [loadingTerms, setLoadingTerms] = useState(true);
   const [loadingData, setLoadingData] = useState(false);
 
-  // All faculty from Faculty collection — rows in By Instructor view
   const [facultyList, setFacultyList] = useState([]);
-
-  // All courses offered this term from Sections collection — rows in By Course view
   const [termCourses, setTermCourses] = useState([]);
-
-  // Preferences grouped by instructor — small cards in By Instructor view
   const [prefByInstructor, setPrefByInstructor] = useState([]);
-
-  // Preferences grouped by course — small cards in By Course view
   const [prefByCourse, setPrefByCourse] = useState([]);
-
-  // Section numbers for dropdown (01, 02... F01, F02...)
   const [sectionNumbers, setSectionNumbers] = useState([]);
-
-  // Assignments from DB — pre-check previously assigned instructors
   const [existingAssignments, setExistingAssignments] = useState([]);
-
-  // Assignments added this session — filter dropdown options
   const [newAssignments, setNewAssignments] = useState([]);
 
-  // Fetch terms and faculty on mount
   useEffect(() => {
     const fetchInitial = async () => {
       try {
@@ -78,21 +49,18 @@ export default function AssignCourses() {
     fetchInitial();
   }, []);
 
-  // Fetch term-specific data when selected term changes
   useEffect(() => {
     if (!selectedTermId) return;
-
     const fetchData = async () => {
       setLoadingData(true);
       try {
         const [prefInstRes, prefCourseRes, sectionsRes, sectionNumsRes, assignmentsRes] = await Promise.all([
           fetch(`${API}/api/preferences/term/${selectedTermId}/instructor`),
           fetch(`${API}/api/preferences/term/${selectedTermId}/course`),
-          fetch(`${API}/api/sections/${selectedTermId}`),           // raw sections for course list
-          fetch(`${API}/api/assignments/${selectedTermId}/sections`), // generated section numbers
+          fetch(`${API}/api/sections/${selectedTermId}`),
+          fetch(`${API}/api/assignments/${selectedTermId}/sections`),
           fetch(`${API}/api/assignments/${selectedTermId}`),
         ]);
-
         const [prefInst, prefCourse, sections, sectionNums, existing] = await Promise.all([
           prefInstRes.json(),
           prefCourseRes.json(),
@@ -100,11 +68,8 @@ export default function AssignCourses() {
           sectionNumsRes.json(),
           assignmentsRes.json(),
         ]);
-
-        // Get unique course IDs from Sections collection
         const uniqueCourseIds = [...new Set(sections.map(s => s.courseId))];
         setTermCourses(uniqueCourseIds);
-
         setPrefByInstructor(prefInst);
         setPrefByCourse(prefCourse);
         setSectionNumbers(sectionNums);
@@ -119,7 +84,7 @@ export default function AssignCourses() {
     fetchData();
   }, [selectedTermId]);
 
-  // Add section — conflict check in newAssignments only
+  // Add new section assignment
   const addAssignment = (courseId, type, section, instructorName) => {
     const conflict = newAssignments.find(a =>
       a.courseId === courseId && a.type === type && a.section === section
@@ -133,7 +98,7 @@ export default function AssignCourses() {
     setNewAssignments(prev => [...prev, { courseId, type, section, instructorName }]);
   };
 
-  // Remove section from newAssignments only
+  // Remove from new assignments
   const removeAssignment = (courseId, type, section, instructorName) => {
     setSaveSuccess(false);
     setNewAssignments(prev => prev.filter(a =>
@@ -141,7 +106,14 @@ export default function AssignCourses() {
     ));
   };
 
-  // Save — saves to DB without navigating away
+  // Remove from existing assignments (previously saved in DB)
+  const removeExistingAssignment = (courseId, type, section, instructorName) => {
+    setSaveSuccess(false);
+    setExistingAssignments(prev => prev.filter(a =>
+      !(a.courseId === courseId && a.type === type && a.section === section && a.instructorName === instructorName)
+    ));
+  };
+
   const handleSave = async () => {
     try {
       const allAssignments = [...existingAssignments, ...newAssignments];
@@ -158,7 +130,6 @@ export default function AssignCourses() {
     }
   };
 
-  // Submit — saves and navigates away
   const handleSubmit = async () => {
     try {
       const allAssignments = [...existingAssignments, ...newAssignments];
@@ -174,12 +145,10 @@ export default function AssignCourses() {
     }
   };
 
-  // Courses in Sections with no preferences — highlight red in By Course view
   const coursesWithNoPreference = termCourses.filter(courseId =>
     !prefByCourse.some(p => p.courseId === courseId)
   );
 
-  // Instructors with no preferences for this term — highlight red in By Instructor view
   const instructorsWithNoPreference = facultyList.filter(f =>
     !prefByInstructor.some(p => p.facultyName === f.name)
   );
@@ -191,7 +160,6 @@ export default function AssignCourses() {
       <div className="container">
         <h3 className="header h2">Assign Courses</h3>
 
-        {/* Term selector */}
         <div className="ac-view-toggle">
           <span className="ac-view-label">Term:</span>
           <select
@@ -203,7 +171,6 @@ export default function AssignCourses() {
           </select>
         </div>
 
-        {/* View toggle */}
         <div className="ac-view-toggle">
           <span className="ac-view-label">View type:</span>
           <button
@@ -220,7 +187,6 @@ export default function AssignCourses() {
           </button>
         </div>
 
-        {/* Section conflict error */}
         {sectionError && (
           <div style={{ color: 'red', fontSize: 13, marginBottom: 8 }}>
             * {sectionError.message}
@@ -229,7 +195,6 @@ export default function AssignCourses() {
 
         {loadingData && <p>Loading...</p>}
 
-        {/* By Instructor view — rows from Faculty, cards from Preferences */}
         {!loadingData && viewType === 'instructor' && (
           <ByInstructor
             facultyList={facultyList}
@@ -238,12 +203,13 @@ export default function AssignCourses() {
             existingAssignments={existingAssignments}
             newAssignments={newAssignments}
             instructorsWithNoPreference={instructorsWithNoPreference}
+            termCourses={termCourses}
             onAdd={addAssignment}
             onRemove={removeAssignment}
+            onRemoveExisting={removeExistingAssignment}
           />
         )}
 
-        {/* By Course view — rows from Sections, cards from Preferences */}
         {!loadingData && viewType === 'course' && (
           <ByCourse
             termCourses={termCourses}
@@ -252,8 +218,10 @@ export default function AssignCourses() {
             existingAssignments={existingAssignments}
             newAssignments={newAssignments}
             coursesWithNoPreference={coursesWithNoPreference}
+            facultyList={facultyList}
             onAdd={addAssignment}
             onRemove={removeAssignment}
+            onRemoveExisting={removeExistingAssignment}
           />
         )}
 

@@ -1,16 +1,28 @@
 /**
  * ByInstructor.jsx
- * WHAT CHANGED:
- * - Added unassignedInstructors prop — highlights instructors with no assignments in red
- * - Existing sections shown as grey tags (not removable)
- * - New sections shown as blue tags (removable)
- * - Available sections filtered only from newAssignments
+ *
+ * PROPS:
+ * @param {Array} facultyList               - all faculty from Faculty collection (table rows)
+ * @param {Array} prefByInstructor          - [{ facultyName, preferences: [{ courseId, order }] }]
+ * @param {Array} sectionNumbers            - [{ courseId, type, maleSections, femaleSections }]
+ * @param {Array} existingAssignments       - from DB, pre-check assigned instructors
+ * @param {Array} newAssignments            - added this session, filter dropdown
+ * @param {Array} instructorsWithNoPreference - highlight red if no preferences
+ * @param {Array} termCourses               - all course IDs in this term (for search/add)
+ * @param {Function} onAdd
+ * @param {Function} onRemove
+ * @param {Function} onRemoveExisting       - remove from existing assignments
  */
 import { useState } from "react";
 
-export default function ByInstructor({ instructors, sectionNumbers, existingAssignments, newAssignments, unassignedInstructors, onAdd, onRemove }) {
+export default function ByInstructor({ facultyList, prefByInstructor, sectionNumbers, existingAssignments, newAssignments, instructorsWithNoPreference, termCourses, onAdd, onRemove, onRemoveExisting }) {
 
   const [selected, setSelected] = useState({});
+
+  // Search state per instructor — to add courses manually
+  const [searchQuery, setSearchQuery] = useState({});
+  // Manually added cards (outside preferences) per instructor
+  const [manualCards, setManualCards] = useState({});
 
   const toggleCourse = (instructorName, courseId) => {
     const key = `${instructorName}-${courseId}`;
@@ -18,8 +30,38 @@ export default function ByInstructor({ instructors, sectionNumbers, existingAssi
   };
 
   const isSelected = (instructorName, courseId) => !!selected[`${instructorName}-${courseId}`];
+
   const wasAssigned = (instructorName, courseId) =>
     existingAssignments.some(a => a.instructorName === instructorName && a.courseId === courseId);
+
+  // Add a course card manually to an instructor
+  const addManualCard = (instructorName, courseId) => {
+    setManualCards(prev => {
+      const existing = prev[instructorName] || [];
+      if (existing.includes(courseId)) return prev;
+      return { ...prev, [instructorName]: [...existing, courseId] };
+    });
+    setSearchQuery(prev => ({ ...prev, [instructorName]: '' }));
+    // Auto-expand the card
+    const key = `${instructorName}-${courseId}`;
+    setSelected(prev => ({ ...prev, [key]: true }));
+  };
+
+  // Get search results for a specific instructor
+  const getSearchResults = (instructorName) => {
+    const query = searchQuery[instructorName] || '';
+    if (!query) return [];
+    const normalize = (s) => s.replace(/\s/g, '').toUpperCase();
+    const instPref = prefByInstructor.find(p => p.facultyName === instructorName);
+    const prefCourseIds = instPref?.preferences?.map(p => p.courseId) || [];
+    const manuals = manualCards[instructorName] || [];
+    // Show courses in term not already in preferences or manually added
+    return termCourses.filter(courseId =>
+      normalize(courseId).includes(normalize(query)) &&
+      !prefCourseIds.includes(courseId) &&
+      !manuals.includes(courseId)
+    );
+  };
 
   const getAvailableSections = (courseId, type, gender) => {
     const sectionData = sectionNumbers.find(s => s.courseId === courseId && s.type === type);
@@ -45,8 +87,8 @@ export default function ByInstructor({ instructors, sectionNumbers, existingAssi
   const [currentPage, setCurrentPage] = useState(1);
   const instructorsPerPage = 4;
   const startIndex = (currentPage - 1) * instructorsPerPage;
-  const currentInstructors = instructors.slice(startIndex, startIndex + instructorsPerPage);
-  const totalPages = Math.ceil(instructors.length / instructorsPerPage);
+  const currentFaculty = facultyList.slice(startIndex, startIndex + instructorsPerPage);
+  const totalPages = Math.ceil(facultyList.length / instructorsPerPage);
 
   const getPageNumbers = () => {
     const pages = [];
@@ -77,9 +119,15 @@ export default function ByInstructor({ instructors, sectionNumbers, existingAssi
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
         <span style={{ fontSize: 12, width: 16, flexShrink: 0 }}>{gender === 'male' ? 'M:' : 'F:'}</span>
+        {/* Existing sections — now removable */}
         {existingSecs.map(sec => (
-          <span key={sec} style={{ background: '#d0d0d0', borderRadius: 4, padding: '2px 6px', fontSize: 12 }}>{sec}</span>
+          <span key={sec} style={{ background: '#d0d0d0', borderRadius: 4, padding: '2px 6px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+            {sec}
+            <span style={{ cursor: 'pointer', color: 'red', fontWeight: 'bold' }}
+              onClick={() => onRemoveExisting(courseId, type, sec, instructorName)}>×</span>
+          </span>
         ))}
+        {/* New sections */}
         {newSecs.map(sec => (
           <span key={sec} style={{ background: '#e0f0ff', borderRadius: 4, padding: '2px 6px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
             {sec}
@@ -98,6 +146,39 @@ export default function ByInstructor({ instructors, sectionNumbers, existingAssi
     );
   };
 
+  // Reusable course card
+  const CourseCard = ({ courseId, instructorName, rank }) => {
+    const expanded = isSelected(instructorName, courseId) || wasAssigned(instructorName, courseId);
+    return (
+      <div className={`ac-course-tag${expanded ? ' ac-course-tag--assigned' : ''}`}>
+        <div className="ac-tag-top">
+          {rank && <span className="ac-course-rank">{rank}</span>}
+          <span className="ac-tag-code">{courseId}</span>
+          <div
+            className={`an-checkbox${expanded ? ' an-checkbox-checked' : ''}`}
+            onClick={() => toggleCourse(instructorName, courseId)}
+          >
+            {expanded && '✓'}
+          </div>
+        </div>
+        {expanded && (
+          <div style={{ marginTop: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 4, color: '#555' }}>LEC</div>
+            <SectionRow courseId={courseId} type="LEC" gender="male" instructorName={instructorName} />
+            <SectionRow courseId={courseId} type="LEC" gender="female" instructorName={instructorName} />
+            {hasLab(courseId) && (
+              <>
+                <div style={{ fontSize: 11, fontWeight: 600, marginTop: 8, marginBottom: 4, color: '#555' }}>LAB</div>
+                <SectionRow courseId={courseId} type="LAB" gender="male" instructorName={instructorName} />
+                <SectionRow courseId={courseId} type="LAB" gender="female" instructorName={instructorName} />
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="ac-table-wrap">
@@ -109,51 +190,56 @@ export default function ByInstructor({ instructors, sectionNumbers, existingAssi
             </tr>
           </thead>
           <tbody>
-            {currentInstructors.map(inst => {
-              // Highlight instructor row in red if no courses assigned
-              const isUnassigned = unassignedInstructors?.includes(inst.facultyName);
+            {currentFaculty.map(member => {
+              const hasNoPreference = instructorsWithNoPreference.some(f => f.name === member.name);
+              const instPref = prefByInstructor.find(p => p.facultyName === member.name);
+              const manuals = manualCards[member.name] || [];
+              const searchResults = getSearchResults(member.name);
+
               return (
-                <tr key={inst.facultyName} style={isUnassigned ? { background: '#fff0f0' } : {}}>
+                <tr key={member.name} style={hasNoPreference ? { background: '#fff0f0' } : {}}>
                   <td>
-                    <span className="an-course-name" style={isUnassigned ? { color: 'red' } : {}}>
-                      {inst.facultyName}
-                      {isUnassigned && <span style={{ fontSize: 11, marginLeft: 6 }}>⚠ unassigned</span>}
+                    <span className="an-course-name" style={hasNoPreference ? { color: 'red' } : {}}>
+                      {member.name}
+                      {hasNoPreference && <span style={{ fontSize: 11, marginLeft: 6 }}>⚠ no preferences</span>}
                     </span>
                   </td>
                   <td>
                     <div className="ac-courses-grid">
-                      {inst.preferences?.map((pref) => (
-                        <div
-                          key={pref.courseId}
-                          className={`ac-course-tag${isSelected(inst.facultyName, pref.courseId) || wasAssigned(inst.facultyName, pref.courseId) ? ' ac-course-tag--assigned' : ''}`}
-                        >
-                          <div className="ac-tag-top">
-                            <span className="ac-course-rank">{pref.order}</span>
-                            <span className="ac-tag-code">{pref.courseId}</span>
-                            <div
-                              className={`an-checkbox${isSelected(inst.facultyName, pref.courseId) || wasAssigned(inst.facultyName, pref.courseId) ? ' an-checkbox-checked' : ''}`}
-                              onClick={() => toggleCourse(inst.facultyName, pref.courseId)}
-                            >
-                              {(isSelected(inst.facultyName, pref.courseId) || wasAssigned(inst.facultyName, pref.courseId)) && '✓'}
-                            </div>
-                          </div>
-                          {(isSelected(inst.facultyName, pref.courseId) || wasAssigned(inst.facultyName, pref.courseId)) && (
-                            <div style={{ marginTop: 8 }}>
-                              <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 4, color: '#555' }}>LEC</div>
-                              <SectionRow courseId={pref.courseId} type="LEC" gender="male" instructorName={inst.facultyName} />
-                              <SectionRow courseId={pref.courseId} type="LEC" gender="female" instructorName={inst.facultyName} />
-                              {hasLab(pref.courseId) && (
-                                <>
-                                  <div style={{ fontSize: 11, fontWeight: 600, marginTop: 8, marginBottom: 4, color: '#555' }}>LAB</div>
-                                  <SectionRow courseId={pref.courseId} type="LAB" gender="male" instructorName={inst.facultyName} />
-                                  <SectionRow courseId={pref.courseId} type="LAB" gender="female" instructorName={inst.facultyName} />
-                                </>
-                              )}
-                            </div>
-                          )}
-                        </div>
+                      {/* Preference cards */}
+                      {instPref?.preferences?.map((pref) => (
+                        <CourseCard key={pref.courseId} courseId={pref.courseId} instructorName={member.name} rank={pref.order} />
+                      ))}
+                      {/* Manually added cards */}
+                      {manuals.map(courseId => (
+                        <CourseCard key={courseId} courseId={courseId} instructorName={member.name} />
                       ))}
                     </div>
+
+                    {/* Search to add course manually */}
+                    <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <input
+                        className="an-term-input"
+                        type="text"
+                        placeholder="Search course to add..."
+                        value={searchQuery[member.name] || ''}
+                        onChange={e => setSearchQuery(prev => ({ ...prev, [member.name]: e.target.value }))}
+                        style={{ fontSize: 12, padding: '4px 8px', width: 180 }}
+                      />
+                    </div>
+                    {searchResults.length > 0 && (
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
+                        {searchResults.map(courseId => (
+                          <button
+                            key={courseId}
+                            style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, border: '1px solid #aaa', cursor: 'pointer', background: '#f5f5f5' }}
+                            onClick={() => addManualCard(member.name, courseId)}
+                          >
+                            + {courseId}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </td>
                 </tr>
               );
