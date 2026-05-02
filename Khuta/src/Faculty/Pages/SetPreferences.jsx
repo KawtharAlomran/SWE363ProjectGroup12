@@ -102,7 +102,7 @@ useEffect(() => {
   useEffect(() => {
     if (!availableCourses.length) return;
 
-    const maxSlots = availableCourses.length;
+    const maxSlots = Math.min(5, availableCourses.length);
     const initialSlots = Array(maxSlots).fill(null);
 
     savedPreferences.forEach((pref) => {
