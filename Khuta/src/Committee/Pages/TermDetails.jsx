@@ -16,9 +16,13 @@ export default function TermDetails({ term, onBack, onDelete, canEdit }) {
   // Removed: useState(() => { getTermCourses, getCourseDemand, getAllIcsCourses })
   const [courses, setCourses] = useState([]);
 
+  // inform the user of the page state 
+  const [loadingData, setLoadingData] = useState(true);
+
   // Fetch all ICS courses, existing sections for this term, and demand
   useEffect(() => {
     const fetchData = async () => {
+      setLoadingData(true);
       try {
         // Fetch all courses from ICS-courses collection
         const coursesRes = await fetch(`${API}/api/courses`);
@@ -52,6 +56,8 @@ export default function TermDetails({ term, onBack, onDelete, canEdit }) {
         }));
       } catch (err) {
         console.error("Error fetching data:", err);
+      } finally {
+      setLoadingData(false);
       }
     };
     fetchData();
@@ -141,7 +147,10 @@ export default function TermDetails({ term, onBack, onDelete, canEdit }) {
         <h3 className="header h2" style={{ marginBottom: 4 }}>All Offered Courses</h3>
         {/* Use termId from MongoDB instead of term.name */}
         <div className="td-term-badge">Term {term.termId}</div>
+        {loadingData && <p>Loading...</p>}
 
+        {!loadingData && ( 
+        <>
         {/* Search bar and show selected toggle */}
         <div className="an-term-row" style={{ marginTop: 16 }}>
           <label className="an-term-label">Search course:</label>
@@ -155,6 +164,7 @@ export default function TermDetails({ term, onBack, onDelete, canEdit }) {
               setCurrentPage(1);
             }}
           />
+
           {/* Toggle to show selected courses only */}
           <button
             className="an-btn-submit"
@@ -240,6 +250,7 @@ export default function TermDetails({ term, onBack, onDelete, canEdit }) {
             </tbody>
           </table>
         </div>
+        
 
         {/* Smart pagination — 1 ... 4 5 6 ... 68 */}
         {totalPages > 1 && (
@@ -261,9 +272,10 @@ export default function TermDetails({ term, onBack, onDelete, canEdit }) {
             <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
           </div>
         )}
-
+        </>
+      )}
       </div>
-
+ 
       {/* Submit confirmation — saves changes to Sections collection then goes back */}
       {showConfirm && (
         <ConfirmModal
