@@ -7,7 +7,7 @@
  * @param {Array} sectionNumbers            - [{ courseId, type, maleSections, femaleSections }]
  * @param {Array} existingAssignments       - from DB, pre-check assigned instructors
  * @param {Array} newAssignments            - added this session, filter dropdown
- * @param {Array} instructorsWithNoPreference - highlight red if no preferences
+ * @param {Array} instructorsWithNoPreference - highlight red if no preferences and no existing assignments
  * @param {Array} termCourses               - all course IDs in this term (for search/add)
  * @param {Array} loadWarnings              - overloaded faculty [{ name, teachingHours, maxHours }]
  * @param {Function} onAdd
@@ -16,7 +16,7 @@
  */
 import { useState } from "react";
 
-export default function ByInstructor({ facultyList, prefByInstructor, sectionNumbers, existingAssignments, newAssignments, instructorsWithNoPreference, termCourses, loadWarnings, onAdd, onRemove, onRemoveExisting }) {
+export default function ByInstructor({ facultyList, prefByInstructor, sectionNumbers, existingAssignments, newAssignments, instructorsWithNoPreference, termCourses, loadWarnings, termId, onAdd, onRemove, onRemoveExisting }) {
 
   const [selected, setSelected] = useState({});
   const [searchQuery, setSearchQuery] = useState({});
@@ -32,7 +32,7 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
   const wasAssigned = (instructorName, courseId) =>
     existingAssignments.some(a => a.instructorName === instructorName && a.courseId === courseId);
 
-  const addManualCard = (instructorName, courseId) => {
+  const addManualCard = async (instructorName, courseId, termId) => {
     setManualCards(prev => {
       const existing = prev[instructorName] || [];
       if (existing.includes(courseId)) return prev;
@@ -41,6 +41,17 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
     setSearchQuery(prev => ({ ...prev, [instructorName]: '' }));
     const key = `${instructorName}-${courseId}`;
     setSelected(prev => ({ ...prev, [key]: true }));
+
+    // Save to Preferences collection with order 0
+    try {
+      await fetch('http://localhost:5174/api/preferences/manual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ termId, facultyName: instructorName, courseId }),
+      });
+    } catch (err) {
+      console.error("Error saving manual preference:", err);
+    }
   };
 
   const getSearchResults = (instructorName) => {
@@ -143,7 +154,8 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
     return (
       <div className={`ac-course-tag${expanded ? ' ac-course-tag--assigned' : ''}`}>
         <div className="ac-tag-top">
-          {rank && <span className="ac-course-rank">{rank}</span>}
+          {/* Show rank — 0 for manually added courses */}
+          <span className="ac-course-rank">{rank ?? 0}</span>
           <span className="ac-tag-code">{courseId}</span>
           <div
             className={`an-checkbox${expanded ? ' an-checkbox-checked' : ''}`}
@@ -183,11 +195,21 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
           <tbody>
             {currentFaculty.map(member => {
               const hasNoPreference = instructorsWithNoPreference.some(f => f.name === member.name);
-              // Check if this instructor is overloaded
               const loadWarning = loadWarnings?.find(w => w.name === member.name);
               const instPref = prefByInstructor.find(p => p.facultyName === member.name);
               const manuals = manualCards[member.name] || [];
               const searchResults = getSearchResults(member.name);
+
+              // Get existing assigned courses not in preferences (to show as cards)
+              const existingCourseIds = [...new Set(
+                existingAssignments
+                  .filter(a => a.instructorName === member.name)
+                  .map(a => a.courseId)
+              )];
+              const prefCourseIds = instPref?.preferences?.map(p => p.courseId) || [];
+              const existingOnlyCards = existingCourseIds.filter(id =>
+                !prefCourseIds.includes(id) && !manuals.includes(id)
+              );
 
               return (
                 <tr key={member.name} style={hasNoPreference ? { background: '#fff0f0' } : {}}>
@@ -200,13 +222,9 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
                       {/* Teaching load warning shown under instructor name */}
                       {loadWarning && (
                         <span style={{
-                          fontSize: 11,
-                          color: '#856404',
-                          background: '#fff8e0',
-                          border: '1px solid #ffcc00',
-                          borderRadius: 4,
-                          padding: '2px 6px',
-                          width: 'fit-content'
+                          fontSize: 11, color: '#856404',
+                          background: '#fff8e0', border: '1px solid #ffcc00',
+                          borderRadius: 4, padding: '2px 6px', width: 'fit-content'
                         }}>
                           ⚠ {loadWarning.teachingHours}h / {loadWarning.maxHours}h max
                         </span>
@@ -215,15 +233,21 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
                   </td>
                   <td>
                     <div className="ac-courses-grid">
+                      {/* Preference cards */}
                       {instPref?.preferences?.map((pref) => (
                         <CourseCard key={pref.courseId} courseId={pref.courseId} instructorName={member.name} rank={pref.order} />
                       ))}
+                      {/* Existing assignment cards not in preferences — shown with rank 0 */}
+                      {existingOnlyCards.map(courseId => (
+                        <CourseCard key={courseId} courseId={courseId} instructorName={member.name} rank={0} />
+                      ))}
+                      {/* Manually added cards this session — shown with rank 0 */}
                       {manuals.map(courseId => (
-                        <CourseCard key={courseId} courseId={courseId} instructorName={member.name} />
+                        <CourseCard key={courseId} courseId={courseId} instructorName={member.name} rank={0} />
                       ))}
                     </div>
 
-                    <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ marginTop: 8 }}>
                       <input
                         className="an-term-input"
                         type="text"
@@ -239,7 +263,7 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
                           <button
                             key={courseId}
                             style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, border: '1px solid #aaa', cursor: 'pointer', background: '#f5f5f5' }}
-                            onClick={() => addManualCard(member.name, courseId)}
+                            onClick={() => addManualCard(member.name, courseId, termId)}
                           >
                             + {courseId}
                           </button>

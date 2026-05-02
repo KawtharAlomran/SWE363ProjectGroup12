@@ -9,19 +9,19 @@
  * @param {Array} newAssignments          - added this session, filter dropdown
  * @param {Array} coursesWithNoPreference - highlight red if no instructor selected this course
  * @param {Array} facultyList             - all faculty (for search/add)
+ * @param {string} termId                 - current selected term (for saving manual preferences)
  * @param {Function} onAdd
  * @param {Function} onRemove
  * @param {Function} onRemoveExisting     - remove from existing assignments
  */
 import { useState } from "react";
 
-export default function ByCourse({ termCourses, prefByCourse, sectionNumbers, existingAssignments, newAssignments, coursesWithNoPreference, facultyList, onAdd, onRemove, onRemoveExisting }) {
+const API = 'http://localhost:5174';
+
+export default function ByCourse({ termCourses, prefByCourse, sectionNumbers, existingAssignments, newAssignments, coursesWithNoPreference, facultyList, termId, onAdd, onRemove, onRemoveExisting }) {
 
   const [selected, setSelected] = useState({});
-
-  // Search state per course — to add instructors manually
   const [searchQuery, setSearchQuery] = useState({});
-  // Manually added instructor cards per course
   const [manualCards, setManualCards] = useState({});
 
   const toggleInstructor = (courseId, instructorName) => {
@@ -34,20 +34,29 @@ export default function ByCourse({ termCourses, prefByCourse, sectionNumbers, ex
   const wasAssigned = (instructorName, courseId) =>
     existingAssignments.some(a => a.instructorName === instructorName && a.courseId === courseId);
 
-  // Add an instructor card manually to a course
-  const addManualCard = (courseId, instructorName) => {
+  // Add instructor card manually — saves to Preferences with order 0
+  const addManualCard = async (courseId, instructorName) => {
     setManualCards(prev => {
       const existing = prev[courseId] || [];
       if (existing.includes(instructorName)) return prev;
       return { ...prev, [courseId]: [...existing, instructorName] };
     });
     setSearchQuery(prev => ({ ...prev, [courseId]: '' }));
-    // Auto-expand
     const key = `${courseId}-${instructorName}`;
     setSelected(prev => ({ ...prev, [key]: true }));
+
+    // Save to Preferences collection with order 0
+    try {
+      await fetch(`${API}/api/preferences/manual`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ termId, facultyName: instructorName, courseId }),
+      });
+    } catch (err) {
+      console.error("Error saving manual preference:", err);
+    }
   };
 
-  // Get search results for a specific course
   const getSearchResults = (courseId) => {
     const query = searchQuery[courseId] || '';
     if (!query) return [];
@@ -118,7 +127,6 @@ export default function ByCourse({ termCourses, prefByCourse, sectionNumbers, ex
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
         <span style={{ fontSize: 12, width: 16, flexShrink: 0 }}>{gender === 'male' ? 'M:' : 'F:'}</span>
-        {/* Existing sections — now removable */}
         {existingSecs.map(sec => (
           <span key={sec} style={{ background: '#d0d0d0', borderRadius: 4, padding: '2px 6px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
             {sec}
@@ -126,7 +134,6 @@ export default function ByCourse({ termCourses, prefByCourse, sectionNumbers, ex
               onClick={() => onRemoveExisting(courseId, type, sec, instructorName)}>×</span>
           </span>
         ))}
-        {/* New sections */}
         {newSecs.map(sec => (
           <span key={sec} style={{ background: '#e0f0ff', borderRadius: 4, padding: '2px 6px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
             {sec}
@@ -145,13 +152,13 @@ export default function ByCourse({ termCourses, prefByCourse, sectionNumbers, ex
     );
   };
 
-  // Reusable instructor card
   const InstructorCard = ({ courseId, instructorName, rank }) => {
     const expanded = isSelected(courseId, instructorName) || wasAssigned(instructorName, courseId);
     return (
       <div className={`ac-course-tag${expanded ? ' ac-course-tag--assigned' : ''}`}>
         <div className="ac-tag-top">
-          {rank && <span className="ac-course-rank">{rank}</span>}
+          {/* Show rank — 0 for manually added instructors */}
+          <span className="ac-course-rank">{rank ?? 0}</span>
           <span className="ac-tag-code">{instructorName}</span>
           <div
             className={`an-checkbox${expanded ? ' an-checkbox-checked' : ''}`}
@@ -195,6 +202,17 @@ export default function ByCourse({ termCourses, prefByCourse, sectionNumbers, ex
               const manuals = manualCards[courseId] || [];
               const searchResults = getSearchResults(courseId);
 
+              // Existing assigned instructors not in preferences
+              const existingInstructors = [...new Set(
+                existingAssignments
+                  .filter(a => a.courseId === courseId)
+                  .map(a => a.instructorName)
+              )];
+              const prefNames = coursePref?.instructors?.map(i => i.facultyName) || [];
+              const existingOnlyCards = existingInstructors.filter(name =>
+                !prefNames.includes(name) && !manuals.includes(name)
+              );
+
               return (
                 <tr key={courseId} style={hasNoPreference ? { background: '#fff0f0' } : {}}>
                   <td>
@@ -209,14 +227,17 @@ export default function ByCourse({ termCourses, prefByCourse, sectionNumbers, ex
                       {coursePref?.instructors?.map((inst) => (
                         <InstructorCard key={inst.facultyName} courseId={courseId} instructorName={inst.facultyName} rank={inst.order} />
                       ))}
-                      {/* Manually added cards */}
+                      {/* Existing assignment cards not in preferences — rank 0 */}
+                      {existingOnlyCards.map(name => (
+                        <InstructorCard key={name} courseId={courseId} instructorName={name} rank={0} />
+                      ))}
+                      {/* Manually added cards this session — rank 0 */}
                       {manuals.map(instructorName => (
-                        <InstructorCard key={instructorName} courseId={courseId} instructorName={instructorName} />
+                        <InstructorCard key={instructorName} courseId={courseId} instructorName={instructorName} rank={0} />
                       ))}
                     </div>
 
-                    {/* Search to add instructor manually */}
-                    <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ marginTop: 8 }}>
                       <input
                         className="an-term-input"
                         type="text"
