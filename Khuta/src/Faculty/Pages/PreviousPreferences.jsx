@@ -1,19 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getFacultySubmittedPreferences } from '../../data';
+// API base URL for backend requests
+const API = 'http://localhost:5174';
 
 function PreviousPreferences() {
   const navigate = useNavigate();
 
-  // Get submitted preferences from data file
-  const submittedPreferences = getFacultySubmittedPreferences();
+  // State for terms fetched from backend
+  const [terms, setTerms] = useState([]);
+
+  // State for preferences fetched from backend
+  const [preferences, setPreferences] = useState([]);
+
+  // Loading state while fetching data
+  const [isLoading, setIsLoading] = useState(true);
 
   // State for selected term and current page
-  const [selectedTerm, setSelectedTerm] = useState('261');
+  const [selectedTerm, setSelectedTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Get preferences for selected term
-  const preferences = submittedPreferences[selectedTerm] || [];
 
   // Check if selected term is the current term
   const isCurrentTerm = selectedTerm === '261';
