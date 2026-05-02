@@ -181,6 +181,10 @@ http://localhost:5173
 | http://localhost:5174/api/preferences/manual         | POST    |
 | http://localhost:5174/api/courses/:code        | DELETE    |
 | http://localhost:5174/api/courses        | POST    |
+| http://localhost:5174/api/sections/:term          | DELETE    |
+| http://localhost:5174/api/assignments/:term          | DELETE    |
+| http://localhost:5174/api/preferences/term/:term         | DELETE    |
+| http://localhost:5174/api/terms/:term          | DELETE    |
 
 
 
