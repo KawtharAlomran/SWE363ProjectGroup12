@@ -20,7 +20,7 @@ import teachingLoadRoutes from "./routes/loadRoute.js";
 import assignmentRoutes from "./routes/assignmentRoutes.js";
 
 const corsOptions = {
-  origin: process.env.Client_URL || 'http://localhost:5174',
+  origin: process.env.Client_URL || 'http://localhost:5173',
   methods: 'GET,POST,PATCH,DELETE,PUT',
   credentials: true, 
 };
