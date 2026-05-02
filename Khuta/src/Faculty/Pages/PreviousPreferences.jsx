@@ -99,7 +99,6 @@ function PreviousPreferences() {
   return `${year}2`;
 };
 
-  const upcomingTerm = getUpcomingTerm();
 
   // Pagination logic
   const preferencesPerPage = 4;
@@ -113,6 +112,30 @@ function PreviousPreferences() {
     const course = courses.find(c => c.code === code);
     return course ? course.name : code;
   };
+
+  // determine allowed terms (upcoming + next)
+  const getAllowedPreferenceTerms = () => {
+  const now = new Date();
+  const year = Number(now.getFullYear().toString().slice(-2));
+  const month = now.getMonth() + 1;
+
+  // Jan - May → 253, 261
+  if (month >= 1 && month <= 5) {
+    return [`${year - 1}3`, `${year}1`];
+  }
+
+  // Jun - Aug → 251, 252
+  if (month >= 6 && month <= 8) {
+    return [`${year}1`, `${year}2`];
+  }
+
+  // Sep - Dec → 252, 253
+  return [`${year}2`, `${year}3`];
+};
+
+  // check if selected term is allowed for modification
+  const allowedTerms = getAllowedPreferenceTerms();
+  const canModify = allowedTerms.includes(selectedTerm);
 
   return (
     <div className="container">
@@ -128,8 +151,8 @@ function PreviousPreferences() {
       >
         <h3 className="mt-title">Submitted Preferences</h3>
 
-        {/* Show modify button only for upcoming term */}
-        {selectedTerm === upcomingTerm && preferences.length > 0 && (
+        {/* Show modify button only for allowed terms */}
+        {canModify && preferences.length > 0 && (
           <button
             className="addBtn"
             onClick={() => navigate('/faculty/set-preferences')}
