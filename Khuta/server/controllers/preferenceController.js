@@ -1,6 +1,5 @@
 import { Preferences } from "../models/Preferences.js";
 
-// GET — fetch all faculty preferences for a specific term
 export const getPreferencesByTerm = async (req, res) => {
   try {
     const { termId } = req.params;
@@ -11,7 +10,6 @@ export const getPreferencesByTerm = async (req, res) => {
   }
 };
 
-// GET — group preferences by instructor
 export const getPreferencesByInstructor = async (req, res) => {
   try {
     const { termId } = req.params;
@@ -31,7 +29,6 @@ export const getPreferencesByInstructor = async (req, res) => {
   }
 };
 
-// GET — group preferences by course
 export const getPreferencesByCourse = async (req, res) => {
   try {
     const { termId } = req.params;
@@ -51,7 +48,6 @@ export const getPreferencesByCourse = async (req, res) => {
   }
 };
 
-// POST — save submitted preferences for a faculty member
 export const submitPreferences = async (req, res) => {
   try {
     const { termId, facultyName, preferences } = req.body;
@@ -82,16 +78,23 @@ export const addManualPreference = async (req, res) => {
     if (!termId || !facultyName || !courseId) {
       return res.status(400).json({ message: "termId, facultyName, and courseId are required" });
     }
-
-    // Check if already exists — avoid duplicates
     const existing = await Preferences.findOne({ termId, facultyName, courseId });
     if (existing) {
       return res.status(409).json({ message: "Preference already exists" });
     }
-
     await Preferences.create({ termId, facultyName, courseId, order: 0 });
     res.status(201).json({ message: "Manual preference added successfully" });
   } catch (error) {
     res.status(500).json({ message: "Failed to add manual preference", error: error.message });
+  }
+};
+
+// DELETE — delete all preferences for a term (used when deleting a term)
+export const deletePreferencesByTerm = async (req, res) => {
+  try {
+    await Preferences.deleteMany({ termId: req.params.termId });
+    res.status(200).json({ message: "Preferences deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete preferences", error: error.message });
   }
 };
