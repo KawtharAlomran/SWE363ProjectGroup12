@@ -83,8 +83,8 @@ Khuta/
 ---
 ## Environment configurations
 
-To connect with the database a .env file is created in each member device. However the file is not pushed to the repasatory because it has a sensitive data including the username and password.
-The file contains these two variables:
+###### To connect with the database a .env file is created in each member device. However the file is not pushed to the repasatory because it has a sensitive data including the username and password.
+###### The file contains these two variables:
 MONGO_URL="Connection URL from mongo and add the database name to it"
 PORT= our port number
 ---
