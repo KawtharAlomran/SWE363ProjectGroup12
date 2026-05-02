@@ -1,7 +1,3 @@
-// Updated: replaced local data.js calls with API fetch calls
-// Shows all ICS courses, pre-checks ones already in Sections for this term
-// Added: search bar, show selected only toggle, saves changes to Sections on submit
-// Added: canEdit prop — read-only view for old terms, editable for current/last semester 3
 import { useState, useEffect } from 'react';
 import ConfirmModal from '../../shared/ConfirmModal';
 
@@ -16,7 +12,7 @@ export default function TermDetails({ term, onBack, onDelete, canEdit }) {
   // Removed: useState(() => { getTermCourses, getCourseDemand, getAllIcsCourses })
   const [courses, setCourses] = useState([]);
 
-  // inform the user of the page state 
+  // inform the user of the page state
   const [loadingData, setLoadingData] = useState(true);
 
   // Fetch all ICS courses, existing sections for this term, and demand
@@ -57,7 +53,7 @@ export default function TermDetails({ term, onBack, onDelete, canEdit }) {
       } catch (err) {
         console.error("Error fetching data:", err);
       } finally {
-      setLoadingData(false);
+        setLoadingData(false);
       }
     };
     fetchData();
@@ -73,8 +69,9 @@ export default function TermDetails({ term, onBack, onDelete, canEdit }) {
       c.code === courseCode ? { ...c, [field]: Number(value) } : c
     ));
 
-  // Submit — update Sections collection (add new, remove unchecked, update counts)
+  // Submit — closes modal FIRST to prevent UI flicker, then saves and goes back
   const handleSubmit = async () => {
+    setShowConfirm(false); // close modal before any async operation
     try {
       await fetch(`${API}/api/sections/${term.termId}`, {
         method: 'PUT',
@@ -94,6 +91,12 @@ export default function TermDetails({ term, onBack, onDelete, canEdit }) {
     } catch (err) {
       console.error("Error submitting changes:", err);
     }
+  };
+
+  // Delete — closes modal FIRST then deletes
+  const handleDelete = () => {
+    setShowDeleteConfirm(false); // close modal before any async operation
+    onDelete(term._id);
   };
 
   // Search — normalize removes spaces and converts to uppercase for flexible matching
@@ -149,150 +152,147 @@ export default function TermDetails({ term, onBack, onDelete, canEdit }) {
         <div className="td-term-badge">Term {term.termId}</div>
         {loadingData && <p>Loading...</p>}
 
-        {!loadingData && ( 
-        <>
-        {/* Search bar and show selected toggle */}
-        <div className="an-term-row" style={{ marginTop: 16 }}>
-          <label className="an-term-label">Search course:</label>
-          <input
-            className="an-term-input"
-            type="text"
-            placeholder="ICS 104"
-            value={searchQuery}
-            onChange={e => {
-              setSearchQuery(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
+        {!loadingData && (
+          <>
+            {/* Search bar and show selected toggle */}
+            <div className="an-term-row" style={{ marginTop: 16 }}>
+              <label className="an-term-label">Search course:</label>
+              <input
+                className="an-term-input"
+                type="text"
+                placeholder="ICS 104"
+                value={searchQuery}
+                onChange={e => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1); // reset to first page on new search
+                }}
+              />
+              {/* Toggle to show selected courses only */}
+              <button
+                className="an-btn-submit"
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  setShowSelectedOnly(prev => !prev);
+                  setCurrentPage(1);
+                }}
+              >
+                {showSelectedOnly ? 'Show All' : 'Show Selected'}
+              </button>
+            </div>
 
-          {/* Toggle to show selected courses only */}
-          <button
-            className="an-btn-submit"
-            style={{ marginLeft: 12 }}
-            onClick={() => {
-              setShowSelectedOnly(prev => !prev);
-              setCurrentPage(1);
-            }}
-          >
-            {showSelectedOnly ? 'Show All' : 'Show Selected'}
-          </button>
-        </div>
-
-        <div className="an-table-wrap">
-          <table className="an-table" style={{ marginTop: 16 }}>
-            <thead>
-              <tr>
-                {canEdit && <th></th>}
-                <th>Course number</th>
-                <th>Student Demand</th>
-                <th>Number of sections</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentCourses.map(course => (
-                <tr key={course.code}>
-                  {/* Checkbox only in edit mode */}
-                  {canEdit && (
-                    <td>
-                      <div
-                        className={`an-checkbox${course.checked ? ' an-checkbox-checked' : ''}`}
-                        onClick={() => toggleCourse(course.code)}
-                      >
-                        {course.checked && '✓'}
-                      </div>
-                    </td>
-                  )}
-                  <td><span className="an-course-name">{course.code}</span></td>
-                  <td>
-                    <div className="an-demand">
-                      Male: {course.maleDemand}<br />
-                      Female: {course.femaleDemand}
-                    </div>
-                  </td>
-                  <td>
-                    {/* Show sections only when course is checked */}
-                    {course.checked && (
-                      <div className="an-sections">
-                        <div className="an-section-row">
-                          <span>Male: Lec</span>
-                          {/* Dropdown in edit mode, plain text in view mode */}
-                          {canEdit
-                            ? <SectionSelect value={course.maleLec} courseCode={course.code} field="maleLec" />
-                            : <span>{course.maleLec}</span>
-                          }
-                          {course.hasLab && <>
-                            <span>, Lab</span>
-                            {canEdit
-                              ? <SectionSelect value={course.maleLab} courseCode={course.code} field="maleLab" />
-                              : <span>{course.maleLab}</span>
-                            }
-                          </>}
+            <div className="an-table-wrap">
+              <table className="an-table" style={{ marginTop: 16 }}>
+                <thead>
+                  <tr>
+                    {canEdit && <th></th>}
+                    <th>Course number</th>
+                    <th>Student Demand</th>
+                    <th>Number of sections</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentCourses.map(course => (
+                    <tr key={course.code}>
+                      {/* Checkbox only in edit mode */}
+                      {canEdit && (
+                        <td>
+                          <div
+                            className={`an-checkbox${course.checked ? ' an-checkbox-checked' : ''}`}
+                            onClick={() => toggleCourse(course.code)}
+                          >
+                            {course.checked && '✓'}
+                          </div>
+                        </td>
+                      )}
+                      <td><span className="an-course-name">{course.code}</span></td>
+                      <td>
+                        <div className="an-demand">
+                          Male: {course.maleDemand}<br />
+                          Female: {course.femaleDemand}
                         </div>
-                        <div className="an-section-row">
-                          <span>Female: Lec</span>
-                          {canEdit
-                            ? <SectionSelect value={course.femaleLec} courseCode={course.code} field="femaleLec" />
-                            : <span>{course.femaleLec}</span>
-                          }
-                          {course.hasLab && <>
-                            <span>, Lab</span>
-                            {canEdit
-                              ? <SectionSelect value={course.femaleLab} courseCode={course.code} field="femaleLab" />
-                              : <span>{course.femaleLab}</span>
-                            }
-                          </>}
-                        </div>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
+                      </td>
+                      <td>
+                        {/* Show sections only when course is checked */}
+                        {course.checked && (
+                          <div className="an-sections">
+                            <div className="an-section-row">
+                              <span>Male: Lec</span>
+                              {/* Dropdown in edit mode, plain text in view mode */}
+                              {canEdit
+                                ? <SectionSelect value={course.maleLec} courseCode={course.code} field="maleLec" />
+                                : <span>{course.maleLec}</span>
+                              }
+                              {course.hasLab && <>
+                                <span>, Lab</span>
+                                {canEdit
+                                  ? <SectionSelect value={course.maleLab} courseCode={course.code} field="maleLab" />
+                                  : <span>{course.maleLab}</span>
+                                }
+                              </>}
+                            </div>
+                            <div className="an-section-row">
+                              <span>Female: Lec</span>
+                              {canEdit
+                                ? <SectionSelect value={course.femaleLec} courseCode={course.code} field="femaleLec" />
+                                : <span>{course.femaleLec}</span>
+                              }
+                              {course.hasLab && <>
+                                <span>, Lab</span>
+                                {canEdit
+                                  ? <SectionSelect value={course.femaleLab} courseCode={course.code} field="femaleLab" />
+                                  : <span>{course.femaleLab}</span>
+                                }
+                              </>}
+                            </div>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-        {/* Smart pagination — 1 ... 4 5 6 ... 68 */}
-        {totalPages > 1 && (
-          <div className="pageNumbers">
-            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
-            {getPageNumbers().map((page, i) =>
-              page === '...'
-                ? <span key={`ellipsis-${i}`} style={{ margin: '0 4px' }}>...</span>
-                : <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+            {/* Smart pagination — 1 ... 4 5 6 ... 68 */}
+            {totalPages > 1 && (
+              <div className="pageNumbers">
+                <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
+                {getPageNumbers().map((page, i) =>
+                  page === '...'
+                    ? <span key={`ellipsis-${i}`} style={{ margin: '0 4px' }}>...</span>
+                    : <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+                )}
+                <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
+              </div>
             )}
-            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
-          </div>
-        )}
 
-        {/* Show Delete and Submit only in edit mode */}
-        {canEdit && (
-          <div className="an-actions">
-            <button className="tr-deleteBtn" onClick={() => setShowDeleteConfirm(true)}>Delete Term</button>
-            <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
-          </div>
+            {/* Show Delete and Submit only in edit mode */}
+            {canEdit && (
+              <div className="an-actions">
+                <button className="tr-deleteBtn" onClick={() => setShowDeleteConfirm(true)}>Delete Term</button>
+                <button className="an-btn-submit" onClick={() => setShowConfirm(true)}>Submit</button>
+              </div>
+            )}
+          </>
         )}
-        </>
-      )}
       </div>
- 
-      {/* Submit confirmation — saves changes to Sections collection then goes back */}
+
+      {/* Submit confirmation — closes modal first, then saves and goes back */}
       {showConfirm && (
         <ConfirmModal
           message="Are you sure you want to submit the changes?"
-          onConfirm={() => { handleSubmit(); setShowConfirm(false); }}
+          onConfirm={handleSubmit}
           onCancel={() => setShowConfirm(false)}
         />
       )}
 
-      {/* Delete term confirmation */}
+      {/* Delete term confirmation — closes modal first, then deletes */}
       {showDeleteConfirm && (
         <ConfirmModal
           message="Are you sure you want to delete this term?"
           confirmText="Delete"
           cancelText="Cancel"
-          // Use _id from MongoDB instead of term.id
-          onConfirm={() => { onDelete(term._id); setShowDeleteConfirm(false); }}
+          onConfirm={handleDelete}
           onCancel={() => setShowDeleteConfirm(false)}
         />
       )}

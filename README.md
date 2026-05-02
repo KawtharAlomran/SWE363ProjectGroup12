@@ -156,6 +156,25 @@ http://localhost:5173
 
 ---
 
+
+## API documentation 
+
+| API endpoint                                | method  |
+|---------------------------------------------|-----------|
+| http://localhost:5174/api/courses                                  | GET    |
+| http://localhost:5174/api/faculty?role                             |  GET  | 
+| http://localhost:5174/api/faculty/:email                           |  GET  | 
+| http://localhost:5174/api/faculty                                  |  POST  | 
+| http://localhost:5174/api/faculty/:email                           |  DELETE  | 
+| http://localhost:5174/api/faculty/:email                           |  PATCH  | 
+| http://localhost:5174/api//assignments/:term/:facultyName          | GET    |
+
+
+
+
+
+---
+
 ## Routing
 
 | Path                          | Page                  | User       |
