@@ -17,11 +17,12 @@ function SetPreferences() {
   const getUpcomingTerm = () => {
     const now = new Date();
     const year = now.getFullYear().toString().slice(-2);
+    const prevYear = (now.getFullYear() - 1).toString().slice(-2);
     const month = now.getMonth() + 1;
 
     // Jan - May → Summer term
     if (month >= 1 && month <= 5) {
-      return `${year}3`;
+      return `${prevYear}3`;
     }
 
     // Jun - Aug → First semester
