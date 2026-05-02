@@ -185,6 +185,7 @@ http://localhost:5173
 | http://localhost:5174/api/assignments/:term          | DELETE    |
 | http://localhost:5174/api/preferences/term/:term         | DELETE    |
 | http://localhost:5174/api/terms/:term          | DELETE    |
+| http://localhost:5174/api/sections/:term          | PUT    |
 
 
 
