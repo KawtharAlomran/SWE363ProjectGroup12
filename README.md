@@ -187,6 +187,7 @@ http://localhost:5173
 | http://localhost:5174/api/terms/:term          | DELETE    |
 | http://localhost:5174/api/sections/:term          | PUT    |
 | http://localhost:5174/api/sections/unique/:term          | GET    |
+| http://localhost:5174/api/assignments/load/:term          | GET    |
 
 
 
