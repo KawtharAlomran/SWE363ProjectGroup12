@@ -4,35 +4,36 @@ import ConfirmModal from '../../shared/ConfirmModal';
 const API = 'http://localhost:5174';
 
 function SetPreferences() {
-  // Get all courses and current term
-const [currentTerm, setCurrentTerm] = useState('');
-const [availableCourses, setAvailableCourses] = useState([]);
-// Get saved submitted preferences from data file
-const [savedPreferences, setSavedPreferences] = useState([]);
-const [isLoading, setIsLoading] = useState(true);
+  const [currentTerm, setCurrentTerm] = useState('');
+  const [availableCourses, setAvailableCourses] = useState([]);
+  const [savedPreferences, setSavedPreferences] = useState([]);
+  const [rankedCourses, setRankedCourses] = useState([]);
+  const [draggedCourse, setDraggedCourse] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
-// determine upcoming term based on the academic calendar
-const getUpcomingTerm = () => {
-  const now = new Date();
-  const year = now.getFullYear().toString().slice(-2);
-  const prevYear = (now.getFullYear() - 1).toString().slice(-2);
-  const month = now.getMonth() + 1;
+  // Determine the upcoming term based on the academic calendar
+  const getUpcomingTerm = () => {
+    const now = new Date();
+    const year = now.getFullYear().toString().slice(-2);
+    const month = now.getMonth() + 1;
 
-  // Jan - May → Summer
-  if (month >= 1 && month <= 5) {
-    return `${prevYear}3`;
-  }
+    // Jan - May → Summer term
+    if (month >= 1 && month <= 5) {
+      return `${year}3`;
+    }
 
-  // Jun - Aug → Fall
-  if (month >= 6 && month <= 8) {
-    return `${year}1`;
-  }
+    // Jun - Aug → First semester
+    if (month >= 6 && month <= 8) {
+      return `${year}1`;
+    }
 
-  // Sep - Dec → Spring
-  return `${year}2`;
-};
+    // Sep - Dec → Second semester
+    return `${year}2`;
+  };
 
-  // fetch offered courses for the upcoming term
+  // Fetch offered courses for the upcoming term from Sections collection
   useEffect(() => {
     const fetchOfferedCourses = async () => {
       try {
@@ -44,9 +45,15 @@ const getUpcomingTerm = () => {
         const res = await fetch(`${API}/api/sections/unique/${upcomingTerm}`);
         const data = await res.json();
 
-        setAvailableCourses(data);
+        // Convert backend data into the same format used by drag and drop
+        const formattedCourses = data.map(course => ({
+          code: course.courseId,
+          name: course.name,
+        }));
+
+        setAvailableCourses(formattedCourses);
       } catch (error) {
-        console.error("Error fetching offered courses:", error);
+        console.error('Error fetching offered courses:', error);
         setAvailableCourses([]);
       } finally {
         setIsLoading(false);
@@ -56,90 +63,79 @@ const getUpcomingTerm = () => {
     fetchOfferedCourses();
   }, []);
 
-  // fetch previously submitted preferences for the current user
+  // Fetch previously submitted preferences for the logged-in faculty
   useEffect(() => {
     if (!currentTerm) return;
 
-    const fetchPreferences = async () => {
+    const fetchSavedPreferences = async () => {
       try {
         const facultyName = sessionStorage.getItem('UserName');
 
         const res = await fetch(`${API}/api/preferences/term/${currentTerm}`);
         const data = await res.json();
 
-        // filter only this user's preferences
-        const filtered = data.filter(p => p.facultyName === facultyName);
+        // Keep only preferences for the logged-in faculty member
+        const filtered = data.filter(pref => pref.facultyName === facultyName);
 
         setSavedPreferences(filtered);
       } catch (error) {
-        console.error("Error fetching saved preferences:", error);
+        console.error('Error fetching saved preferences:', error);
         setSavedPreferences([]);
       }
     };
 
-    fetchPreferences();
+    fetchSavedPreferences();
   }, [currentTerm]);
 
-  // map saved preferences into ranked courses UI
+  // Load saved preferences into the ranking slots
   useEffect(() => {
     if (!availableCourses.length) return;
 
     const maxSlots = availableCourses.length;
-    const initial = Array(maxSlots).fill(null);
+    const initialSlots = Array(maxSlots).fill(null);
 
     savedPreferences.forEach((pref, index) => {
-      const course = availableCourses.find(c => c.courseId === pref.courseId);
+      const course = availableCourses.find(c => c.code === pref.courseId);
 
       if (course && index < maxSlots) {
-        initial[index] = {
-          code: course.courseId,
-          name: course.name,
-        };
+        initialSlots[index] = course;
       }
     });
 
-    setRankedCourses(initial);
-  }, [savedPreferences, availableCourses]);
-
-
-
-  // State for ranked courses, dragged course, confirmation modal, and error message
-  const [rankedCourses, setRankedCourses] = useState([]);
-  const [draggedCourse, setDraggedCourse] = useState(null);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [error, setError] = useState('');
+    setRankedCourses(initialSlots);
+  }, [availableCourses, savedPreferences]);
 
   // Get selected course codes to avoid duplicates
-  const selectedCodes = rankedCourses.filter(Boolean).map((course) => course.code);
+  const selectedCodes = rankedCourses.filter(Boolean).map(course => course.code);
 
-  // Courses still available on the left side
+  // Courses that are not selected yet stay on the left side
   const leftCourses = availableCourses.filter(
-    (course) => !selectedCodes.includes(course.code)
+    course => !selectedCodes.includes(course.code)
   );
 
-  // Start dragging a course from the left side
+  // Start dragging a course from the available courses list
   const handleDragStartFromLeft = (course) => {
     setDraggedCourse(course);
   };
 
-  // Start dragging a course from the ranked list
+  // Start dragging a course from the ranked preferences list
   const handleDragStartFromRight = (course, fromIndex) => {
     setDraggedCourse({ ...course, fromIndex });
   };
 
-  // Drop course into a selected slot
+  // Drop a course into a preference slot
   const handleDropToSlot = (slotIndex) => {
     if (!draggedCourse) return;
 
-    setRankedCourses((prev) => {
+    setRankedCourses(prev => {
       const updated = [...prev];
 
-      // If dragging from ranked list, remove it from old position first
+      // If the course was dragged from the ranked list, remove it from old slot
       if (draggedCourse.fromIndex !== undefined) {
         updated[draggedCourse.fromIndex] = null;
       }
 
-      // Place the course in the new slot
+      // Place course in the new slot
       updated[slotIndex] = {
         code: draggedCourse.code,
         name: draggedCourse.name,
@@ -152,11 +148,11 @@ const getUpcomingTerm = () => {
     setError('');
   };
 
-  // Drop course back to the left side to remove it from preferences
+  // Drop a course back to the left side to remove it from preferences
   const handleDropBackToLeft = () => {
     if (!draggedCourse || draggedCourse.fromIndex === undefined) return;
 
-    setRankedCourses((prev) => {
+    setRankedCourses(prev => {
       const updated = [...prev];
       updated[draggedCourse.fromIndex] = null;
       return updated;
@@ -165,16 +161,15 @@ const getUpcomingTerm = () => {
     setDraggedCourse(null);
   };
 
-  // Allow drop event
+  // Allow dropping
   const handleDragOver = (e) => {
     e.preventDefault();
   };
 
-  // Validate before opening confirmation modal
+  // Validate before showing confirmation modal
   const handleSubmit = () => {
     const selected = rankedCourses.filter(Boolean);
 
-    // At least one course must be selected
     if (selected.length === 0) {
       setError('Please select at least one course before submitting.');
       return;
@@ -184,12 +179,12 @@ const getUpcomingTerm = () => {
     setShowConfirm(true);
   };
 
-  // save submitted preferences into MongoDB
+  // Save preferences to MongoDB
   const confirmSubmit = async () => {
     const selected = rankedCourses.filter(Boolean);
     const facultyName = sessionStorage.getItem('UserName');
 
-    const formattedPreferences = selected.map((course) => ({
+    const formattedPreferences = selected.map(course => ({
       courseId: course.code,
     }));
 
@@ -219,77 +214,77 @@ const getUpcomingTerm = () => {
       <div className="fp-page">
         <div className="container">
           <h3 className="mt-title">Set preferences</h3>
-          <div className="td-term-badge">Current Term {currentTerm.termNum}</div>
+          <div className="td-term-badge">Upcoming Term {currentTerm}</div>
 
-          <div className="fp-board">
-            {/* Left side: available courses */}
-            <div
-              className="fp-column"
-              onDragOver={handleDragOver}
-              onDrop={handleDropBackToLeft}
-            >
-              <div className="fp-column-title">Courses</div>
+          {isLoading ? (
+            <p>Loading offered courses...</p>
+          ) : (
+            <div className="fp-board">
+              {/* Left side: courses offered in the upcoming term */}
+              <div
+                className="fp-column"
+                onDragOver={handleDragOver}
+                onDrop={handleDropBackToLeft}
+              >
+                <div className="fp-column-title">Courses</div>
 
-              <div className="fp-list">
-                {leftCourses.map((course) => (
-                  <div
-                    key={course.code}
-                    className="fp-course-card"
-                    draggable
-                    onDragStart={() => handleDragStartFromLeft(course)}
-                  >
-                    <div className="fp-dots">⋮⋮</div>
-                    <div>
-                      <span className="fp-course-code">{course.code}</span>{' '}
-                      <span className="fp-course-name">{course.name}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Right side: ranked preferences */}
-            <div className="fp-column">
-              <div className="fp-column-title">Preferences</div>
-
-              <div className="fp-list">
-                {rankedCourses.map((course, index) => (
-                  <div key={index} className="fp-rank-row">
-                    <div className="fp-rank-number">{index + 1}</div>
-
+                <div className="fp-list">
+                  {leftCourses.map(course => (
                     <div
-                      className={`fp-slot ${course ? 'fp-slot-filled' : 'fp-slot-empty'}`}
-                      onDragOver={handleDragOver}
-                      onDrop={() => handleDropToSlot(index)}
+                      key={course.code}
+                      className="fp-course-card"
+                      draggable
+                      onDragStart={() => handleDragStartFromLeft(course)}
                     >
-                      {course ? (
-                        <div
-                          className="fp-selected-card"
-                          draggable
-                          onDragStart={() => handleDragStartFromRight(course, index)}
-                        >
-                          <div className="fp-rank-badge">{index + 1}</div>
-                          <div>
-                            <span className="fp-course-code">{course.code}</span>{' '}
-                            <span className="fp-course-name">{course.name}</span>
-                          </div>
-                        </div>
-                      ) : null}
+                      <div className="fp-dots">⋮⋮</div>
+                      <div>
+                        <span className="fp-course-code">{course.code}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
+
+              {/* Right side: ranked preferences */}
+              <div className="fp-column">
+                <div className="fp-column-title">Preferences</div>
+
+                <div className="fp-list">
+                  {rankedCourses.map((course, index) => (
+                    <div key={index} className="fp-rank-row">
+                      <div className="fp-rank-number">{index + 1}</div>
+
+                      <div
+                        className={`fp-slot ${course ? 'fp-slot-filled' : 'fp-slot-empty'}`}
+                        onDragOver={handleDragOver}
+                        onDrop={() => handleDropToSlot(index)}
+                      >
+                        {course && (
+                          <div
+                            className="fp-selected-card"
+                            draggable
+                            onDragStart={() => handleDragStartFromRight(course, index)}
+                          >
+                            <div className="fp-rank-badge">{index + 1}</div>
+                            <div>
+                              <span className="fp-course-code">{course.code}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Submit button */}
           <div className="fp-actions">
             <button className="an-btn-submit" onClick={handleSubmit}>
               Submit
             </button>
           </div>
 
-          {/* Validation message */}
           {error && (
             <p style={{ color: 'red', marginTop: '10px', textAlign: 'left' }}>
               {error}
@@ -298,7 +293,6 @@ const getUpcomingTerm = () => {
         </div>
       </div>
 
-      {/* Confirmation modal */}
       {showConfirm && (
         <ConfirmModal
           message="Are you sure you want to submit your preferences?"
