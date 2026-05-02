@@ -73,6 +73,30 @@ useEffect(() => {
   const currentCourses = offeredCourses.slice(startIndex, endIndex);
   const totalPages = Math.ceil(offeredCourses.length / coursesPerPage) || 1;
 
+  const getPageNumbers = () => {
+    const pages = [];
+    const delta = 1;
+    const left = currentPage - delta;
+    const right = currentPage + delta;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= left && i <= right)) pages.push(i);
+    }
+    const withEllipsis = [];
+    let prev = null;
+    for (const page of pages) {
+      if (prev && page - prev > 1) withEllipsis.push('...');
+      withEllipsis.push(page);
+      prev = page;
+    }
+    return withEllipsis;
+  };
+
+  // Reusable section select
+  const SectionSelect = ({ value, courseCode, field }) => (
+    <select className="an-select" value={value} onChange={e => updateSection(courseCode, field, e.target.value)}>
+      {[...Array(30)].map((_, i) => <option key={i} value={i}>{i}</option>)}
+    </select>
+  );
 
   // Open the popup with full course details
   const openCourseDetails = (course) => {
@@ -145,18 +169,16 @@ useEffect(() => {
         </tbody>
         </table>
 
-        {/* Page numbering */}
-        {offeredCourses.length > 0 && (
+        {/* Smart pagination — 1 ... 4 5 6 ... */}
+        {totalPages > 1 && (
           <div className="pageNumbers">
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button
-                key={index + 1}
-                className={currentPage === index + 1 ? 'active' : ''}
-                onClick={() => setCurrentPage(index + 1)}
-              >
-                {index + 1}
-              </button>
-            ))}
+            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹</button>
+            {getPageNumbers().map((page, i) =>
+              page === '...'
+                ? <span key={`ellipsis-${i}`} style={{ margin: '0 4px' }}>...</span>
+                : <button key={page} className={currentPage === page ? 'active' : ''} onClick={() => setCurrentPage(page)}>{page}</button>
+            )}
+            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>›</button>
           </div>
         )}
       </div>
