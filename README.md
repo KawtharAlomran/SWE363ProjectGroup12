@@ -201,7 +201,31 @@ http://localhost:5173
 
 
 
+### API request example
 
+POST "http://localhost:5174/api/sections"
+headers: Content-Type: application/json
+body: {
+  "termId": "241",
+  "courses": [
+    {
+      "code": "ICS 321",
+      "hasLab": true,
+      "maleLec": 2,
+      "maleLab": 2,
+      "femaleLec": 1,
+      "femaleLab": 1
+    },
+    {
+      "code": "SWE 363",
+      "hasLab": false,
+      "maleLec": 3,
+      "maleLab": 0,
+      "femaleLec": 2,
+      "femaleLab": 0
+    }
+  ]
+}
 
 
 ---
