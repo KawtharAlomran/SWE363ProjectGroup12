@@ -13,7 +13,7 @@ export const getTeachingLoadByTerm = async (req, res) => {
     ]);
 
     const loadData = facultyList.map(member => {
-      // Find assignments where instructorName matches Faculty name
+      // find assignments where instructorName matches Faculty name
       const instructorAsm = assignments.filter(a => a.instructorName === member.name);
       const courseMap = {};
       let totalHours = 0;

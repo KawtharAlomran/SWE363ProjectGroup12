@@ -118,7 +118,7 @@ export const submitPreferences = async (req, res) => {
       termId,
       facultyName,
       courseId: pref.courseId,
-      order: index + 1,
+      order: pref.order ?? index + 1,
     }));
 
     await Preferences.insertMany(docs);
