@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import ConfirmModal from '../../shared/ConfirmModal';
 import { useLocation } from 'react-router-dom';
 
-const API = 'http://localhost:5174';
+const API = '';
 
 function SetPreferences() {
   const location = useLocation();

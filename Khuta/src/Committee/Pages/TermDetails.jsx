@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import ConfirmModal from '../../shared/ConfirmModal';
 
-const API = 'http://localhost:5174';
+const API = '';
 
 export default function TermDetails({ term, onBack, onDelete, canEdit }) {
   const [showConfirm, setShowConfirm] = useState(false);

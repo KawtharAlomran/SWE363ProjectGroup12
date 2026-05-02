@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import ConfirmModal from '../../shared/ConfirmModal';
 
-const API = 'http://localhost:5174';
+const API = '';
 
 export default function AddNewTerm({ onBack, onSubmit }) {
   const [showConfirm, setShowConfirm] = useState(false);

@@ -168,42 +168,42 @@ http://localhost:5173
 
 | API endpoint                                | method  |
 |---------------------------------------------|-----------|
-| http://localhost:5174/api/courses                                  | GET    |
-| http://localhost:5174/api/faculty?role                             |  GET  | 
-| http://localhost:5174/api/faculty/:email                           |  GET  | 
-| http://localhost:5174/api/faculty                                  |  POST  | 
-| http://localhost:5174/api/faculty/:email                           |  DELETE  | 
-| http://localhost:5174/api/faculty/:email                           |  PATCH  | 
-| http://localhost:5174/api/assignments/:term/:facultyName          | GET    |
-| http://localhost:5174/api/terms/check/:term          | GET    |
-| http://localhost:5174/api/plans/:term          | GET    |
-| http://localhost:5174/api/sections          | POST    |
-| http://localhost:5174/api/terms          | GET    |
-| http://localhost:5174/api/preferences/term/:term/instructor          | GET    |
-| http://localhost:5174/api/preferences/term/:term/course            | GET    |
-| http://localhost:5174/api/sections/:term          | GET    |
-| http://localhost:5174/api/assignments/:term/sections          | GET    |
-| http://localhost:5174/api/assignments/:term          | GET    |
-| http://localhost:5174/api/assignments          | POST    |
-| http://localhost:5174/api/preferences/manual         | POST    |
-| http://localhost:5174/api/courses/:code        | DELETE    |
-| http://localhost:5174/api/courses        | POST    |
-| http://localhost:5174/api/sections/:term          | DELETE    |
-| http://localhost:5174/api/assignments/:term          | DELETE    |
-| http://localhost:5174/api/preferences/term/:term         | DELETE    |
-| http://localhost:5174/api/terms/:term          | DELETE    |
-| http://localhost:5174/api/sections/:term          | PUT    |
-| http://localhost:5174/api/sections/unique/:term          | GET    |
-| http://localhost:5174/api/assignments/load/:term          | GET    |
-| http://localhost:5174/api/preferences/term/:term         | GET    |
-| http://localhost:5174/api/preferences         | POST    |
-| http://localhost:5174/api/assignments/:termId/:facultyName          | GET    |
+| /api/courses                                  | GET    |
+| /api/faculty?role                             |  GET  | 
+| /api/faculty/:email                           |  GET  | 
+| /api/faculty                                  |  POST  | 
+| /api/faculty/:email                           |  DELETE  | 
+| /api/faculty/:email                           |  PATCH  | 
+| /api/assignments/:term/:facultyName          | GET    |
+| /api/terms/check/:term          | GET    |
+| /api/plans/:term          | GET    |
+| /api/sections          | POST    |
+| /api/terms          | GET    |
+| /api/preferences/term/:term/instructor          | GET    |
+| /api/preferences/term/:term/course            | GET    |
+| /api/sections/:term          | GET    |
+| /api/assignments/:term/sections          | GET    |
+| /api/assignments/:term          | GET    |
+| /api/assignments          | POST    |
+| /api/preferences/manual         | POST    |
+| /api/courses/:code        | DELETE    |
+| /api/courses        | POST    |
+| /api/sections/:term          | DELETE    |
+| /api/assignments/:term          | DELETE    |
+| /api/preferences/term/:term         | DELETE    |
+| /api/terms/:term          | DELETE    |
+| /api/sections/:term          | PUT    |
+| /api/sections/unique/:term          | GET    |
+| /api/assignments/load/:term          | GET    |
+| /api/preferences/term/:term         | GET    |
+| /api/preferences         | POST    |
+| /api/assignments/:termId/:facultyName          | GET    |
 
 
 
 ### API request example
 
-POST "http://localhost:5174/api/sections"
+POST "/api/sections"
 headers: Content-Type: application/json
 body: {
   "termId": "241",

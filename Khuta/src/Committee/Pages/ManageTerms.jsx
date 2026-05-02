@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import AddNewTerm from './AddNewTerm';
 import TermDetails from './TermDetails';
 
-const API = 'http://localhost:5174';
+const API = '';
 
 export default function ManageTerms() {
   const TERMS_PER_PAGE = 5;

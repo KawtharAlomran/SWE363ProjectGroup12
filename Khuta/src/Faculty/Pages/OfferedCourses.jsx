@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 // API base URL for backend requests
-const API = 'http://localhost:5174';
+const API = '';
 
 function OfferedCourses() {
   // State for courses and terms fetched from the backend

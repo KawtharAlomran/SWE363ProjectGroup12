@@ -25,7 +25,7 @@ export default function Load() {
   useEffect(() => {
     const fetchTerms = async () => {
       try {
-        const res = await fetch("http://localhost:5174/api/terms");
+        const res = await fetch("/api/terms");
         const data = await res.json();
         setTerms(data);
         if (data && data.length > 0) {
@@ -46,7 +46,7 @@ export default function Load() {
     const fetchLoad = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`http://localhost:5174/api/assignments/load/${selectedTerm}`);
+        const res = await fetch(`/api/assignments/load/${selectedTerm}`);
         const data = await res.json();
         setTeachingLoad(data);
         setCurrentPage(1); // Reset to first page on term change

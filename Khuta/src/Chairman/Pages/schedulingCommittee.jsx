@@ -20,7 +20,7 @@ export default function SchedulingCommittee() {
   const fetchCommittee = async () => {
     try {
       // Using the role=committee query parameter
-      const response = await fetch("http://localhost:5174/api/faculty?role=committee");
+      const response = await fetch("/api/faculty?role=committee");
       if (!response.ok) throw new Error("Failed to fetch committee");
       const data = await response.json();
       setcommittee(data);
@@ -44,7 +44,7 @@ export default function SchedulingCommittee() {
 
     try {
       // We send a PATCH to update the role of the existing faculty member
-      const response = await fetch(`http://localhost:5174/api/faculty/${newEmail.toLowerCase()}`, {
+      const response = await fetch(`/api/faculty/${newEmail.toLowerCase()}`, {
         method: "PATCH", 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role: "committee" }),
@@ -68,7 +68,7 @@ export default function SchedulingCommittee() {
   const handleDelete = async (email) => {
     try {
       // change the role to faculty
-      const response = await fetch(`http://localhost:5174/api/faculty/${email}`, {
+      const response = await fetch(`/api/faculty/${email}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role: "faculty" }),

@@ -5,7 +5,7 @@ import ByInstructor from './ByInstructor';
 import ByCourse from './ByCourse';
 import ConfirmModal from '../../shared/ConfirmModal';
 
-const API = 'http://localhost:5174';
+const API = '';
 
 // Max teaching hours per faculty rank — same as backend
 const facultyHours = {

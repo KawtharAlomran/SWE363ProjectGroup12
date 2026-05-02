@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // API base URL for backend requests
-const API = 'http://localhost:5174';
+const API = '';
 
 function PreviousPreferences() {
   const navigate = useNavigate();

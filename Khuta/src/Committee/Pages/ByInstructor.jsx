@@ -44,7 +44,7 @@ export default function ByInstructor({ facultyList, prefByInstructor, sectionNum
 
     // Save to Preferences collection with order 0
     try {
-      await fetch('http://localhost:5174/api/preferences/manual', {
+      await fetch('/api/preferences/manual', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ termId, facultyName: instructorName, courseId }),

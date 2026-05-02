@@ -14,7 +14,7 @@ export default function Login() {
     setError("");
 
     try {
-      const response = await fetch(`http://localhost:5174/api/faculty/${user}`);
+      const response = await fetch(`/api/faculty/${user}`);
       
       if (!response.ok) {
         throw new Error("Invalid username or password. Please try again.");

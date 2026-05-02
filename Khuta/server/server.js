@@ -1,9 +1,10 @@
-dotenv.config();
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
 import { connectDB } from "./db.js";
 import { Faculty } from "./models/Faculty.js";
 import { Course } from "./models/Course.js";
@@ -19,12 +20,17 @@ import preferenceRoutes from "./routes/preferenceRoutes.js";
 import teachingLoadRoutes from "./routes/loadRoute.js";
 import assignmentRoutes from "./routes/assignmentRoutes.js";
 
+dotenv.config();
+
+// Required for __dirname in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const corsOptions = {
   origin: process.env.Client_URL || 'http://localhost:5173',
   methods: 'GET,POST,PATCH,DELETE,PUT',
-  credentials: true, 
+  credentials: true,
 };
-
 
 const app = express();
 const PORT = process.env.PORT || 5174;
@@ -126,5 +132,12 @@ app.patch("/api/faculty/:email", async (req, res) => {
   }
 });
 
+// Serve frontend build files
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// Handle all non-API routes — send to React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist', 'index.html'));
+});
 
 app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));

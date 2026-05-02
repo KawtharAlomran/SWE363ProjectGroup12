@@ -21,7 +21,7 @@ export default function IcsFaculty() {
   // --- fetch Faculty from Server ---
   const fetchFaculty = async () => {
     try {
-      const response = await fetch("http://localhost:5174/api/faculty");
+      const response = await fetch("/api/faculty");
       if (!response.ok) throw new Error("Failed to fetch data");
       const data = await response.json();
       setfaculty(data);
@@ -50,7 +50,7 @@ export default function IcsFaculty() {
     }
 
     try {
-      const response = await fetch("http://localhost:5174/api/faculty", {
+      const response = await fetch("/api/faculty", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newName, email: newEmail,role:"faculty", rank: newLevel, pass: "1" }),
@@ -75,7 +75,7 @@ export default function IcsFaculty() {
   // --- hndle Deleting via API ---
   const handleDelete = async (email) => {
     try {
-      const response = await fetch(`http://localhost:5174/api/faculty/${email}`, {
+      const response = await fetch(`/api/faculty/${email}`, {
         method: "DELETE",
       });
 

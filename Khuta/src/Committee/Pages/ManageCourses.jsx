@@ -19,7 +19,7 @@ export default function ManageCourses() {
   // Loading state to inform the user of the state of the website 
   const [loadingCourses, setLoadingCourses] = useState(true);
 
-  const API_URL = "http://localhost:5174/api/courses";
+  const API_URL = "/api/courses";
   
   // fetch courses when component loads (runs once)
   useEffect(() => {

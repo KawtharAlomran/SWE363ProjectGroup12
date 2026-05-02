@@ -16,7 +16,7 @@
  */
 import { useState } from "react";
 
-const API = 'http://localhost:5174';
+const API = '';
 
 export default function ByCourse({ termCourses, prefByCourse, sectionNumbers, existingAssignments, newAssignments, coursesWithNoPreference, facultyList, termId, onAdd, onRemove, onRemoveExisting }) {
 

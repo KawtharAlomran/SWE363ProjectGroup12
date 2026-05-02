@@ -13,7 +13,7 @@ export default function ChairmanHomePage() {
   useEffect(() => {
     const fetchTerms = async () => {
       try {
-        const res = await fetch("http://localhost:5174/api/terms");
+        const res = await fetch("/api/terms");
         const data = await res.json();
         setTerms(data);
         
@@ -34,7 +34,7 @@ export default function ChairmanHomePage() {
     const fetchOfferedCourses = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`http://localhost:5174/api/sections/unique/${selectedTerm}`);
+        const res = await fetch(`/api/sections/unique/${selectedTerm}`);
         const data = await res.json();
         
         setOfferedCourses(data); 
