@@ -184,23 +184,34 @@ const getUpcomingTerm = () => {
     setShowConfirm(true);
   };
 
-  // Save submitted preferences into data file
-  const confirmSubmit = () => {
+  // save submitted preferences into MongoDB
+  const confirmSubmit = async () => {
     const selected = rankedCourses.filter(Boolean);
+    const facultyName = sessionStorage.getItem('UserName');
 
-    const formattedPreferences = selected.map((course, index) => ({
-      rank: index + 1,
-      code: course.code,
-      name: course.name,
+    const formattedPreferences = selected.map((course) => ({
+      courseId: course.code,
     }));
 
-    const updatedPreferences = {
-      ...submittedPreferences,
-      [currentTerm.termNum]: formattedPreferences,
-    };
+    try {
+      const res = await fetch(`${API}/api/preferences`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          termId: currentTerm,
+          facultyName,
+          preferences: formattedPreferences,
+        }),
+      });
 
-    setFacultySubmittedPreferences(updatedPreferences);
-    setShowConfirm(false);
+      if (!res.ok) throw new Error('Failed to submit preferences');
+
+      setShowConfirm(false);
+    } catch (error) {
+      console.error('Error submitting preferences:', error);
+      setError('Failed to submit preferences. Please try again.');
+      setShowConfirm(false);
+    }
   };
 
   return (
