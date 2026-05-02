@@ -1,26 +1,62 @@
-import { useState } from 'react';
-import { getAllIcsCourses, getAllOfferedCourses } from '../../data';
+import { useEffect, useState } from 'react';
+
+// API base URL for backend requests
+const API = 'http://localhost:5174';
 
 function OfferedCourses() {
-  // Get all courses and offered terms from the data file
-  const courses = getAllIcsCourses();
-  const terms = getAllOfferedCourses();
+  // State for courses and terms fetched from the backend
+  const [courses, setCourses] = useState([]);
+  const [terms, setTerms] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  // State for course codes offered in the selected term
+  const [offeredCourseCodes, setOfferedCourseCodes] = useState([]);
 
   // State for selected term, current page, and selected course details
-  const [selectedTerm, setSelectedTerm] = useState(terms[0].termNum);
+  const [selectedTerm, setSelectedTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCourse, setSelectedCourse] = useState(null);
+
+  // fetch courses and terms from backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+
+        // get all courses
+        const coursesRes = await fetch(`${API}/api/courses`);
+        const coursesData = await coursesRes.json();
+
+        // get all terms
+        const termsRes = await fetch(`${API}/api/terms`);
+        const termsData = await termsRes.json();
+
+        setCourses(coursesData);
+        setTerms(termsData);
+
+        // set default term after loading
+        if (termsData.length > 0) {
+          setSelectedTerm(termsData[0].termId);
+        }
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
 
   // Number of courses shown per page
   const coursesPerPage = 5;
 
   // Find the currently selected term
-  const currentTerm = terms.find(term => term.termNum === selectedTerm);
+  const currentTerm = terms.find(term => term.termId === selectedTerm);
 
-  // Filter only the courses offered in the selected term
-  const offeredCourses = courses.filter(course =>
-    currentTerm.courses.includes(course.code)
-  );
+  // temporary variable to hold courses for the current term (since all courses are fetched at once)
+  const offeredCourses = courses;
 
   // Pagination logic
   const startIndex = (currentPage - 1) * coursesPerPage;
@@ -114,8 +150,8 @@ function OfferedCourses() {
             }}
           >
             {terms.map(term => (
-              <option key={term.termNum} value={term.termNum}>
-                {term.termNum}
+              <option key={term.termId} value={term.termId}>
+                {term.termId}
               </option>
             ))}
           </select>
