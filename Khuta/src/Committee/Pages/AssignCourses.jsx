@@ -16,6 +16,16 @@ const facultyHours = {
   "Lecturer": 12
 };
 
+// Same logic as ManageTerms — only current year and last year semester 3 are editable
+const currentYearPrefix = String(new Date().getFullYear()).slice(-2);
+const lastYearPrefix = String(new Date().getFullYear() - 1).slice(-2);
+
+const canEdit = (termId) => {
+  const prefix = termId.slice(0, 2);
+  const semester = termId.slice(2);
+  return prefix === currentYearPrefix || (prefix === lastYearPrefix && semester === '3');
+};
+
 export default function AssignCourses() {
   const navigate = useNavigate();
   const [viewType, setViewType] = useState('instructor');
@@ -50,10 +60,14 @@ export default function AssignCourses() {
           facultyRes.json(),
           coursesRes.json(),
         ]);
-        setTerms(termsData);
+
+        // Only show editable terms (same logic as ManageTerms)
+        const editableTerms = termsData.filter(t => canEdit(t.termId));
+
+        setTerms(editableTerms);
         setFacultyList(facultyData);
         setCoursesList(Array.isArray(coursesData) ? coursesData : coursesData.courses ?? []);
-        if (termsData.length > 0) setSelectedTermId(termsData[0].termId);
+        if (editableTerms.length > 0) setSelectedTermId(editableTerms[0].termId);
       } catch (err) {
         console.error("Error fetching initial data:", err);
       } finally {
@@ -98,7 +112,6 @@ export default function AssignCourses() {
     fetchData();
   }, [selectedTermId]);
 
-  // Calculate hours for an instructor from a list of assignments
   const calcHours = (assignments, instructorName) => {
     let total = 0;
     assignments
@@ -110,27 +123,19 @@ export default function AssignCourses() {
     return total;
   };
 
-  // Warnings — only when NEW assignments cause an instructor to exceed max
-  // Existing assignments are the baseline, we warn only when newAssignments push them over
   const loadWarnings = useMemo(() => {
     if (newAssignments.length === 0) return [];
     const warnings = [];
-
     facultyList.forEach(member => {
       const maxHours = facultyHours[member.rank] ?? 12;
       const existingHours = calcHours(existingAssignments, member.name);
       const totalHours = existingHours + calcHours(newAssignments, member.name);
-
-      // Only warn if new assignments pushed them over (not already over from before)
       if (totalHours > maxHours && existingHours <= maxHours) {
         warnings.push({ name: member.name, teachingHours: totalHours, maxHours });
-      }
-      // Also warn if already over AND new assignments added more
-      else if (existingHours > maxHours && calcHours(newAssignments, member.name) > 0) {
+      } else if (existingHours > maxHours && calcHours(newAssignments, member.name) > 0) {
         warnings.push({ name: member.name, teachingHours: totalHours, maxHours });
       }
     });
-
     return warnings;
   }, [existingAssignments, newAssignments, facultyList, coursesList]);
 
@@ -201,6 +206,14 @@ export default function AssignCourses() {
   );
 
   if (loadingTerms) return <div className="container">Loading terms...</div>;
+
+  // No editable terms available
+  if (terms.length === 0) return (
+    <div className="container">
+      <h3 className="header h2">Assign Courses</h3>
+      <p style={{ color: '#888', marginTop: 24 }}>No terms available for assignment at this time.</p>
+    </div>
+  );
 
   return (
     <>
