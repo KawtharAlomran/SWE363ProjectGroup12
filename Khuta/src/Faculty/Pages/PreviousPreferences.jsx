@@ -127,10 +127,11 @@ function PreviousPreferences() {
             setCurrentPage(1);
           }}
         >
-          <option value="261">261</option>
-          <option value="252">252</option>
-          <option value="251">251</option>
-          <option value="242">242</option>
+          {terms.map(term => (
+            <option key={term.termId} value={term.termId}>
+              {term.termId}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -144,15 +145,21 @@ function PreviousPreferences() {
         </thead>
         <tbody>
           {/* Show preferences if available */}
-          {preferences.length > 0 ? (
-            currentPreferences.map((course) => (
-              <tr key={course.rank + course.code}>
-                <td>{course.rank}</td>
-                <td className="an-course-name">{course.code}</td>
-                <td>{course.name}</td>
+          {isLoading ? (
+              <tr>
+                <td colSpan="3" className="textCenter">
+                  Loading preferences...
+                </td>
               </tr>
-            ))
-          ) : (
+            ) : preferences.length > 0 ? (
+              currentPreferences.map((course) => (
+                <tr key={course._id || course.courseId + course.order}>
+                  <td>{course.order}</td>
+                  <td className="an-course-name">{course.courseId}</td>
+                  <td>{course.courseId}</td>
+                </tr>
+              ))
+            ) : (
             // Show message if no preferences exist
             <tr>
               <td colSpan="3" className="textCenter">
