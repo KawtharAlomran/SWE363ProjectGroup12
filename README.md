@@ -178,6 +178,9 @@ http://localhost:5173
 | http://localhost:5174/api/assignments/:term/sections          | GET    |
 | http://localhost:5174/api/assignments/:term          | GET    |
 | http://localhost:5174/api/assignments          | POST    |
+| http://localhost:5174/api/preferences/manual         | POST    |
+| http://localhost:5174/api/courses/:code        | DELETE    |
+| http://localhost:5174/api/courses        | POST    |
 
 
 
