@@ -5,7 +5,12 @@ const termSchema = new mongoose.Schema({
     type: String,
     required: [true, "Term ID is required"],
     unique: true
-  }
-}, { collection: 'Terms' });
+  },
+  
+  assigned: {
+      type: Boolean,
+      default: false
+    }
+  }, { collection: 'Terms' });
  
 export const Term = mongoose.model("Term", termSchema);

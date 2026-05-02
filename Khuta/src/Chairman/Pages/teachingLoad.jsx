@@ -5,6 +5,7 @@ const facultyHours = {
   "Professor": 6,
   "Associate Professor": 9,
   "Assistant Professor": 9,
+  "Chair Professor":9,
   "Instructor": 12,
   "Senior Lecturer": 12,
   "Lecturer": 12
