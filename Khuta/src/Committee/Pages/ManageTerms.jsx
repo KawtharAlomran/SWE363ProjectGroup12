@@ -12,7 +12,7 @@ export default function ManageTerms() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTerm, setSelectedTerm] = useState(null);
 
-  // Loading state to inform the user of the state of the website 
+  // Loading state to inform the user of the state of the website
   const [loadingTerms, setLoadingTerms] = useState(true);
 
   // Get current year's 2-digit prefix e.g. 2026 → "26"
@@ -20,27 +20,24 @@ export default function ManageTerms() {
   // Last year's 2-digit prefix e.g. 2025 → "25"
   const lastYearPrefix = String(new Date().getFullYear() - 1).slice(-2);
 
-  // A term is editable if:
-  // - it belongs to last year AND is semester 3 
+  // A term is editable if it belongs to current year, future, or last year semester 3
   const canEdit = (termId) => {
-  const prefix = termId.slice(0, 2);
-  const semester = termId.slice(2);
-  return (
-    Number(prefix) >= Number(currentYearPrefix) || // current year and future
-    (prefix === lastYearPrefix && semester === '3')  // last year semester 3
-  );
-};
+    const prefix = termId.slice(0, 2);
+    const semester = termId.slice(2);
+    return (
+      Number(prefix) >= Number(currentYearPrefix) ||
+      (prefix === lastYearPrefix && semester === '3')
+    );
+  };
 
   const fetchTerms = async () => {
     try {
       const res = await fetch(`${API}/api/terms`);
       const data = await res.json();
       setTerms(data);
-      // Stop loading
       setLoadingTerms(false);
     } catch (err) {
       console.error("Error fetching terms:", err);
-      // Stop loading
       setLoadingTerms(false);
     }
   };
@@ -58,8 +55,6 @@ export default function ManageTerms() {
       <AddNewTerm
         onBack={() => setShowAddNew(false)}
         onSubmit={async () => {
-          // Term is already saved inside AddNewTerm via /api/sections
-          // Just refresh the list and go back
           await fetchTerms();
           setShowAddNew(false);
         }}
@@ -75,14 +70,12 @@ export default function ManageTerms() {
         onBack={() => setSelectedTerm(null)}
         onDelete={async (termId) => {
           try {
-            // Delete all sections for this term
-            await fetch(`${API}/api/sections/${selectedTerm.termId}`, {
-              method: 'DELETE'
-            });
-            // Delete all assignment for this term
-            await fetch(`${API}/api/assignments/${selectedTerm.termId}`, {
-              method: 'DELETE'
-            });
+            // Delete all related data for this term in parallel
+            await Promise.all([
+              fetch(`${API}/api/sections/${selectedTerm.termId}`, { method: 'DELETE' }),
+              fetch(`${API}/api/assignments/${selectedTerm.termId}`, { method: 'DELETE' }),
+              fetch(`${API}/api/preferences/term/${selectedTerm.termId}`, { method: 'DELETE' }),
+            ]);
             // Delete term from the database then refresh the list
             await fetch(`${API}/api/terms/${termId}`, { method: 'DELETE' });
             await fetchTerms();
@@ -94,7 +87,7 @@ export default function ManageTerms() {
       />
     );
   }
-  // Show loading message while fetching terms
+
   if (loadingTerms) {
     return <div className="container">Loading terms...</div>;
   }
@@ -120,7 +113,6 @@ export default function ManageTerms() {
           ))}
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="pageNumbers">
             {Array.from({ length: totalPages }, (_, i) => (
