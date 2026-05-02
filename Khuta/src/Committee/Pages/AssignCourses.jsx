@@ -7,10 +7,10 @@ import ConfirmModal from '../../shared/ConfirmModal';
 const API = 'http://localhost:5174';
 
 const facultyHours = {
-  "Professor": 6,
+  "Professor": 9,
   "Associate Professor": 9,
-  "Assistant Professor": 9,
-  "Chair Professor": 9,
+  "Assistant Professor": 12,
+  "Chair Professor": 12,
   "Instructor": 12,
   "Senior Lecturer": 12,
   "Lecturer": 12
