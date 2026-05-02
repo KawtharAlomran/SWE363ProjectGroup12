@@ -11,6 +11,51 @@ const [availableCourses, setAvailableCourses] = useState([]);
 const [savedPreferences, setSavedPreferences] = useState([]);
 const [isLoading, setIsLoading] = useState(true);
 
+// determine upcoming term based on the academic calendar
+const getUpcomingTerm = () => {
+  const now = new Date();
+  const year = now.getFullYear().toString().slice(-2);
+  const prevYear = (now.getFullYear() - 1).toString().slice(-2);
+  const month = now.getMonth() + 1;
+
+  // Jan - May → Summer
+  if (month >= 1 && month <= 5) {
+    return `${prevYear}3`;
+  }
+
+  // Jun - Aug → Fall
+  if (month >= 6 && month <= 8) {
+    return `${year}1`;
+  }
+
+  // Sep - Dec → Spring
+  return `${year}2`;
+};
+
+// fetch offered courses for the upcoming term
+useEffect(() => {
+  const fetchOfferedCourses = async () => {
+    try {
+      setIsLoading(true);
+
+      const upcomingTerm = getUpcomingTerm();
+      setCurrentTerm(upcomingTerm);
+
+      const res = await fetch(`${API}/api/sections/unique/${upcomingTerm}`);
+      const data = await res.json();
+
+      setAvailableCourses(data);
+    } catch (error) {
+      console.error("Error fetching offered courses:", error);
+      setAvailableCourses([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchOfferedCourses();
+}, []);
+
 
   // Number of preference slots
   const maxSlots = availableCourses.length;
