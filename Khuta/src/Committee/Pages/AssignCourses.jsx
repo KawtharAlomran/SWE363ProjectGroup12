@@ -1,32 +1,3 @@
-/**
- * AssignCourses.jsx
- *
- * DATA SOURCES:
- * - Faculty list:            /api/faculty                              — all instructors (rows in By Instructor view)
- * - Term courses:            /api/sections/:termId                     — courses offered this term (rows in By Course view)
- * - Preferences by inst:    /api/preferences/term/:termId/instructor   — preference cards in By Instructor view
- * - Preferences by course:  /api/preferences/term/:termId/course       — preference cards in By Course view
- * - Section numbers:        /api/assignments/:termId/sections          — generated section numbers (01,02... F01,F02...)
- * - Existing assignments:   /api/assignments/:termId                   — pre-check previously assigned instructors
- *
- * KEY LOGIC:
- * - existingAssignments: loaded from DB on mount, used to pre-check instructors and show existing sections
- * - newAssignments: added/removed in current session, used to filter dropdown options
- * - On Save: merges existing + new → saves to DB, resets newAssignments
- * - On Submit: closes modal first, then saves and navigates away
- *
- * RED HIGHLIGHT:
- * - Instructor: red if no preferences AND no existing assignments for this term
- * - Course: red if no instructor selected it in preferences
- *
- * TEACHING LOAD WARNING:
- * - Computed locally with useMemo — updates instantly when assignments change
- * - Only shows when new assignments push an instructor over their max hours
- *
- * EDITABLE TERMS:
- * - Current year terms (e.g. 26X) and future years
- * - Last year semester 3 (e.g. 253)
- */
 
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
