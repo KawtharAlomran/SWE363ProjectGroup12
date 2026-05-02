@@ -17,11 +17,17 @@ import preferenceRoutes from "./routes/preferenceRoutes.js";
 import teachingLoadRoutes from "./routes/loadRoute.js";
 import assignmentRoutes from "./routes/assignmentRoutes.js";
 
+const corsOptions = {
+  origin: 'http://localhost:5173',
+  methods: 'GET,POST,PATCH,DELETE,PUT',
+  credentials: true, 
+};
+
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5174;
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use("/api/courses", courseRoutes);
 app.use("/api/terms", termRoutes);
