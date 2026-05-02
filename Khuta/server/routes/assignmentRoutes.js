@@ -8,6 +8,7 @@ import {
   saveAssignments,
   getRecommendations,
   getTeachingLoad,
+  deleteAssignmentsByTerm,
 } from "../controllers/termAssignmentController.js";
 
 const router = express.Router();
@@ -23,5 +24,6 @@ router.get("/:termId/sections", getSectionNumbers);
 router.get("/:termId/recommendations", getRecommendations);
 router.get("/:termId/load", getTeachingLoad);
 router.post("/", saveAssignments);
+router.delete("/:termId", deleteAssignmentsByTerm);
 
 export default router;

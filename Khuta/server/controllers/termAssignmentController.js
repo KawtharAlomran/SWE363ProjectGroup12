@@ -145,6 +145,24 @@ export const saveAssignments = async (req, res) => {
   }
 };
 
+// DELETE — delete all assignments for a specific term
+export const deleteAssignmentsByTerm = async (req, res) => {
+  try {
+    const { termId } = req.params;
+
+    await Assignment.deleteMany({ term: termId });
+
+    res.status(200).json({
+      message: `All assignments for term ${termId} deleted successfully`
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to delete assignments",
+      error: error.message
+    });
+  }
+};
+
 // GET — generate recommendations for assigning instructors to courses
 // Logic:
 // 1. Courses with only one interested instructor → assign automatically

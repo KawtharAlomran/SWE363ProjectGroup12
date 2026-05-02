@@ -79,6 +79,10 @@ export default function ManageTerms() {
             await fetch(`${API}/api/sections/${selectedTerm.termId}`, {
               method: 'DELETE'
             });
+            // Delete all assignment for this term
+            await fetch(`${API}/api/assignments/${selectedTerm.termId}`, {
+              method: 'DELETE'
+            });
             // Delete term from the database then refresh the list
             await fetch(`${API}/api/terms/${termId}`, { method: 'DELETE' });
             await fetchTerms();
