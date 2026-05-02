@@ -67,10 +67,6 @@ useEffect(() => {
   const coursesPerPage = 5;
 
 
-  const offeredCourses = courses.filter(course =>
-  offeredCourseCodes.includes(course.code)
-  );
-
   // Pagination logic
   const startIndex = (currentPage - 1) * coursesPerPage;
   const endIndex = startIndex + coursesPerPage;
@@ -131,11 +127,11 @@ useEffect(() => {
           ) : currentCourses.length > 0 ? (
             currentCourses.map(course => (
               <tr
-                key={course.code}
+                key={course._id || course.courseId}
                 onClick={() => openCourseDetails(course)}
                 style={{ cursor: 'pointer' }}
               >
-                <td className="an-course-name">{course.code}</td>
+                <td className="an-course-name">{course.courseId}</td>
                 <td>{course.name}</td>
               </tr>
             ))
